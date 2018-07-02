@@ -51,6 +51,7 @@ normative:
   RFC7925: 
 informative:
   RFC8240:
+  RFC6024: 
   RFC5649:
   I-D.ietf-suit-information-model: 
   LwM2M:
