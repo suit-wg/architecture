@@ -1,7 +1,7 @@
 ---
 title: A Firmware Update Architecture for Internet of Things Devices
 abbrev: IoT Firmware Update Architecture
-docname: draft-ietf-suit-architecture-01
+docname: draft-ietf-suit-architecture-02
 category: info
 
 ipr: pre5378Trust200902
@@ -90,20 +90,26 @@ When developing IoT devices, one of the most difficult problems
 to solve is how to update the firmware on the device. Once the 
 device is deployed, firmware updates play a critical part in its 
 lifetime, particularly when devices have a long lifetime, are 
-deployed in remote or inaccessible areas or where manual 
-intervention is cost prohibitive or otherwise difficult. The need 
-for a firmware update may be to fix bugs in software, to add new 
-functionality, or to re-configure the device.
+deployed in remote or inaccessible areas where manual 
+intervention is cost prohibitive or otherwise difficult. Updates 
+to the firmware of an IoT device is done to fix bugs in software, 
+to add new functionality, and to re-configure the device to work 
+in new environments or to behave differently in an already 
+deployed context. 
 
 The firmware update process, among other goals, has to ensure that
 
-- The firmware image is authenticated and attempts to flash a 
-  malicious firmware image are prevented.
+- The firmware image is authenticated and integrity protected. 
+  Attempts to flash a modified firmware image or an image from 
+  an unknown source are prevented.
 
 - The firmware image can be confidentiality protected so that 
   attempts by an adversary to recover the plaintext binary can 
-  be prevented. Obtaining the plaintext binary is often one of 
-  the first steps for an attack to mount an attack.
+  be prevented. Obtaining the firmware is often one of 
+  the first steps to mount an attack since it gives the adversary 
+  valuable insights into used software libraries, configuration 
+  settings and generic functionality (even though reverse 
+  engineering the binary can be a tedious process).
 
 #  Conventions and Terminology
 
@@ -149,20 +155,12 @@ The following entities are used:
   firmware image consists of software components from multiple 
   companies. 
 
-* Device: The device is the recipient of the firmware image and 
-  the manifest. The goal is to update the firmware of the device. 
+* Firmware Consumer: The firmware consumer is the recipient of the 
+  firmware image and the manifest. The terms device and firmware 
+  consumer are used interchangably since the firmware consumer is 
+  one software component running on the device. 
   A single device may need to obtain more than one firmware image 
   and manifest to succesfully perform an update. 
-
-* Communicator: The communicator component of the device interacts 
-  with the firmware update server. It receives firmware images and 
-  triggers an update, if needed. 
-  The communicator either polls a firmware update server for the 
-  most recent manifest/firmware or manifests/firmware images 
-  are pushed to it. Note that the firmware update process may involve
-  multiple stages since one or multiple manifests may need to be 
-  downloaded before the communicator can fetch one or multiple 
-  firmware images/software components. 
 
 * Status Tracker: The status tracker offers device management 
   functionality that includes keep track of the firmware update 
@@ -170,9 +168,11 @@ The following entities are used:
   the device, for example, what state of the firmware update cycle 
   the device is currently in. 
 
-* Firmware Server: Entity that stores firmware images and manifests. 
-  Some deployments may require storage of the firmware images/manifests 
-  on more than one entities before they reach the device. 
+* Firmware Server: Entity that stores firmware images and manifests and 
+  distributes them to IoT devices. 
+  Some deployments may require a store-and-forward concept, which requires 
+  storing the firmware images/manifests on more than one entity before  
+  they reach the device. 
 
 * Device Operator: The actor responsible for the day-to-day operation 
   of a fleet of IoT devices.
@@ -207,9 +207,12 @@ each of which may be used by one or more applications."
 
 Furthermore, the following abbreviations are used in this document: 
 
-* Microcontroller (MCU for microcontroller unit) is a small computer 
-on a single integrated circuit, which is often used for mass volumne
-IoT devices. 
+* Microcontroller: A microcontroller (MCU for microcontroller unit)
+is a compact integrated circuit designed for use in embedded systems. 
+A typical microcontroller includes a processor, memory (RAM and flash), 
+input/output (I/O) ports and other features connected via some 
+bus on a single chip. The term 'system on chip (SoC)' is often used for 
+these types of devices. 
 
 * System on Chip (SoC) is an integrated circuit that integrates all 
 components of a computer, such as CPU, memory, input/output ports, 
@@ -259,8 +262,8 @@ firmware images and manifests.
 
 ## Friendly to broadcast delivery
 
-This architecture does not specify any specific broadcast protocol 
-however, given that broadcast may be desirable for some networks, 
+This architecture does not specify any specific broadcast protocol.
+However, given that broadcast may be desirable for some networks, 
 updates must cause the least disruption possible both in metadata 
 and payload transmission.
 
@@ -382,31 +385,28 @@ There are three broad classifications of update operating modes.
   * Server-initiated Update
   * Hybrid Update
 
-Client-initiated updates take the form of a communicator on 
-a device proactively checking for new firmware imagines provided 
-by firmware servers.
+Client-initiated updates take the form of a firmware consumer on 
+a device proactively checking for new firmware images.
 
 Server-initiated updates are important to consider because
 timing of updates may need to be tightly controlled in some high-
-reliability environments. In this case the communicator, potentially 
-in coordination with the status tracker, determines what devices 
-qualify for a firmware update. Once those devices have been 
-selected the firmware server distributes updates to those devices.
+reliability environments. In this case the status tracker determines 
+what devices qualify for a firmware update. Once those devices have been 
+selected the firmware server distributes updates to the firmware consumers.
 
-Note: This assumes that the firmware server is able to reach the 
-device, which may require devices to keep reachability 
-information at the communicator and / or at the firmware server 
-up-to-date. This may also require keeping state at NATs and stateful 
-packet filtering firewalls alive.
+Note: This assumes that the status tracker is able to reach the 
+device, which may require devices to keep reachability  information at 
+the status tracker up-to-date. This may also require keeping state at 
+NATs and stateful packet filtering firewalls alive.
 
 Hybrid updates are those that require an interaction between the 
-device and the firmware server / communicator. The communicator 
-pushes notifications of availability of an update to the device, 
-and the device then downloads the image from the firmware server 
-when it wants.
+firmware consumer and the status tracker. The status tracker 
+pushes notifications of availability of an update to the firmware consumer, 
+and it then downloads the image from a firmware server 
+as soon as possible. 
 
-An alternative approach is to consider the steps a device has 
-to go through in the course of an update:
+An alternative view to the operating modes is to consider the steps a 
+device has to go through in the course of an update:
 
    * Notification
    * Pre-authorisation
@@ -414,14 +414,14 @@ to go through in the course of an update:
    * Download
    * Installation
 
-The notification step consists of the communicator informing the 
-device that an update is available. This can be accomplished via 
+The notification step consists of the status tracker informing the 
+firmware consumer that an update is available. This can be accomplished via 
 polling (client-initiated), push notifications (server-initiated), 
 or more complex mechanisms.
 
 The pre-authorisation step involves verifying whether the entity 
 signing the manifest is indeed authorized to perform an update. 
-The device must also determine whether it should fetching and 
+The firmware consumer must also determine whether it should fetching and 
 processing of the firmware image (unless it has been attached 
 already to the manifest itself).
 
@@ -431,17 +431,18 @@ The necessary dependencies must be available prior to installation.
 
 The download step is the process of acquiring a local copy of the
 firmware image.  When the download is client-initiated, this means 
-that the device chooses when a download occurs and initiates 
-the download process.  When a download is server-party initiated, 
-this means that either the communicator / firmware server tells 
+that the firmware consumer chooses when a download occurs and initiates 
+the download process.  When a download is server-initiated, 
+this means that the status tracker tells 
 the device when to download or that it initiates the transfer 
-directly to the device. For example, a download from an 
-HTTP-based firmware server is client-initiated. A transfer to a 
-LwM2M Firmware Update resource {{LwM2M}} is server-initiated.
+directly to the firmware consumer. For example, a download from an 
+HTTP-based firmware server is client-initiated. Pushing a manifest 
+and firmware image to the transfer to the Package resource of the LwM2M 
+Firmware Update object {{LwM2M}} is server-initiated. 
 
-If the Device has downloaded a new firmware image and is ready to
-install it it may need to wait for a trigger from a Communicator to
-install the firmware update, may trigger the update automatically, or
+If the firmware consumer has downloaded a new firmware image and is ready to
+install it, it may need to wait for a trigger from the status tracker to
+initiate the installation, may trigger the update automatically, or
 may go through a more complex decision making process to determine
 the appropriate timing for an update (such as delaying the update
 process to a later time when end users are less impacted by the 
@@ -479,7 +480,7 @@ For example, there are:
 {{arch-figure}} shows the communication architecture where a 
 firmware image is created by an author, and uploaded to a firmware
 server. The firmware image/manifest is distributed to the device 
-either in a push or pull manner using the communicator residing on
+either in a push or pull manner using the firmware consumer residing on
 the device. The device operator keeps track of the process using
 the status tracker. This allows the device operator to know and 
 control what devices have received an update and which of them are 
@@ -505,12 +506,12 @@ still pending an update.
    /           |           \              /                        \
   |            v            |            |                          |
   |     +------------+                                              |
-  |     |Communicator|      |            |                          |
- |      +--------+---+       | Device    |       +--------+          |
- |      |        |           | Management|       |        |          |
- |      | Device |<----------------------------->| Status |          |
- |      |        |           |          |        | Tracker|          |
- |      +--------+           |          ||       |        |         |
+  |     |  Firmware  |      |            |                          |
+ |      |  Consumer  |       | Device    |       +--------+          |
+ |      +------------+       | Management|       |        |          |
+ |      |            |<------------------------->| Status |          |
+ |      |   Device   |       |          |        | Tracker|          |
+ |      +------------+       |          ||       |        |         |
   |                         |           ||       +--------+         |
   |                         |            |                          |
   |                         |             \                        /
@@ -521,6 +522,7 @@ still pending an update.
        \\             //                        ----      ----
          ----     ----                              ------
              -----
+
 ~~~~
 {: #arch-figure title="Architecture."}
 
@@ -545,7 +547,7 @@ manifest itself since it may be distributed independently.
 Whether the firmware image and the manifest is pushed to the device or 
 fetched by the device is a deployment specific decision.
 
-The following assumptions are made to allow the device to verify the 
+The following assumptions are made to allow the firmware consumer to verify the 
 received firmware image and manifest before updating software:
 
 * To accept an update, a device needs to verify the signature covering 
@@ -572,8 +574,8 @@ based on examples below.
 
 There is an option for embedding a firmware image into a manifest. 
 This is a useful approach for deployments where devices are not connected 
-to the Internet and cannot contact a dedicated server for download of 
-the firmware. It is also applicable when the firmware update happens via a 
+to the Internet and cannot contact a dedicated firmware server for the firmware 
+download. It is also applicable when the firmware update happens via a 
 USB stick or via Bluetooth Smart. {{attached-firmware-figure}} shows this 
 delivery mode graphically.
 
@@ -710,12 +712,12 @@ multiple CPUs, upgrading the two images atomically is challenging.
 The following example message flow illustrates the
 interaction for distributing a firmware image to a device
 starting with an author uploading the new firmware to
-Firmware Server and creating a manifest. The firmware 
-and manifest are stored on the same Firmware Server.
+firmware server and creating a manifest. The firmware 
+and manifest are stored on the same firmware server.
 
 ~~~~
 +--------+    +-----------------+      +------------+ +----------+
-| Author |    | Firmware Server |      |Communicator| |Bootloader|
+| Author |    | Firmware Server |      |FW Consuumer| |Bootloader|
 +--------+    +-----------------+      +------------+ +----------+
   |                   |                     |                +
   | Create Firmware   |                     |                |
