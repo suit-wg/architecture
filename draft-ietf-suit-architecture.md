@@ -111,7 +111,10 @@ The firmware update process, among other goals, has to ensure that
   settings and generic functionality (even though reverse 
   engineering the binary can be a tedious process).
 
-#  Conventions and Terminology
+More details about the security goals are discussed in 
+{{architecture}} and requirements are described in {{requirements}}.
+
+#  Conventions and Terminology {#terminology}
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", 
 "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT 
@@ -147,6 +150,26 @@ This document uses the following terms:
   IoT device, and the detailed functionality varies throughout 
   different implementations. 
 
+* Microcontroller (MCU for microcontroller unit): An MCU is a 
+compact integrated circuit designed for use in embedded systems. 
+A typical microcontroller includes a processor, memory (RAM and flash), 
+input/output (I/O) ports and other features connected via some 
+bus on a single chip. The term 'system on chip (SoC)' is often used for 
+these types of devices. 
+
+* System on Chip (SoC): An SoC is an integrated circuit that integrates all 
+components of a computer, such as CPU, memory, input/output ports, 
+secondary storage, etc.
+
+* Homogeneous Storage Architecture (HoSA): A device that stores 
+all firmware components in the same way, for example in a file 
+system or in flash memory.
+
+* Heterogeneous Storage Architecture (HeSA): A device that 
+stores at least one firmware component differently from the rest, 
+for example a device with an external, updatable radio, or a 
+device with internal and external flash memory.
+  
 The following entities are used:
 
 * Author: The author is the entity that creates the firmware image. 
@@ -156,19 +179,23 @@ The following entities are used:
   companies. 
 
 * Firmware Consumer: The firmware consumer is the recipient of the 
-  firmware image and the manifest. The terms device and firmware 
+  firmware image and the manifest. 
+  
+* Device: A device refers to the entire IoT product, which consists of
+  one or many MCUs, sensors and/or actuators. Many IoT devices
+  sold today contain multiple MCUs and therefore a single device may 
+  need to obtain more than one firmware image and manifest to 
+  succesfully perform an update. The terms device and firmware 
   consumer are used interchangably since the firmware consumer is 
-  one software component running on the device. 
-  A single device may need to obtain more than one firmware image 
-  and manifest to succesfully perform an update. 
-
+  one software component running on an MCU on the device.
+  
 * Status Tracker: The status tracker offers device management 
   functionality that includes keep track of the firmware update 
   process. This includes fine-grained monitoring of changes at 
   the device, for example, what state of the firmware update cycle 
   the device is currently in. 
 
-* Firmware Server: Entity that stores firmware images and manifests and 
+* Firmware Server: The firmware server stores firmware images and manifests and 
   distributes them to IoT devices. 
   Some deployments may require a store-and-forward concept, which requires 
   storing the firmware images/manifests on more than one entity before  
@@ -205,29 +232,8 @@ of information for which the trust anchor is authoritative."
 in a device.  A device may have more than one trust anchor store,
 each of which may be used by one or more applications."
 
-Furthermore, the following abbreviations are used in this document: 
 
-* Microcontroller: A microcontroller (MCU for microcontroller unit)
-is a compact integrated circuit designed for use in embedded systems. 
-A typical microcontroller includes a processor, memory (RAM and flash), 
-input/output (I/O) ports and other features connected via some 
-bus on a single chip. The term 'system on chip (SoC)' is often used for 
-these types of devices. 
-
-* System on Chip (SoC) is an integrated circuit that integrates all 
-components of a computer, such as CPU, memory, input/output ports, 
-secondary storage, etc.
-
-* Homogeneous Storage Architecture (HoSA): A device that stores 
-all firmware components in the same way, for example in a file 
-system or in flash memory.
-
-* Heterogeneous Storage Architecture (HeSA): A device that 
-stores at least one firmware component differently from the rest, 
-for example a device with an external, updatable radio, or a 
-device with internal and external flash memory.
-
-# Requirements
+# Requirements {#requirements}
 
 The firmware update mechanism described in this specification 
 was designed with the following requirements in mind:
@@ -386,7 +392,7 @@ There are three broad classifications of update operating modes.
   * Hybrid Update
 
 Client-initiated updates take the form of a firmware consumer on 
-a device proactively checking for new firmware images.
+a device proactively checking (polling) for new firmware images.
 
 Server-initiated updates are important to consider because
 timing of updates may need to be tightly controlled in some high-
@@ -869,6 +875,7 @@ We would like to thank the following persons for their feedback:
 *  Markus Gueller
 *  Henk Birkholz
 *  Jintao Zhu
+*  Takeshi Takahashi
 
 We would also like to thank the WG chairs, Russ Housley, David Waltermire,
 Dave Thaler for their support and their reviews. Kathleen Moriarty was the 
