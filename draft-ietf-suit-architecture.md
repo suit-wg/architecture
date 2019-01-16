@@ -92,7 +92,7 @@ device is deployed, firmware updates play a critical part in its
 lifetime, particularly when devices have a long lifetime, are 
 deployed in remote or inaccessible areas where manual 
 intervention is cost prohibitive or otherwise difficult. Updates 
-to the firmware of an IoT device is done to fix bugs in software, 
+to the firmware of an IoT device are done to fix bugs in software, 
 to add new functionality, and to re-configure the device to work 
 in new environments or to behave differently in an already 
 deployed context. 
@@ -427,9 +427,8 @@ or more complex mechanisms.
 
 The pre-authorisation step involves verifying whether the entity 
 signing the manifest is indeed authorized to perform an update. 
-The firmware consumer must also determine whether it should fetching and 
-processing of the firmware image (unless it has been attached 
-already to the manifest itself).
+The firmware consumer must also determine whether it should fetch and 
+process a firmware image, which is referenced in a manifest.
 
 A dependency resolution phase is needed when more than one 
 component can be updated or when a differential update is used.
