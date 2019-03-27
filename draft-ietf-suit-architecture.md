@@ -1,7 +1,7 @@
 ---
 title: A Firmware Update Architecture for Internet of Things Devices
 abbrev: IoT Firmware Update Architecture
-docname: draft-ietf-suit-architecture-02
+docname: draft-ietf-suit-architecture-04
 category: info
 
 ipr: pre5378Trust200902
@@ -38,7 +38,7 @@ author:
        ins: H. Tschofenig
        name: Hannes Tschofenig
        organization: Arm Limited
-       email: hannes.tschofenig@gmx.net
+       email: hannes.tschofenig@arm.com
 
  -
        ins: D. Brown
@@ -148,7 +148,8 @@ This document uses the following terms:
   have been found). The exact split of components into the 
   different stages, the number of firmware images stored by an 
   IoT device, and the detailed functionality varies throughout 
-  different implementations. 
+  different implementations. A more detailed discussion is 
+  provided in {{bootloader}}.
 
 * Microcontroller (MCU for microcontroller unit): An MCU is a 
 compact integrated circuit designed for use in embedded systems. 
@@ -190,10 +191,9 @@ The following entities are used:
   one software component running on an MCU on the device.
   
 * Status Tracker: The status tracker offers device management 
-  functionality that includes keep track of the firmware update 
-  process. This includes fine-grained monitoring of changes at 
-  the device, for example, what state of the firmware update cycle 
-  the device is currently in. 
+  functionality to monitor the firmware update 
+  process. A status tracker may, for example, want to know what 
+  state of the firmware update cycle the device is currently in. 
 
 * Firmware Server: The firmware server stores firmware images and manifests and 
   distributes them to IoT devices. 
@@ -231,6 +231,8 @@ of information for which the trust anchor is authoritative."
 * "A trust anchor store is a set of one or more trust anchors stored
 in a device.  A device may have more than one trust anchor store,
 each of which may be used by one or more applications."
+A trust anchor store must resist modification against unauthorized 
+insertion, deletion, and modification.
 
 
 # Requirements {#requirements}
@@ -712,9 +714,79 @@ allowing only one image to be upgraded, other times requiring several
 to be upgraded atomically.  Because the updates are happening on 
 multiple CPUs, upgrading the two images atomically is challenging.
 
-#  Example Flow
 
-The following example message flow illustrates the
+# Bootloader {#bootloader}
+
+Today, firmware updates for an Internet-connected device are expected to be
+delivered over the Internet. Firmware updates over serial interfaces, such 
+as USB or RS232, are most likely the exception rather than the norm. In order
+to fetch a manifest plus the firmware image a fair amount of code is required 
+since the firmware consumer needs to implement 
+
+ * the Internet protocol stack for large file downloads, 
+ * the capability to write the received firmware image to some persistent storage 
+   (most likely flash memory). It may even be necessary to unpack, decompress
+   or otherwise process the received firmware image.  
+ * security protocol features for communication security, 
+ * manifest parsing, 
+ * security functionality for manifest verification, and
+ * functionality for remote management by a device management server. 
+
+All these features are most likely offered by the application running on the 
+device (except for basic security algorithms that may run either on a trusted
+execution environment or on a separate hardware security MCU/module). 
+
+Once manifests have been processed and firmware images successfully downloaded 
+and verified the device needs to hand control over to the bootloader. In most 
+cases this requires the MCU to restart. The bootloader then determines whether the 
+newly downloaded firmware image should be started. The boot process is 
+security sensitive since the firmware images may, for example, be stored in 
+off-chip flash memory given attackers easy access to the firmware image. The 
+bootloader will have to perform additional security checks on the firmware image 
+before it can be booted. 
+
+The manifest may have been stored alongside the firmware image to allow re-verification 
+of the firmware image during every boot attempt. Alternatively, secure boot-specific 
+meta-data may have been created by the firmware consumer after a successful firmware 
+download and verification process. Whether to re-use the standardized manifest format 
+that was used during the initial firmware retrieval process or whether it is better to use 
+a different format for the secure boot-specific meta-data depends on the system 
+design. The manifest format does, however, have the capability to serve also as 
+a building block for secure boot with its severable elements that allow shrinking 
+the size of the manifest by stripping elements that are no longer needed.
+
+If the application image contains the firmware consumer functionality, as described 
+above, then it is necessary that a working image is left on the device to ensure 
+that the bootloader can roll back to a working firmware image to re-do the firmware 
+download since the bootloader itself does not have enough functionality to fetch 
+a firmware image plus manifest from a firmware server over the Internet. A multi-stage 
+bootloader may soften this requirement at the expense of a more sophisticated boot 
+process. 
+
+For a bootloader to offer a secure boot mechanism it needs to provide the following 
+features: 
+ 
+ * ability to access security algorithms, such as SHA-256 to compute a fingerprint 
+ over the firmware image and a digital signature algorithm. 
+ 
+ * access keying material directly or indirectly to utilize the digital signature. 
+   The device needs to have a trust anchor store. 
+ 
+ * ability to expose boot process-related data to the application firmware 
+   (such as to the device management software). This allows a device management 
+   server to determine whether the firmware update has been successful and, if not, 
+   what errors occurred. 
+   
+ * to (optionally) offer attestation information (such as measurements). 
+ 
+While the software architecture of the bootloader and also its security mechanism 
+are implemention-specific the use of the manifest for controlling the download of the 
+firmware over the Internet as well as for the secure boot process
+is relevant for the design of the manifest. 
+
+#  Example
+
+The following example message flow illustrates a possible
 interaction for distributing a firmware image to a device
 starting with an author uploading the new firmware to
 firmware server and creating a manifest. The firmware 
@@ -722,7 +794,7 @@ and manifest are stored on the same firmware server.
 
 ~~~~
 +--------+    +-----------------+      +------------+ +----------+
-| Author |    | Firmware Server |      |FW Consuumer| |Bootloader|
+| Author |    | Firmware Server |      |FW Consumer | |Bootloader|
 +--------+    +-----------------+      +------------+ +----------+
   |                   |                     |                +
   | Create Firmware   |                     |                |
@@ -778,7 +850,7 @@ and manifest are stored on the same firmware server.
   |                   |                     | Reboot         |
   |                   |                     |--------------->|
   |                   |                     |                |
-  |                   |                     | Validate       |
+  |                   |                     | Verify         |
   |                   |                     | Firmware       |
   |                   |                     | ---------------|
   |                   |                     | |              |
