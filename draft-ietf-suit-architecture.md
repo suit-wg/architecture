@@ -1,7 +1,7 @@
 ---
 title: A Firmware Update Architecture for Internet of Things Devices
 abbrev: IoT Firmware Update Architecture
-docname: draft-ietf-suit-architecture-05
+docname: draft-ietf-suit-architecture-06
 category: info
 
 ipr: pre5378Trust200902
@@ -54,6 +54,7 @@ informative:
   RFC6024: 
   RFC5649:
   I-D.ietf-suit-information-model: 
+  I-D.ietf-teep-architecture:
   LwM2M:
     target: http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf
     title: "Lightweight Machine to Machine Technical Specification, Version 1.0.2"
@@ -171,6 +172,22 @@ stores at least one firmware component differently from the rest,
 for example a device with an external, updatable radio, or a 
 device with internal and external flash memory.
   
+  
+* Trusted Execution Environments (TEEs): An execution environment that
+runs alongside of, but is isolated from, an REE.
+
+* Rich Execution Environment (REE): An environment that is provided
+and governed by a typical OS (e.g., Linux, Windows, Android, iOS),
+potentially in conjunction with other supporting operating systems
+and hypervisors; it is outside of the TEE.  This environment and
+applications running on it are considered un-trusted.
+
+      
+* Trusted applications (TAs): An application component that runs in a
+TEE. 
+
+For more information about TEEs see {{I-D.ietf-teep-architecture}}.
+
 The following entities are used:
 
 * Author: The author is the entity that creates the firmware image. 
@@ -180,9 +197,14 @@ The following entities are used:
   companies. 
 
 * Firmware Consumer: The firmware consumer is the recipient of the 
-  firmware image and the manifest. 
+  firmware image and the manifest. It is responsible for parsing 
+  and verifying the received manifest and for storing the obtained 
+  firmware image. The firmware consumer plays the role of the 
+  update component on the IoT device typically running in the 
+  application firmware. It interacts with the firmware server and 
+  with the status tracker, if present. 
   
-* Device: A device refers to the entire IoT product, which consists of
+* (IoT) Device: A device refers to the entire IoT product, which consists of
   one or many MCUs, sensors and/or actuators. Many IoT devices
   sold today contain multiple MCUs and therefore a single device may 
   need to obtain more than one firmware image and manifest to 
@@ -191,15 +213,32 @@ The following entities are used:
   one software component running on an MCU on the device.
   
 * Status Tracker: The status tracker offers device management 
-  functionality to monitor the firmware update 
-  process. A status tracker may, for example, want to know what 
-  state of the firmware update cycle the device is currently in. 
+  functionality to retrieve information about the installed firmware
+  on a device and other device characteristics (including free memory 
+  and hardware components), to obtain the state of the firmware update 
+  cycle the device is currently in, and to trigger the update process. 
+  The deployment of status trackers is flexible and they may be used 
+  as cloud-based servers, on-premise servers, embedded in edge computing device
+  (such as Internet access gateways or protocol translation gateways), 
+  or even in smart phones and tablets. While the IoT device itself 
+  runs the client-side of the status tracker it will most likely not 
+  run a status tracker itself unless it acts as a proxy for other 
+  IoT devices in a protocol translation or edge computing device node. 
+  How much functionality a status tracker includes depends on the selected
+  configuration of the device management functionality and the communication
+  environment it is used in. In a generic networking environment the protocol 
+  used between the client and the server-side of the status tracker need to 
+  deal with Internet communication challenges involving firewall and NAT traversal.
+  In other cases, the communication interaction may be rather simple. This 
+  architecture document does not impose requirements on the status tracker.
 
 * Firmware Server: The firmware server stores firmware images and manifests and 
   distributes them to IoT devices. 
   Some deployments may require a store-and-forward concept, which requires 
   storing the firmware images/manifests on more than one entity before  
-  they reach the device. 
+  they reach the device. There is typically some interaction between the 
+  firmware server and the status tracker but those entities are often 
+  physically separated on different devices for scalability reasons. 
 
 * Device Operator: The actor responsible for the day-to-day operation 
   of a fleet of IoT devices.
@@ -259,6 +298,8 @@ was designed with the following requirements in mind:
 * Robust permissions
 
 * Diverse modes of operation
+
+* Suitability to software and personalization data
 
 ## Agnostic to how firmware images are distributed
 
@@ -330,25 +371,44 @@ on the manifest format.
 
 ## Operate with a small bootloader
 
-The bootloader must be minimal, containing only flash support, 
-cryptographic primitives and optionally a recovery mechanism. The 
-recovery mechanism is used in case the update process failed and 
-may include support for firmware updates over serial, USB or even 
-a limited version of wireless connectivity standard like a limited 
-Bluetooth Smart. Such a recovery mechanism must provide security 
-at least at the same level as the full featured firmware update 
-functionalities.
+Throughout this document we assume that the bootloader itself is 
+distinct from the role of the fw consumer and therefore does not 
+manage the firmware update process. This may give the impression 
+that the bootloader itself is a completely separate component, 
+which is mainly responsible for selecting a firmware image to boot. 
 
-The bootloader needs to verify the received manifest and to install 
-the bootable firmware image. The bootloader should not require 
-updating since a failed update poses a risk in reliability. If more 
-functionality is required in the bootloader, it must use a two-stage 
-bootloader, with the first stage comprising the functionality defined 
-above.
+The overlap between the firmware update process and the bootloader 
+functionality comes in two forms, namely 
+
+- First, a bootloader must verify the firmware image it boots as 
+part of the secure boot process. Doing so requires meta-data to be 
+stored alongside the firmware image so that the bootloader can 
+cryptographically verify the firmware image before booting it to 
+ensure it has not been tampered with or replaced. This meta-data
+used by the bootloader may well be the same manifest obtained with the 
+firmware image during the update process (with the severable
+fields stripped off). 
+
+- Second, an IoT device needs a recovery strategy in case the firmware 
+update / boot process fails. The recovery strategy may include 
+storing two or more firmware images on the device or offering the 
+ability to have a second stage bootloader perform the firmware update 
+process again using firmware updates over serial, USB or even 
+wireless connectivity like a limited version of Bluetooth Smart. 
+In the latter case the fw consumer functionality is contained in the 
+second stage bootloader and requires the necessary functionality for 
+executing the firmware update process, including manifest parsing. 
+
+In general, it is assumed that the bootloader itself, or a minimal part of it, 
+will not be updated since a failed update of the bootloader poses a risk 
+in reliability.
 
 All information necessary for a device to make a decision about the 
 installation of a firmware update must fit into the available RAM of 
 a constrained IoT device. This prevents flash write exhaustion.
+This is typically not a difficult requirement to accomplish because 
+there are not other task/processing running while the bootloader is 
+active (unlike it may be the case when running the application firmware). 
 
 Note: This is an implementation requirement.
 
@@ -460,7 +520,25 @@ the IoT device can recognise and the bootloader is responsible for
 then booting from the newly installed firmware image.
 
 Each of these steps may require different permissions.
-   
+
+## Suitability to software and personalization data
+
+The work on a standardized manifest format initially focused on the 
+most constrained IoT devices and those devices contain code put together 
+by a single author (although that author may obtain code from other 
+developers, some of it only in binary form). 
+
+Later it turns out that other use cases may benefit from a standardized 
+manifest format also for conveying software and even personalization data 
+alongside software. Trusted Execution Environments (TEEs), for example, 
+greatly benefit from a protocol for managing the lifecycle of trusted 
+applications (TAs) running inside a TEE. TEEs may obtain TAs 
+from different authors and those TAs may require personalization data, 
+such as payment information, to be securely be conveyed to the TEE. 
+
+To support this wider range of use cases the manifest format should 
+therefore be extensible to convey other forms of payloads as well. 
+
 # Claims
 
 Claims in the manifest offer a way to convey instructions to
@@ -606,24 +684,26 @@ manifest itself is delivered independently and provides information about
 the firmware image(s) to download.
 
 ~~~~
-                              /------------\
-                             /              \
-                             |   Manifest   |
-                             \              /
-  +--------+                  \------------/                +--------+
-  |        |<..............................................>|        |
-  | Device |                                             -- | Author |
-  |        |<-                                         ---  |        |
-  +--------+  --                                     ---    +--------+
-                --                                 ---
-                  ---                            ---
-                     --       +-----------+    --
-                       --     |           |  --
-        /------------\   --   | Firmware  |<-    /------------\
-       /              \    -- | Server    |     /              \
-       |   Firmware   |       |           |     |   Firmware   |
-       \              /       +-----------+     \              /
-        \------------/                           \------------/
+             /--------\                     /--------\
+            /          \                   /          \
+            | Manifest |                   | Manifest |
+            \          /                   \          /
+             \--------/                     \--------/
+                            +-----------+
++--------+                  |           |                 +--------+
+|        |<.................| Status    |................>|        |
+| Device |                  | Tracker   |              -- | Author |
+|        |<-                |           |            ---  |        |
++--------+  --              +-----------+          ---    +--------+
+              --                                 ---
+                ---                            ---
+                   --       +-----------+    --
+                     --     |           |  --
+      /------------\   --   | Firmware  |<-    /------------\
+     /              \    -- | Server    |     /              \
+     |   Firmware   |       |           |     |   Firmware   |
+     \              /       +-----------+     \              /
+      \------------/                           \------------/
 ~~~~
 {: #online-firmware-figure title="Independent retrieval of the firmware image."}
 
@@ -811,11 +891,14 @@ are highly relevant for the design of the manifest.
 
 #  Example
 
-The following example message flow illustrates a possible
-interaction for distributing a firmware image to a device
+{{firmware-update}} illustrates an example message flow
+for distributing a firmware image to a device
 starting with an author uploading the new firmware to
 firmware server and creating a manifest. The firmware 
-and manifest are stored on the same firmware server.
+and manifest are stored on the same firmware server. This 
+setup does not use a status tracker and the firmware consumer
+component is therefore responsible for periodically checking 
+whether a new firmware image is available for download. 
 
 ~~~~
 +--------+    +-----------------+      +------------+ +----------+
@@ -823,22 +906,22 @@ and manifest are stored on the same firmware server.
 +--------+    +-----------------+      +------------+ +----------+
   |                   |                     |                +
   | Create Firmware   |                     |                |
-  |---------------    |                     |                |
+  |--------------+    |                     |                |
   |              |    |                     |                |
-  |<--------------    |                     |                |
+  |<-------------+    |                     |                |
   |                   |                     |                |
   | Upload Firmware   |                     |                |
   |------------------>|                     |                |
   |                   |                     |                |
   | Create Manifest   |                     |                |
-  |----------------   |                     |                |
+  |---------------+   |                     |                |
   |               |   |                     |                |
-  |<---------------   |                     |                |
+  |<--------------+   |                     |                |
   |                   |                     |                |
   | Sign Manifest     |                     |                |
-  |--------------     |                     |                |
+  |-------------+     |                     |                |
   |             |     |                     |                |
-  |<-------------     |                     |                |
+  |<------------+     |                     |                |
   |                   |                     |                |
   | Upload Manifest   |                     |                |
   |------------------>|                     |                |
@@ -861,40 +944,132 @@ and manifest are stored on the same firmware server.
   |                   |-------------------->|                |
   |                   |                     | Verify         |
   |                   |                     | Firmware       |
-  |                   |                     |--------------- |
+  |                   |                     |--------------+ |
   |                   |                     |              | |
-  |                   |                     |<-------------- |
+  |                   |                     |<-------------+ |
   |                   |                     |                |
   |                   |                     | Store          |
   |                   |                     | Firmware       |
-  |                   |                     |--------------  |
+  |                   |                     |-------------+  |
   |                   |                     |             |  |
-  |                   |                     |<-------------  |
+  |                   |                     |<------------+  |
   |                   |                     |                |
   |                   |                     |                |
-  |                   |                     | Reboot         |
+  |                   |                     | Trigger Reboot |
   |                   |                     |--------------->|
   |                   |                     |                |
-  |                   |                     | Verify         |
-  |                   |                     | Firmware       |
-  |                   |                     | ---------------|
-  |                   |                     | |              |
-  |                   |                     | -------------->|
   |                   |                     |                |
-  |                   |                     | Activate new   |
-  |                   |                     | Firmware       |
-  |                   |                     | ---------------|
-  |                   |                     | |              |
-  |                   |                     | -------------->|
-  |                   |                     |                |
-  |                   |                     | Boot new       |
-  |                   |                     | Firmware       |
-  |                   |                     | ---------------|
-  |                   |                     | |              |
-  |                   |                     | -------------->|
+  |                   |                 +---+----------------+--+
+  |                   |                S|   |                |  |
+  |                   |                E|   | Verify         |  |
+  |                   |                C|   | Firmware       |  |
+  |                   |                U|   | +--------------|  |
+  |                   |                R|   | |              |  |
+  |                   |                E|   | +------------->|  |
+  |                   |                 |   |                |  |
+  |                   |                B|   | Activate new   |  |
+  |                   |                O|   | Firmware       |  |
+  |                   |                O|   | +--------------|  |
+  |                   |                T|   | |              |  |
+  |                   |                 |   | +------------->|  |
+  |                   |                P|   |                |  |
+  |                   |                R|   | Boot new       |  |
+  |                   |                O|   | Firmware       |  |
+  |                   |                C|   | +--------------|  |
+  |                   |                E|   | |              |  |
+  |                   |                S|   | +------------->|  |
+  |                   |                S|   |                |  |
+  |                   |                 +---+----------------+--+
   |                   |                     |                |
 ~~~~
-{: #example-figure title="Example Flow for a Firmware Upate."}
+{: #firmware-update title="First Example Flow for a Firmware Upate."}
+
+{{firmware-update2}} shows an example follow with the device using 
+a status tracker. For editorial reasons the author publishing the 
+manifest at the status tracker and the firmware image at the firmware 
+server is not shown. Also omitted is the secure boot process 
+following the successful firmware update process.
+
+The exchange starts with the device interacting with the status 
+tracker; the details of such exchange will vary with the different 
+device management systems being used. In any case, the status 
+tracker learns about the firmware version of the devices it 
+manages. In our example, the device under management is using 
+firmware version A.B.C. At a later point in time the author uploads
+a new firmware along with the manifest to the firmware server and the 
+status tracker, respectively. While there is no need to store the 
+manifest and the firmware on different servers this example shows 
+a common pattern used in the industry. The status tracker may then 
+automatically, based on human intervention or based on a more 
+complex policy decide to inform the device about the newly available 
+firmware image. In our example, it does so by pushing the manifest 
+to the FW consumer. The firmware consumer downloads the firmware 
+image with the newer version X.Y.Z after successful validation 
+of the manifest. Subsequently, a reboot is initiated and the secure 
+boot process starts. 
+
+~~~~
+ +---------+   +-----------------+    |-----------------------------.
+ | Status  |   | Firmware Server |    | +------------+ +----------+ |
+ | Tracker |   |                 |    | |FW Consumer | |Bootloader| |
+ +---------+   +-----------------+    | +------------+ +----------+ |
+      |                |              |      |  IoT Device    |     |
+      |                |               `''''''''''''''''''''''''''''
+      |                |                     |                |
+      |        Query Firmware Version        |                |
+      |------------------------------------->|                |
+      |        Firmware Version A.B.C        |                |
+      |<-------------------------------------|                |
+      |                |                     |                |
+      |         <<some time later>>          |                |
+      |                |                     |                |
+    _,...._         _,...._                  |                |
+  ,'       `.     ,'       `.                |                |
+ |   New     |   |   New     |               |                |
+ \ Manifest  /   \ Firmware  /               |                |
+  `.._   _,,'     `.._   _,,'                |                |
+      `''             `''                    |                |
+      |            Push manifest             |                |
+      |----------------+-------------------->|                |
+      |                |                     |                |
+      |                '                     |                '
+      |                |                     | Validate       |
+      |                |                     | Manifest       |
+      |                |                     |---------+      |
+      |                |                     |         |      |
+      |                |                     |<--------+      |
+      |                | Request firmware    |                |
+      |                | X.Y.Z               |                |
+      |                |<--------------------|                |
+      |                |                     |                |
+      |                | Firmware X.Y.Z      |                |
+      |                |-------------------->|                |
+      |                |                     |                |
+      |                |                     | Verify         |
+      |                |                     | Firmware       |
+      |                |                     |--------------+ |
+      |                |                     |              | |
+      |                |                     |<-------------+ |
+      |                |                     |                |
+      |                |                     | Store          |
+      |                |                     | Firmware       |
+      |                |                     |-------------+  |
+      |                |                     |             |  |
+      |                |                     |<------------+  |
+      |                |                     |                |
+      |                |                     |                |
+      |                |                     | Trigger Reboot |
+      |                |                     |--------------->|
+      |                |                     |                |
+      |                |                     |                |
+      |                |                     | __..-------..._'
+      |                |                    ,-'               `-.
+      |                |                   |      Secure Boot    |
+      |                |                   `-.                 _/
+      |                |                     |`--..._____,,.,-'
+      |                |                     |                |
+~~~~
+{: #firmware-update2 title="Second Example Flow for a Firmware Upate."}
 
 #  IANA Considerations
 
