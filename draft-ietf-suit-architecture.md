@@ -47,13 +47,12 @@ author:
        email: milosch@meriac.com
 
 normative:
-  RFC2119:
   RFC7925: 
 informative:
   RFC8240:
   RFC6024: 
   RFC5649:
-  RFC7228; 
+  RFC7228:
   I-D.ietf-suit-information-model: 
   I-D.ietf-teep-architecture:
   I-D.ietf-cose-hash-sig:
@@ -126,11 +125,6 @@ More details about the security goals are discussed in
 {{architecture}} and requirements are described in {{requirements}}.
 
 #  Conventions and Terminology {#terminology}
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", 
-"SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT 
-RECOMMENDED", "MAY", and "OPTIONAL" in this document are 
-to be interpreted as described in RFC 2119 {{RFC2119}}.
 
 This document uses the following terms:
 
