@@ -1,7 +1,7 @@
 ---
-title: A Firmware Update Architecture for Internet of Things Devices
-abbrev: IoT Firmware Update Architecture
-docname: draft-ietf-suit-architecture-07
+title: A Firmware Update Architecture for Internet of Things
+abbrev: A Firmware Update Architecture for IoT
+docname: draft-ietf-suit-architecture-08
 category: info
 
 ipr: pre5378Trust200902
@@ -29,12 +29,6 @@ author:
        email: Brendan.Moran@arm.com
 
  -
-       ins: M. Meriac
-       name: Milosch Meriac
-       organization: Consultant
-       email: milosch@meriac.com
-
- -
        ins: H. Tschofenig
        name: Hannes Tschofenig
        organization: Arm Limited
@@ -46,6 +40,12 @@ author:
        organization: Linaro
        email: david.brown@linaro.org
 
+ -
+       ins: M. Meriac
+       name: Milosch Meriac
+       organization: Consultant
+       email: milosch@meriac.com
+
 normative:
   RFC2119:
   RFC7925: 
@@ -53,9 +53,11 @@ informative:
   RFC8240:
   RFC6024: 
   RFC5649:
+  RFC7228; 
   I-D.ietf-suit-information-model: 
   I-D.ietf-teep-architecture:
   I-D.ietf-cose-hash-sig:
+  I-D.ietf-suit-manifest:
   LwM2M:
     target: http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf
     title: "Lightweight Machine to Machine Technical Specification, Version 1.0.2"
@@ -80,16 +82,12 @@ a firmware update mechanism suitable for IoT devices. The
 architecture is agnostic to the transport of the firmware images 
 and associated meta-data.
 
-This version of the document assumes asymmetric cryptography and 
-a public key infrastructure. Future versions may also describe 
-a symmetric key approach for very constrained devices.
-
 --- middle
 
 #  Introduction
 
-When developing IoT devices, one of the most difficult problems 
-to solve is how to update the firmware on the device. Once the 
+When developing Internet of Things (IoT) devices, one of the most difficult problems 
+to solve is how to update firmware on the device. Once the 
 device is deployed, firmware updates play a critical part in its 
 lifetime, particularly when devices have a long lifetime, are 
 deployed in remote or inaccessible areas where manual 
@@ -113,6 +111,17 @@ The firmware update process, among other goals, has to ensure that
   settings and generic functionality (even though reverse 
   engineering the binary can be a tedious process).
 
+This version of the document assumes asymmetric cryptography and 
+a public key infrastructure. Future versions may also describe 
+a symmetric key approach for very constrained devices.
+
+While the standardization work has been informed by and optimised for firmware
+update use cases of Class 1 (as defined in RFC 7228 {{RFC7228}}) devices, there is nothing in 
+the architecture that restricts its use to only these constrained IoT devices. 
+Software update and delivery of arbitrary data, such as configuration information 
+and keys, can equally be managed by manifests. The solution therefore applies to 
+more capable devices, such as network storage devices, set top boxes, and IP-based cameras as well. 
+   
 More details about the security goals are discussed in 
 {{architecture}} and requirements are described in {{requirements}}.
 
@@ -130,8 +139,7 @@ This document uses the following terms:
   provides information about the author.
 
 * Firmware Image: The firmware image, or image, is a binary 
-  that may 
-  contain the complete software of a device or a subset of 
+  that may contain the complete software of a device or a subset of 
   it. The firmware image may consist of multiple images, if 
   the device contains more than one microcontroller. Often 
   it is also a compressed archive that contains code, 
@@ -140,6 +148,9 @@ This document uses the following terms:
   reasons. Firmware is the more universal term. The terms, 
   firmware image, firmware, and image, are used in this 
   document and are interchangeable.  
+
+* Software: The terms "software" and "firmware" are used 
+  interchangeably.
 
 * Bootloader: A bootloader is a piece of software that is 
   executed once a microcontroller has been reset. It is 
@@ -158,38 +169,36 @@ This document uses the following terms:
   provided in {{bootloader}}.
 
 * Microcontroller (MCU for microcontroller unit): An MCU is a 
-compact integrated circuit designed for use in embedded systems. 
-A typical microcontroller includes a processor, memory (RAM and flash), 
-input/output (I/O) ports and other features connected via some 
-bus on a single chip. The term 'system on chip (SoC)' is often used for 
-these types of devices. 
+  compact integrated circuit designed for use in embedded systems. 
+  A typical microcontroller includes a processor, memory (RAM and 
+  flash), input/output (I/O) ports and other features connected via 
+  some bus on a single chip. The term 'system on chip (SoC)' is 
+  often used for these types of devices. 
 
-* System on Chip (SoC): An SoC is an integrated circuit that integrates all 
-components of a computer, such as CPU, memory, input/output ports, 
-secondary storage, etc.
+* System on Chip (SoC): An SoC is an integrated circuit that 
+  integrates all components of a computer, such as CPU, memory, 
+  input/output ports, secondary storage, etc.
 
 * Homogeneous Storage Architecture (HoSA): A device that stores 
-all firmware components in the same way, for example in a file 
-system or in flash memory.
+  all firmware components in the same way, for example in a file 
+  system or in flash memory.
 
 * Heterogeneous Storage Architecture (HeSA): A device that 
-stores at least one firmware component differently from the rest, 
-for example a device with an external, updatable radio, or a 
-device with internal and external flash memory.
+  stores at least one firmware component differently from the rest, 
+  for example a device with an external, updatable radio, or a 
+  device with internal and external flash memory.
   
-  
-* Trusted Execution Environments (TEEs): An execution environment that
-runs alongside of, but is isolated from, an REE.
+* Trusted Execution Environments (TEEs): An execution environment 
+  that runs alongside of, but is isolated from, an REE.
 
 * Rich Execution Environment (REE): An environment that is provided
-and governed by a typical OS (e.g., Linux, Windows, Android, iOS),
-potentially in conjunction with other supporting operating systems
-and hypervisors; it is outside of the TEE.  This environment and
-applications running on it are considered un-trusted.
+  and governed by a typical OS (e.g., Linux, Windows, Android, iOS),
+  potentially in conjunction with other supporting operating systems
+  and hypervisors; it is outside of the TEE.  This environment and
+  applications running on it are considered un-trusted.
 
-      
-* Trusted applications (TAs): An application component that runs in a
-TEE. 
+* Trusted applications (TAs): An application component that runs in 
+  a TEE. 
 
 For more information about TEEs see {{I-D.ietf-teep-architecture}}.
 
@@ -209,13 +218,13 @@ The following entities are used:
   application firmware. It interacts with the firmware server and 
   with the status tracker, if present. 
   
-* (IoT) Device: A device refers to the entire IoT product, which consists of
-  one or many MCUs, sensors and/or actuators. Many IoT devices
-  sold today contain multiple MCUs and therefore a single device may 
-  need to obtain more than one firmware image and manifest to 
-  succesfully perform an update. The terms device and firmware 
-  consumer are used interchangably since the firmware consumer is 
-  one software component running on an MCU on the device.
+* (IoT) Device: A device refers to the entire IoT product, which 
+  consists of one or many MCUs, sensors and/or actuators. Many IoT 
+  devices sold today contain multiple MCUs and therefore a single 
+  device may need to obtain more than one firmware image and 
+  manifest to succesfully perform an update. The terms device and 
+  firmware consumer are used interchangably since the firmware 
+  consumer is one software component running on an MCU on the device.
   
 * Status Tracker: The status tracker offers device management 
   functionality to retrieve information about the installed firmware
@@ -350,16 +359,14 @@ friendliness to Content Distribution Networks, bulk storage, and
 broadcast protocols. 
 
 A manifest specification must support different cryptographic algorithms
-and algorithm extensibility. Because of the nature of 
+and algorithm extensibility. Due of the nature of 
 unchangeable code in ROM for use with bootloaders the use of 
 post-quantum secure signature mechanisms, such as hash-based
-signatures {{I-D.ietf-cose-hash-sig}}, are attractive because they 
-maintain security in presence of quantum computers. 
+signatures {{I-D.ietf-cose-hash-sig}}, are attractive. These 
+algorithms maintain security in presence of quantum computers. 
 
-A mandatory-to-implement set of algorithms has to be defined offering 
-a key length of 112-bit symmetric key or security or more, as outlined 
-in Section 20 of RFC 7925 {{RFC7925}}. This corresponds to a 233 bit 
-ECC key or a 2048 bit RSA key.
+A mandatory-to-implement set of algorithms will be specified in the 
+manifest specification {{I-D.ietf-suit-manifest}}}. 
 
 ## Rollback attacks must be prevented
 
