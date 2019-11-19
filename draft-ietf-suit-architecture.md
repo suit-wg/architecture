@@ -835,12 +835,12 @@ building blocks are necessary for a firmware update solution:
 - integration of the device into a device management server to 
   perform automatic firmware updates and to track their progress.
 
-(*) Because firmware images are often multiple kilobytes, sometimes 
+(*) Because firmware images are often multiple kilobytes, sometimes
 exceeding one hundred kilobytes, in size for low end IoT devices and even 
-several megabytes large for IoT devices running full-fletched operating systems 
-like Linux the protocol mechanism for retrieving these images needs 
-to offer features like congestion control, flow control, fragmentation 
-and reassembly, and mechanisms to resume interrupted or corrupted transfers. 
+several megabytes large for IoT devices running full-fledged operating systems
+like Linux, the protocol mechanism for retrieving these images needs
+to offer features like congestion control, flow control, fragmentation
+and reassembly, and mechanisms to resume interrupted or corrupted transfers.
 
 All these features are most likely offered by the application, i.e. 
 firmware consumer, running
