@@ -1,7 +1,7 @@
 ---
-title: A Firmware Update Architecture for Internet of Things Devices
-abbrev: IoT Firmware Update Architecture
-docname: draft-ietf-suit-architecture-06
+title: A Firmware Update Architecture for Internet of Things
+abbrev: A Firmware Update Architecture for IoT
+docname: draft-ietf-suit-architecture-08
 category: info
 
 ipr: pre5378Trust200902
@@ -29,12 +29,6 @@ author:
        email: Brendan.Moran@arm.com
 
  -
-       ins: M. Meriac
-       name: Milosch Meriac
-       organization: Consultant
-       email: milosch@meriac.com
-
- -
        ins: H. Tschofenig
        name: Hannes Tschofenig
        organization: Arm Limited
@@ -46,15 +40,23 @@ author:
        organization: Linaro
        email: david.brown@linaro.org
 
+ -
+       ins: M. Meriac
+       name: Milosch Meriac
+       organization: Consultant
+       email: milosch@meriac.com
+
 normative:
-  RFC2119:
   RFC7925: 
 informative:
   RFC8240:
   RFC6024: 
   RFC5649:
+  RFC7228:
   I-D.ietf-suit-information-model: 
   I-D.ietf-teep-architecture:
+  I-D.ietf-cose-hash-sig:
+  I-D.ietf-suit-manifest:
   LwM2M:
     target: http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf
     title: "Lightweight Machine to Machine Technical Specification, Version 1.0.2"
@@ -79,16 +81,12 @@ a firmware update mechanism suitable for IoT devices. The
 architecture is agnostic to the transport of the firmware images 
 and associated meta-data.
 
-This version of the document assumes asymmetric cryptography and 
-a public key infrastructure. Future versions may also describe 
-a symmetric key approach for very constrained devices.
-
 --- middle
 
 #  Introduction
 
-When developing IoT devices, one of the most difficult problems 
-to solve is how to update the firmware on the device. Once the 
+When developing Internet of Things (IoT) devices, one of the most difficult problems 
+to solve is how to update firmware on the device. Once the 
 device is deployed, firmware updates play a critical part in its 
 lifetime, particularly when devices have a long lifetime, are 
 deployed in remote or inaccessible areas where manual 
@@ -112,15 +110,21 @@ The firmware update process, among other goals, has to ensure that
   settings and generic functionality (even though reverse 
   engineering the binary can be a tedious process).
 
+This version of the document assumes asymmetric cryptography and 
+a public key infrastructure. Future versions may also describe 
+a symmetric key approach for very constrained devices.
+
+While the standardization work has been informed by and optimised for firmware
+update use cases of Class 1 (as defined in RFC 7228 {{RFC7228}}) devices, there is nothing in 
+the architecture that restricts its use to only these constrained IoT devices. 
+Software update and delivery of arbitrary data, such as configuration information 
+and keys, can equally be managed by manifests. The solution therefore applies to 
+more capable devices, such as network storage devices, set top boxes, and IP-based cameras as well. 
+   
 More details about the security goals are discussed in 
 {{architecture}} and requirements are described in {{requirements}}.
 
 #  Conventions and Terminology {#terminology}
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", 
-"SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT 
-RECOMMENDED", "MAY", and "OPTIONAL" in this document are 
-to be interpreted as described in RFC 2119 {{RFC2119}}.
 
 This document uses the following terms:
 
@@ -128,13 +132,19 @@ This document uses the following terms:
   image. The manifest is protected against modification and 
   provides information about the author.
 
-* Firmware Image: The firmware image is a binary that may 
-  contain the complete software of a device or a subset of 
+* Firmware Image: The firmware image, or image, is a binary 
+  that may contain the complete software of a device or a subset of 
   it. The firmware image may consist of multiple images, if 
-  the device contains more than one microcontroller. The 
+  the device contains more than one microcontroller. Often 
+  it is also a compressed archive that contains code, 
+  configuration data, and even the entire file system. The 
   image may consist of a differential update for performance 
-  reasons. Firmware is the more universal term. Both terms 
-  are used in this document and are interchangeable.  
+  reasons. Firmware is the more universal term. The terms, 
+  firmware image, firmware, and image, are used in this 
+  document and are interchangeable.  
+
+* Software: The terms "software" and "firmware" are used 
+  interchangeably.
 
 * Bootloader: A bootloader is a piece of software that is 
   executed once a microcontroller has been reset. It is 
@@ -153,38 +163,36 @@ This document uses the following terms:
   provided in {{bootloader}}.
 
 * Microcontroller (MCU for microcontroller unit): An MCU is a 
-compact integrated circuit designed for use in embedded systems. 
-A typical microcontroller includes a processor, memory (RAM and flash), 
-input/output (I/O) ports and other features connected via some 
-bus on a single chip. The term 'system on chip (SoC)' is often used for 
-these types of devices. 
+  compact integrated circuit designed for use in embedded systems. 
+  A typical microcontroller includes a processor, memory (RAM and 
+  flash), input/output (I/O) ports and other features connected via 
+  some bus on a single chip. The term 'system on chip (SoC)' is 
+  often used for these types of devices. 
 
-* System on Chip (SoC): An SoC is an integrated circuit that integrates all 
-components of a computer, such as CPU, memory, input/output ports, 
-secondary storage, etc.
+* System on Chip (SoC): An SoC is an integrated circuit that 
+  integrates all components of a computer, such as CPU, memory, 
+  input/output ports, secondary storage, etc.
 
 * Homogeneous Storage Architecture (HoSA): A device that stores 
-all firmware components in the same way, for example in a file 
-system or in flash memory.
+  all firmware components in the same way, for example in a file 
+  system or in flash memory.
 
 * Heterogeneous Storage Architecture (HeSA): A device that 
-stores at least one firmware component differently from the rest, 
-for example a device with an external, updatable radio, or a 
-device with internal and external flash memory.
+  stores at least one firmware component differently from the rest, 
+  for example a device with an external, updatable radio, or a 
+  device with internal and external flash memory.
   
-  
-* Trusted Execution Environments (TEEs): An execution environment that
-runs alongside of, but is isolated from, an REE.
+* Trusted Execution Environments (TEEs): An execution environment 
+  that runs alongside of, but is isolated from, an REE.
 
 * Rich Execution Environment (REE): An environment that is provided
-and governed by a typical OS (e.g., Linux, Windows, Android, iOS),
-potentially in conjunction with other supporting operating systems
-and hypervisors; it is outside of the TEE.  This environment and
-applications running on it are considered un-trusted.
+  and governed by a typical OS (e.g., Linux, Windows, Android, iOS),
+  potentially in conjunction with other supporting operating systems
+  and hypervisors; it is outside of the TEE.  This environment and
+  applications running on it are considered un-trusted.
 
-      
-* Trusted applications (TAs): An application component that runs in a
-TEE. 
+* Trusted applications (TAs): An application component that runs in 
+  a TEE. 
 
 For more information about TEEs see {{I-D.ietf-teep-architecture}}.
 
@@ -204,13 +212,13 @@ The following entities are used:
   application firmware. It interacts with the firmware server and 
   with the status tracker, if present. 
   
-* (IoT) Device: A device refers to the entire IoT product, which consists of
-  one or many MCUs, sensors and/or actuators. Many IoT devices
-  sold today contain multiple MCUs and therefore a single device may 
-  need to obtain more than one firmware image and manifest to 
-  succesfully perform an update. The terms device and firmware 
-  consumer are used interchangably since the firmware consumer is 
-  one software component running on an MCU on the device.
+* (IoT) Device: A device refers to the entire IoT product, which 
+  consists of one or many MCUs, sensors and/or actuators. Many IoT 
+  devices sold today contain multiple MCUs and therefore a single 
+  device may need to obtain more than one firmware image and 
+  manifest to succesfully perform an update. The terms device and 
+  firmware consumer are used interchangably since the firmware 
+  consumer is one software component running on an MCU on the device.
   
 * Status Tracker: The status tracker offers device management 
   functionality to retrieve information about the installed firmware
@@ -314,11 +322,13 @@ firmware images and manifests.
 This architecture does not specify any specific broadcast protocol.
 However, given that broadcast may be desirable for some networks, 
 updates must cause the least disruption possible both in metadata 
-and payload transmission.
+and firmware transmission.
 
 For an update to be broadcast friendly, it cannot rely on link 
-layer, network layer, or transport layer security. In addition, 
-the same message must be deliverable to many devices, both those 
+layer, network layer, or transport layer security. A solution has 
+to rely on security protection applied to the manifest and firmware image 
+instead. In addition, 
+the same manifest must be deliverable to many devices, both those 
 to which it applies and those to which it does not, without a 
 chance that the wrong device will accept the update. Considerations 
 that apply to network broadcasts apply equally to the use of 
@@ -326,27 +336,31 @@ third-party content distribution networks for payload distribution.
 
 ## Use state-of-the-art security mechanisms
 
-End-to-end security between the author and the device, as shown 
-in {{architecture}}, is used to ensure that the device can verify 
-firmware images and manifests produced by authorized authors.
+End-to-end security between the author and the device is shown in 
+{{architecture}}. 
 
-The use of post-quantum secure signature mechanisms, such as 
-hash-based signatures, should be explored. A migration to post-quantum 
-secure signatures would require significant effort, therefore, 
-mandatory-to-implement support for post-quantum secure signatures 
-is a goal.
+Authentication ensures that the device can cryptographically identify 
+the author(s) creating firmware images and manifests. Authenticated 
+identities may be used as input to the authorization process. 
 
-A mandatory-to-implement set of algorithms has to be defined offering 
-a key length of 112-bit symmetric key or security or more, as outlined 
-in Section 20 of RFC 7925 {{RFC7925}}. This corresponds to a 233 bit 
-ECC key or a 2048 bit RSA key.
+Integrity protection ensures that no third party can modify the manifest 
+or the firmware image.
 
-If the firmware image is to be encrypted, it must be done in such a 
+For confidentiality protection of the firmware image, it must be done in such a 
 way that every intended recipient can decrypt it. The information 
-that is encrypted individually for each device must be an absolute 
-minimum, for example AES Key Wrap {{RFC5649}}, in order to maintain 
+that is encrypted individually for each device must maintain 
 friendliness to Content Distribution Networks, bulk storage, and 
-broadcast protocols.
+broadcast protocols. 
+
+A manifest specification must support different cryptographic algorithms
+and algorithm extensibility. Due of the nature of 
+unchangeable code in ROM for use with bootloaders the use of 
+post-quantum secure signature mechanisms, such as hash-based
+signatures {{I-D.ietf-cose-hash-sig}}, are attractive. These 
+algorithms maintain security in presence of quantum computers. 
+
+A mandatory-to-implement set of algorithms will be specified in the 
+manifest specification {{I-D.ietf-suit-manifest}}}. 
 
 ## Rollback attacks must be prevented
 
@@ -372,7 +386,7 @@ on the manifest format.
 ## Operate with a small bootloader
 
 Throughout this document we assume that the bootloader itself is 
-distinct from the role of the fw consumer and therefore does not 
+distinct from the role of the firmware consumer and therefore does not 
 manage the firmware update process. This may give the impression 
 that the bootloader itself is a completely separate component, 
 which is mainly responsible for selecting a firmware image to boot. 
@@ -395,7 +409,7 @@ storing two or more firmware images on the device or offering the
 ability to have a second stage bootloader perform the firmware update 
 process again using firmware updates over serial, USB or even 
 wireless connectivity like a limited version of Bluetooth Smart. 
-In the latter case the fw consumer functionality is contained in the 
+In the latter case the firmware consumer functionality is contained in the 
 second stage bootloader and requires the necessary functionality for 
 executing the firmware update process, including manifest parsing. 
 
@@ -534,7 +548,7 @@ alongside software. Trusted Execution Environments (TEEs), for example,
 greatly benefit from a protocol for managing the lifecycle of trusted 
 applications (TAs) running inside a TEE. TEEs may obtain TAs 
 from different authors and those TAs may require personalization data, 
-such as payment information, to be securely be conveyed to the TEE. 
+such as payment information, to be securely conveyed to the TEE. 
 
 To support this wider range of use cases the manifest format should 
 therefore be extensible to convey other forms of payloads as well. 
@@ -544,7 +558,7 @@ therefore be extensible to convey other forms of payloads as well.
 Claims in the manifest offer a way to convey instructions to
 a device that impact the firmware update process. To have any 
 value the manifest containing those claims must be authenticated
-and integrity protected. The credential used to must be directly 
+and integrity protected. The credential used must be directly 
 or indirectly related to the trust anchor installed at the device
 by the Trust Provisioning Authority. 
 
@@ -804,7 +818,7 @@ RS232. Updating a device over the Internet requires the device to fetch
 not only the firmware image but also the manifest. Hence, the following 
 building blocks are necessary for a firmware update solution: 
 
-- the Internet protocol stack for (possibly large) firmware downloads,
+- the Internet protocol stack for firmware downloads (*),
 
 - the capability to write the received firmware image to 
   persistent storage (most likely flash memory) prior to performing 
@@ -820,6 +834,13 @@ building blocks are necessary for a firmware update solution:
 
 - integration of the device into a device management server to 
   perform automatic firmware updates and to track their progress.
+
+(*) Because firmware images are often multiple kilobytes, sometimes
+exceeding one hundred kilobytes, in size for low end IoT devices and even 
+several megabytes large for IoT devices running full-fledged operating systems
+like Linux, the protocol mechanism for retrieving these images needs
+to offer features like congestion control, flow control, fragmentation
+and reassembly, and mechanisms to resume interrupted or corrupted transfers.
 
 All these features are most likely offered by the application, i.e. 
 firmware consumer, running
@@ -858,9 +879,9 @@ longer needed.
 
 If the application image contains the firmware consumer
 functionality, as described above, then it is necessary that a
-working image is left on the device to ensure that the bootloader can
-roll back to a working firmware image to re-do the firmware download
-since the bootloader itself does not have enough functionality to
+working image is left on the device. This allows the bootloader to
+roll back to a working firmware image to execute a firmware download
+if the bootloader itself does not have enough functionality to
 fetch a firmware image plus manifest from a firmware server over the
 Internet.  A multi-stage bootloader may soften this requirement at
 the expense of a more sophisticated boot process.
@@ -902,7 +923,8 @@ whether a new firmware image is available for download.
 
 ~~~~
 +--------+    +-----------------+      +------------+ +----------+
-| Author |    | Firmware Server |      |FW Consumer | |Bootloader|
+|        |    |                 |      |  Firmware  | |          |
+| Author |    | Firmware Server |      |  Consumer  | |Bootloader|
 +--------+    +-----------------+      +------------+ +----------+
   |                   |                     |                +
   | Create Firmware   |                     |                |
@@ -1003,15 +1025,16 @@ a common pattern used in the industry. The status tracker may then
 automatically, based on human intervention or based on a more 
 complex policy decide to inform the device about the newly available 
 firmware image. In our example, it does so by pushing the manifest 
-to the FW consumer. The firmware consumer downloads the firmware 
+to the firmware consumer. The firmware consumer downloads the firmware 
 image with the newer version X.Y.Z after successful validation 
 of the manifest. Subsequently, a reboot is initiated and the secure 
 boot process starts. 
 
 ~~~~
- +---------+   +-----------------+    |-----------------------------.
- | Status  |   | Firmware Server |    | +------------+ +----------+ |
- | Tracker |   |                 |    | |FW Consumer | |Bootloader| |
+ +---------+   +-----------------+    +-----------------------------+
+ | Status  |   |                 |    | +------------+ +----------+ |
+ | Tracker |   | Firmware Server |    | |  Firmware  | |Bootloader| |
+ |         |   |                 |    | |  Consumer  | |          | |
  +---------+   +-----------------+    | +------------+ +----------+ |
       |                |              |      |  IoT Device    |     |
       |                |               `''''''''''''''''''''''''''''
@@ -1148,6 +1171,7 @@ We would like to thank the following persons for their feedback:
 *  Jintao Zhu
 *  Takeshi Takahashi
 *  Jacob Beningo
+*  Kathleen Moriarty
 
 We would also like to thank the WG chairs, Russ Housley, David Waltermire,
 Dave Thaler for their support and their reviews.
