@@ -1,0 +1,1284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head profile="http://www.w3.org/2006/03/hcard http://dublincore.org/documents/2008/08/04/dc-html/">
+  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
+
+  <title>A Firmware Update Architecture for Internet of Things</title>
+
+  <style type="text/css" title="Xml2Rfc (sans serif)">
+  /*<![CDATA[*/
+	  a {
+	  text-decoration: none;
+	  }
+      /* info code from SantaKlauss at http://www.madaboutstyle.com/tooltip2.html */
+      a.info {
+          /* This is the key. */
+          position: relative;
+          z-index: 24;
+          text-decoration: none;
+      }
+      a.info:hover {
+          z-index: 25;
+          color: #FFF; background-color: #900;
+      }
+      a.info span { display: none; }
+      a.info:hover span.info {
+          /* The span will display just on :hover state. */
+          display: block;
+          position: absolute;
+          font-size: smaller;
+          top: 2em; left: -5em; width: 15em;
+          padding: 2px; border: 1px solid #333;
+          color: #900; background-color: #EEE;
+          text-align: left;
+      }
+	  a.smpl {
+	  color: black;
+	  }
+	  a:hover {
+	  text-decoration: underline;
+	  }
+	  a:active {
+	  text-decoration: underline;
+	  }
+	  address {
+	  margin-top: 1em;
+	  margin-left: 2em;
+	  font-style: normal;
+	  }
+	  body {
+	  color: black;
+	  font-family: verdana, helvetica, arial, sans-serif;
+	  font-size: 10pt;
+	  max-width: 55em;
+	  
+	  }
+	  cite {
+	  font-style: normal;
+	  }
+	  dd {
+	  margin-right: 2em;
+	  }
+	  dl {
+	  margin-left: 2em;
+	  }
+	
+	  ul.empty {
+	  list-style-type: none;
+	  }
+	  ul.empty li {
+	  margin-top: .5em;
+	  }
+	  dl p {
+	  margin-left: 0em;
+	  }
+	  dt {
+	  margin-top: .5em;
+	  }
+	  h1 {
+	  font-size: 14pt;
+	  line-height: 21pt;
+	  page-break-after: avoid;
+	  }
+	  h1.np {
+	  page-break-before: always;
+	  }
+	  h1 a {
+	  color: #333333;
+	  }
+	  h2 {
+	  font-size: 12pt;
+	  line-height: 15pt;
+	  page-break-after: avoid;
+	  }
+	  h3, h4, h5, h6 {
+	  font-size: 10pt;
+	  page-break-after: avoid;
+	  }
+	  h2 a, h3 a, h4 a, h5 a, h6 a {
+	  color: black;
+	  }
+	  img {
+	  margin-left: 3em;
+	  }
+	  li {
+	  margin-left: 2em;
+	  margin-right: 2em;
+	  }
+	  ol {
+	  margin-left: 2em;
+	  margin-right: 2em;
+	  }
+	  ol p {
+	  margin-left: 0em;
+	  }
+	  p {
+	  margin-left: 2em;
+	  margin-right: 2em;
+	  }
+	  pre {
+	  margin-left: 3em;
+	  background-color: lightyellow;
+	  padding: .25em;
+	  }
+	  pre.text2 {
+	  border-style: dotted;
+	  border-width: 1px;
+	  background-color: #f0f0f0;
+	  width: 69em;
+	  }
+	  pre.inline {
+	  background-color: white;
+	  padding: 0em;
+	  }
+	  pre.text {
+	  border-style: dotted;
+	  border-width: 1px;
+	  background-color: #f8f8f8;
+	  width: 69em;
+	  }
+	  pre.drawing {
+	  border-style: solid;
+	  border-width: 1px;
+	  background-color: #f8f8f8;
+	  padding: 2em;
+	  }
+	  table {
+	  margin-left: 2em;
+	  }
+	  table.tt {
+	  vertical-align: top;
+	  }
+	  table.full {
+	  border-style: outset;
+	  border-width: 1px;
+	  }
+	  table.headers {
+	  border-style: outset;
+	  border-width: 1px;
+	  }
+	  table.tt td {
+	  vertical-align: top;
+	  }
+	  table.full td {
+	  border-style: inset;
+	  border-width: 1px;
+	  }
+	  table.tt th {
+	  vertical-align: top;
+	  }
+	  table.full th {
+	  border-style: inset;
+	  border-width: 1px;
+	  }
+	  table.headers th {
+	  border-style: none none inset none;
+	  border-width: 1px;
+	  }
+	  table.left {
+	  margin-right: auto;
+	  }
+	  table.right {
+	  margin-left: auto;
+	  }
+	  table.center {
+	  margin-left: auto;
+	  margin-right: auto;
+	  }
+	  caption {
+	  caption-side: bottom;
+	  font-weight: bold;
+	  font-size: 9pt;
+	  margin-top: .5em;
+	  }
+	
+	  table.header {
+	  border-spacing: 1px;
+	  width: 95%;
+	  font-size: 10pt;
+	  color: white;
+	  }
+	  td.top {
+	  vertical-align: top;
+	  }
+	  td.topnowrap {
+	  vertical-align: top;
+	  white-space: nowrap; 
+	  }
+	  table.header td {
+	  background-color: gray;
+	  width: 50%;
+	  }
+	  table.header a {
+	  color: white;
+	  }
+	  td.reference {
+	  vertical-align: top;
+	  white-space: nowrap;
+	  padding-right: 1em;
+	  }
+	  thead {
+	  display:table-header-group;
+	  }
+	  ul.toc, ul.toc ul {
+	  list-style: none;
+	  margin-left: 1.5em;
+	  margin-right: 0em;
+	  padding-left: 0em;
+	  }
+	  ul.toc li {
+	  line-height: 150%;
+	  font-weight: bold;
+	  font-size: 10pt;
+	  margin-left: 0em;
+	  margin-right: 0em;
+	  }
+	  ul.toc li li {
+	  line-height: normal;
+	  font-weight: normal;
+	  font-size: 9pt;
+	  margin-left: 0em;
+	  margin-right: 0em;
+	  }
+	  li.excluded {
+	  font-size: 0pt;
+	  }
+	  ul p {
+	  margin-left: 0em;
+	  }
+	
+	  .comment {
+	  background-color: yellow;
+	  }
+	  .center {
+	  text-align: center;
+	  }
+	  .error {
+	  color: red;
+	  font-style: italic;
+	  font-weight: bold;
+	  }
+	  .figure {
+	  font-weight: bold;
+	  text-align: center;
+	  font-size: 9pt;
+	  }
+	  .filename {
+	  color: #333333;
+	  font-weight: bold;
+	  font-size: 12pt;
+	  line-height: 21pt;
+	  text-align: center;
+	  }
+	  .fn {
+	  font-weight: bold;
+	  }
+	  .hidden {
+	  display: none;
+	  }
+	  .left {
+	  text-align: left;
+	  }
+	  .right {
+	  text-align: right;
+	  }
+	  .title {
+	  color: #990000;
+	  font-size: 18pt;
+	  line-height: 18pt;
+	  font-weight: bold;
+	  text-align: center;
+	  margin-top: 36pt;
+	  }
+	  .vcardline {
+	  display: block;
+	  }
+	  .warning {
+	  font-size: 14pt;
+	  background-color: yellow;
+	  }
+	
+	
+	  @media print {
+	  .noprint {
+		display: none;
+	  }
+	
+	  a {
+		color: black;
+		text-decoration: none;
+	  }
+	
+	  table.header {
+		width: 90%;
+	  }
+	
+	  td.header {
+		width: 50%;
+		color: black;
+		background-color: white;
+		vertical-align: top;
+		font-size: 12pt;
+	  }
+	
+	  ul.toc a::after {
+		content: leader('.') target-counter(attr(href), page);
+	  }
+	
+	  ul.ind li li a {
+		content: target-counter(attr(href), page);
+	  }
+	
+	  .print2col {
+		column-count: 2;
+		-moz-column-count: 2;
+		column-fill: auto;
+	  }
+	  }
+	
+	  @page {
+	  @top-left {
+		   content: "Internet-Draft"; 
+	  } 
+	  @top-right {
+		   content: "December 2010"; 
+	  } 
+	  @top-center {
+		   content: "Abbreviated Title";
+	  } 
+	  @bottom-left {
+		   content: "Doe"; 
+	  } 
+	  @bottom-center {
+		   content: "Expires June 2011"; 
+	  } 
+	  @bottom-right {
+		   content: "[Page " counter(page) "]"; 
+	  } 
+	  }
+	
+	  @page:first { 
+		@top-left {
+		  content: normal;
+		}
+		@top-right {
+		  content: normal;
+		}
+		@top-center {
+		  content: normal;
+		}
+	  }
+  /*]]>*/
+  </style>
+
+  <link href="#rfc.toc" rel="Contents">
+<link href="#rfc.section.1" rel="Chapter" title="1 Introduction">
+<link href="#rfc.section.2" rel="Chapter" title="2 Conventions and Terminology">
+<link href="#rfc.section.3" rel="Chapter" title="3 Requirements">
+<link href="#rfc.section.3.1" rel="Chapter" title="3.1 Agnostic to how firmware images are distributed">
+<link href="#rfc.section.3.2" rel="Chapter" title="3.2 Friendly to broadcast delivery">
+<link href="#rfc.section.3.3" rel="Chapter" title="3.3 Use state-of-the-art security mechanisms">
+<link href="#rfc.section.3.4" rel="Chapter" title="3.4 Rollback attacks must be prevented">
+<link href="#rfc.section.3.5" rel="Chapter" title="3.5 High reliability">
+<link href="#rfc.section.3.6" rel="Chapter" title="3.6 Operate with a small bootloader">
+<link href="#rfc.section.3.7" rel="Chapter" title="3.7 Small Parsers">
+<link href="#rfc.section.3.8" rel="Chapter" title="3.8 Minimal impact on existing firmware formats">
+<link href="#rfc.section.3.9" rel="Chapter" title="3.9 Robust permissions">
+<link href="#rfc.section.3.10" rel="Chapter" title="3.10 Operating modes">
+<link href="#rfc.section.3.11" rel="Chapter" title="3.11 Suitability to software and personalization data">
+<link href="#rfc.section.4" rel="Chapter" title="4 Claims">
+<link href="#rfc.section.5" rel="Chapter" title="5 Communication Architecture">
+<link href="#rfc.section.6" rel="Chapter" title="6 Manifest">
+<link href="#rfc.section.7" rel="Chapter" title="7 Device Firmware Update Examples">
+<link href="#rfc.section.7.1" rel="Chapter" title="7.1 Single CPU SoC">
+<link href="#rfc.section.7.2" rel="Chapter" title="7.2 Single CPU with Secure - Normal Mode Partitioning">
+<link href="#rfc.section.7.3" rel="Chapter" title="7.3 Dual CPU, shared memory">
+<link href="#rfc.section.7.4" rel="Chapter" title="7.4 Dual CPU, other bus">
+<link href="#rfc.section.8" rel="Chapter" title="8 Bootloader">
+<link href="#rfc.section.9" rel="Chapter" title="9 Example">
+<link href="#rfc.section.10" rel="Chapter" title="10 IANA Considerations">
+<link href="#rfc.section.11" rel="Chapter" title="11 Security Considerations">
+<link href="#rfc.section.12" rel="Chapter" title="12 Mailing List Information">
+<link href="#rfc.section.13" rel="Chapter" title="13 Acknowledgements">
+<link href="#rfc.references" rel="Chapter" title="14 References">
+<link href="#rfc.references.1" rel="Chapter" title="14.1 Normative References">
+<link href="#rfc.references.2" rel="Chapter" title="14.2 Informative References">
+<link href="#rfc.authors" rel="Chapter">
+
+
+  <meta name="generator" content="xml2rfc version 2.11.1 - https://tools.ietf.org/tools/xml2rfc" />
+  <link rel="schema.dct" href="http://purl.org/dc/terms/" />
+
+  <meta name="dct.creator" content="Moran, B., Tschofenig, H., Brown, D., and M. Meriac" />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-suit-architecture-09" />
+  <meta name="dct.issued" scheme="ISO8601" content="2020-05-22" />
+  <meta name="dct.abstract" content="Vulnerabilities with Internet of Things (IoT) devices have raised the need for a solid and secure firmware update mechanism that is also suitable for constrained devices. Incorporating such update mechanism to fix vulnerabilities, to update configuration settings as well as adding new functionality is recommended by security experts." />
+  <meta name="description" content="Vulnerabilities with Internet of Things (IoT) devices have raised the need for a solid and secure firmware update mechanism that is also suitable for constrained devices. Incorporating such update mechanism to fix vulnerabilities, to update configuration settings as well as adding new functionality is recommended by security experts." />
+
+</head>
+
+<body>
+
+  <table class="header">
+    <tbody>
+    
+    	<tr>
+<td class="left">SUIT</td>
+<td class="right">B. Moran</td>
+</tr>
+<tr>
+<td class="left">Internet-Draft</td>
+<td class="right">H. Tschofenig</td>
+</tr>
+<tr>
+<td class="left">Intended status: Informational</td>
+<td class="right">Arm Limited</td>
+</tr>
+<tr>
+<td class="left">Expires: November 23, 2020</td>
+<td class="right">D. Brown</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">Linaro</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">M. Meriac</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">Consultant</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">May 22, 2020</td>
+</tr>
+
+    	
+    </tbody>
+  </table>
+
+  <p class="title">A Firmware Update Architecture for Internet of Things<br />
+  <span class="filename">draft-ietf-suit-architecture-09</span></p>
+  
+  <h1 id="rfc.abstract"><a href="#rfc.abstract">Abstract</a></h1>
+<p>Vulnerabilities with Internet of Things (IoT) devices have raised the need for a solid and secure firmware update mechanism that is also suitable for constrained devices. Incorporating such update mechanism to fix vulnerabilities, to update configuration settings as well as adding new functionality is recommended by security experts.</p>
+<p>This document lists requirements and describes an architecture for a firmware update mechanism suitable for IoT devices. The architecture is agnostic to the transport of the firmware images and associated meta-data.</p>
+<h1 id="rfc.status"><a href="#rfc.status">Status of This Memo</a></h1>
+<p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
+<p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
+<p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
+<p>This Internet-Draft will expire on November 23, 2020.</p>
+<h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
+<p>Copyright (c) 2020 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
+<p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
+<p>This document may contain material from IETF Documents or IETF Contributions published or made publicly available before November 10, 2008.  The person(s) controlling the copyright in some of this material may not have granted the IETF Trust the right to allow modifications of such material outside the IETF Standards Process. Without obtaining an adequate license from the person(s) controlling the copyright in such materials, this document may not be modified outside the IETF Standards Process, and derivative works of it may not be created outside the IETF Standards Process, except to format it for publication as an RFC or to translate it into languages other than English.</p>
+
+  
+  <hr class="noprint" />
+  <h1 class="np" id="rfc.toc"><a href="#rfc.toc">Table of Contents</a></h1>
+  <ul class="toc">
+
+  	<li>1.   <a href="#rfc.section.1">Introduction</a>
+</li>
+<li>2.   <a href="#rfc.section.2">Conventions and Terminology</a>
+</li>
+<li>3.   <a href="#rfc.section.3">Requirements</a>
+</li>
+<ul><li>3.1.   <a href="#rfc.section.3.1">Agnostic to how firmware images are distributed</a>
+</li>
+<li>3.2.   <a href="#rfc.section.3.2">Friendly to broadcast delivery</a>
+</li>
+<li>3.3.   <a href="#rfc.section.3.3">Use state-of-the-art security mechanisms</a>
+</li>
+<li>3.4.   <a href="#rfc.section.3.4">Rollback attacks must be prevented</a>
+</li>
+<li>3.5.   <a href="#rfc.section.3.5">High reliability</a>
+</li>
+<li>3.6.   <a href="#rfc.section.3.6">Operate with a small bootloader</a>
+</li>
+<li>3.7.   <a href="#rfc.section.3.7">Small Parsers</a>
+</li>
+<li>3.8.   <a href="#rfc.section.3.8">Minimal impact on existing firmware formats</a>
+</li>
+<li>3.9.   <a href="#rfc.section.3.9">Robust permissions</a>
+</li>
+<li>3.10.   <a href="#rfc.section.3.10">Operating modes</a>
+</li>
+<li>3.11.   <a href="#rfc.section.3.11">Suitability to software and personalization data</a>
+</li>
+</ul><li>4.   <a href="#rfc.section.4">Claims</a>
+</li>
+<li>5.   <a href="#rfc.section.5">Communication Architecture</a>
+</li>
+<li>6.   <a href="#rfc.section.6">Manifest</a>
+</li>
+<li>7.   <a href="#rfc.section.7">Device Firmware Update Examples</a>
+</li>
+<ul><li>7.1.   <a href="#rfc.section.7.1">Single CPU SoC</a>
+</li>
+<li>7.2.   <a href="#rfc.section.7.2">Single CPU with Secure - Normal Mode Partitioning</a>
+</li>
+<li>7.3.   <a href="#rfc.section.7.3">Dual CPU, shared memory</a>
+</li>
+<li>7.4.   <a href="#rfc.section.7.4">Dual CPU, other bus</a>
+</li>
+</ul><li>8.   <a href="#rfc.section.8">Bootloader</a>
+</li>
+<li>9.   <a href="#rfc.section.9">Example</a>
+</li>
+<li>10.   <a href="#rfc.section.10">IANA Considerations</a>
+</li>
+<li>11.   <a href="#rfc.section.11">Security Considerations</a>
+</li>
+<li>12.   <a href="#rfc.section.12">Mailing List Information</a>
+</li>
+<li>13.   <a href="#rfc.section.13">Acknowledgements</a>
+</li>
+<li>14.   <a href="#rfc.references">References</a>
+</li>
+<ul><li>14.1.   <a href="#rfc.references.1">Normative References</a>
+</li>
+<li>14.2.   <a href="#rfc.references.2">Informative References</a>
+</li>
+</ul><li><a href="#rfc.authors">Authors' Addresses</a>
+</li>
+
+
+  </ul>
+
+  <h1 id="rfc.section.1">
+<a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a>
+</h1>
+<p id="rfc.section.1.p.1">When developing Internet of Things (IoT) devices, one of the most difficult problems to solve is how to update firmware on the device. Once the device is deployed, firmware updates play a critical part in its lifetime, particularly when devices have a long lifetime, are deployed in remote or inaccessible areas where manual intervention is cost prohibitive or otherwise difficult. Updates to the firmware of an IoT device are done to fix bugs in software, to add new functionality, and to re-configure the device to work in new environments or to behave differently in an already deployed context.</p>
+<p id="rfc.section.1.p.2">The firmware update process, among other goals, has to ensure that</p>
+<p></p>
+
+<ul>
+<li>The firmware image is authenticated and integrity protected.  Attempts to flash a modified firmware image or an image from an unknown source are prevented.</li>
+<li>The firmware image can be confidentiality protected so that attempts by an adversary to recover the plaintext binary can be prevented. Obtaining the firmware is often one of the first steps to mount an attack since it gives the adversary valuable insights into used software libraries, configuration settings and generic functionality (even though reverse engineering the binary can be a tedious process).</li>
+</ul>
+<p id="rfc.section.1.p.4">This version of the document assumes asymmetric cryptography and a public key infrastructure. Future versions may also describe a symmetric key approach for very constrained devices.</p>
+<p id="rfc.section.1.p.5">While the standardization work has been informed by and optimised for firmware update use cases of Class 1 (as defined in RFC 7228 <a href="#RFC7228" class="xref">[RFC7228]</a>) devices, there is nothing in the architecture that restricts its use to only these constrained IoT devices.  Software update and delivery of arbitrary data, such as configuration information and keys, can equally be managed by manifests. The solution therefore applies to more capable devices, such as network storage devices, set top boxes, and IP-based cameras as well.</p>
+<p id="rfc.section.1.p.6">More details about the security goals are discussed in <a href="#architecture" class="xref">Section 5</a> and requirements are described in <a href="#requirements" class="xref">Section 3</a>.</p>
+<h1 id="rfc.section.2">
+<a href="#rfc.section.2">2.</a> <a href="#terminology" id="terminology">Conventions and Terminology</a>
+</h1>
+<p id="rfc.section.2.p.1">This document uses the following terms:</p>
+<p></p>
+
+<ul>
+<li>Manifest: The manifest contains meta-data about the firmware image. The manifest is protected against modification and provides information about the author.</li>
+<li>Firmware Image: The firmware image, or image, is a binary that may contain the complete software of a device or a subset of it. The firmware image may consist of multiple images, if the device contains more than one microcontroller. Often it is also a compressed archive that contains code, configuration data, and even the entire file system. The image may consist of a differential update for performance reasons. Firmware is the more universal term. The terms, firmware image, firmware, and image, are used in this document and are interchangeable.</li>
+<li>Software: The terms &#8220;software&#8221; and &#8220;firmware&#8221; are used interchangeably.</li>
+<li>Bootloader: A bootloader is a piece of software that is executed once a microcontroller has been reset. It is responsible for deciding whether to boot a firmware image that is present or whether to obtain and verify a new firmware image. Since the bootloader is a security critical component its functionality may be split into separate stages.  Such a multi-stage bootloader may offer very basic functionality in the first stage and resides in ROM whereas the second stage may implement more complex functionality and resides in flash memory so that it can be updated in the future (in case bugs have been found). The exact split of components into the different stages, the number of firmware images stored by an IoT device, and the detailed functionality varies throughout different implementations. A more detailed discussion is provided in <a href="#bootloader" class="xref">Section 8</a>.</li>
+<li>Microcontroller (MCU for microcontroller unit): An MCU is a compact integrated circuit designed for use in embedded systems.  A typical microcontroller includes a processor, memory (RAM and flash), input/output (I/O) ports and other features connected via some bus on a single chip. The term &#8216;system on chip (SoC)&#8217; is often used for these types of devices.</li>
+<li>System on Chip (SoC): An SoC is an integrated circuit that integrates all components of a computer, such as CPU, memory, input/output ports, secondary storage, etc.</li>
+<li>Homogeneous Storage Architecture (HoSA): A device that stores all firmware components in the same way, for example in a file system or in flash memory.</li>
+<li>Heterogeneous Storage Architecture (HeSA): A device that stores at least one firmware component differently from the rest, for example a device with an external, updatable radio, or a device with internal and external flash memory.</li>
+<li>Trusted Execution Environments (TEEs): An execution environment that runs alongside of, but is isolated from, an REE.</li>
+<li>Rich Execution Environment (REE): An environment that is provided and governed by a typical OS (e.g., Linux, Windows, Android, iOS), potentially in conjunction with other supporting operating systems and hypervisors; it is outside of the TEE.  This environment and applications running on it are considered un-trusted.</li>
+<li>Trusted applications (TAs): An application component that runs in a TEE.</li>
+</ul>
+<p id="rfc.section.2.p.3">For more information about TEEs see <a href="#I-D.ietf-teep-architecture" class="xref">[I-D.ietf-teep-architecture]</a>.</p>
+<p id="rfc.section.2.p.4">The following entities are used:</p>
+<p></p>
+
+<ul>
+<li>Author: The author is the entity that creates the firmware image.  There may be multiple authors in a system either when a device consists of multiple micro-controllers or when the the final firmware image consists of software components from multiple companies.</li>
+<li>Firmware Consumer: The firmware consumer is the recipient of the firmware image and the manifest. It is responsible for parsing and verifying the received manifest and for storing the obtained firmware image. The firmware consumer plays the role of the update component on the IoT device typically running in the application firmware. It interacts with the firmware server and with the status tracker, if present.</li>
+<li>(IoT) Device: A device refers to the entire IoT product, which consists of one or many MCUs, sensors and/or actuators. Many IoT devices sold today contain multiple MCUs and therefore a single device may need to obtain more than one firmware image and manifest to succesfully perform an update. The terms device and firmware consumer are used interchangably since the firmware consumer is one software component running on an MCU on the device.</li>
+<li>Status Tracker: The status tracker offers device management functionality to retrieve information about the installed firmware on a device and other device characteristics (including free memory and hardware components), to obtain the state of the firmware update cycle the device is currently in, and to trigger the update process.  The deployment of status trackers is flexible and they may be used as cloud-based servers, on-premise servers, embedded in edge computing device (such as Internet access gateways or protocol translation gateways), or even in smart phones and tablets. While the IoT device itself runs the client-side of the status tracker it will most likely not run a status tracker itself unless it acts as a proxy for other IoT devices in a protocol translation or edge computing device node.  How much functionality a status tracker includes depends on the selected configuration of the device management functionality and the communication environment it is used in. In a generic networking environment the protocol used between the client and the server-side of the status tracker need to deal with Internet communication challenges involving firewall and NAT traversal.  In other cases, the communication interaction may be rather simple. This architecture document does not impose requirements on the status tracker.</li>
+<li>Firmware Server: The firmware server stores firmware images and manifests and distributes them to IoT devices.  Some deployments may require a store-and-forward concept, which requires storing the firmware images/manifests on more than one entity before<br> they reach the device. There is typically some interaction between the firmware server and the status tracker but those entities are often physically separated on different devices for scalability reasons.</li>
+<li>Device Operator: The actor responsible for the day-to-day operation of a fleet of IoT devices.</li>
+<li>Network Operator: The actor responsible for the operation of a network to which IoT devices connect.</li>
+</ul>
+<p id="rfc.section.2.p.6">In addition to the entities in the list above there is an orthogonal infrastructure with a Trust Provisioning Authority (TPA) distributing trust anchors and authorization permissions to various entities in the system. The TPA may also delegate rights to install, update, enhance, or delete trust anchors and authorization permissions to other parties in the system. This infrastructure overlaps the communication architecture and different deployments may empower certain entities while other deployments may not. For example, in some cases, the Original Design Manufacturer (ODM), which is a company that designs and manufactures a product, may act as a TPA and may decide to remain in full control over the firmware update process of their products.</p>
+<p id="rfc.section.2.p.7">The terms &#8216;trust anchor&#8217; and &#8216;trust anchor store&#8217; are defined in <a href="#RFC6024" class="xref">[RFC6024]</a>:</p>
+<p></p>
+
+<ul>
+<li>&#8220;A trust anchor represents an authoritative entity via a public key and associated data.  The public key is used to verify digital signatures, and the associated data is used to constrain the types of information for which the trust anchor is authoritative.&#8221;</li>
+<li>&#8220;A trust anchor store is a set of one or more trust anchors stored in a device.  A device may have more than one trust anchor store, each of which may be used by one or more applications.&#8221; A trust anchor store must resist modification against unauthorized insertion, deletion, and modification.</li>
+</ul>
+<h1 id="rfc.section.3">
+<a href="#rfc.section.3">3.</a> <a href="#requirements" id="requirements">Requirements</a>
+</h1>
+<p id="rfc.section.3.p.1">The firmware update mechanism described in this specification was designed with the following requirements in mind:</p>
+<p></p>
+
+<ul>
+<li>Agnostic to how firmware images are distributed</li>
+<li>Friendly to broadcast delivery</li>
+<li>Use state-of-the-art security mechanisms</li>
+<li>Rollback attacks must be prevented</li>
+<li>High reliability</li>
+<li>Operate with a small bootloader</li>
+<li>Small Parsers</li>
+<li>Minimal impact on existing firmware formats</li>
+<li>Robust permissions</li>
+<li>Diverse modes of operation</li>
+<li>Suitability to software and personalization data</li>
+</ul>
+<h2 id="rfc.section.3.1">
+<a href="#rfc.section.3.1">3.1.</a> <a href="#agnostic-to-how-firmware-images-are-distributed" id="agnostic-to-how-firmware-images-are-distributed">Agnostic to how firmware images are distributed</a>
+</h2>
+<p id="rfc.section.3.1.p.1">Firmware images can be conveyed to devices in a variety of ways, including USB, UART, WiFi, BLE, low-power WAN technologies, etc.  and use different protocols (e.g., CoAP, HTTP). The specified mechanism needs to be agnostic to the distribution of the firmware images and manifests.</p>
+<h2 id="rfc.section.3.2">
+<a href="#rfc.section.3.2">3.2.</a> <a href="#friendly-to-broadcast-delivery" id="friendly-to-broadcast-delivery">Friendly to broadcast delivery</a>
+</h2>
+<p id="rfc.section.3.2.p.1">This architecture does not specify any specific broadcast protocol.  However, given that broadcast may be desirable for some networks, updates must cause the least disruption possible both in metadata and firmware transmission.</p>
+<p id="rfc.section.3.2.p.2">For an update to be broadcast friendly, it cannot rely on link layer, network layer, or transport layer security. A solution has to rely on security protection applied to the manifest and firmware image instead. In addition, the same manifest must be deliverable to many devices, both those to which it applies and those to which it does not, without a chance that the wrong device will accept the update. Considerations that apply to network broadcasts apply equally to the use of third-party content distribution networks for payload distribution.</p>
+<h2 id="rfc.section.3.3">
+<a href="#rfc.section.3.3">3.3.</a> <a href="#use-state-of-the-art-security-mechanisms" id="use-state-of-the-art-security-mechanisms">Use state-of-the-art security mechanisms</a>
+</h2>
+<p id="rfc.section.3.3.p.1">End-to-end security between the author and the device is shown in <a href="#architecture" class="xref">Section 5</a>.</p>
+<p id="rfc.section.3.3.p.2">Authentication ensures that the device can cryptographically identify the author(s) creating firmware images and manifests. Authenticated identities may be used as input to the authorization process.</p>
+<p id="rfc.section.3.3.p.3">Integrity protection ensures that no third party can modify the manifest or the firmware image.</p>
+<p id="rfc.section.3.3.p.4">For confidentiality protection of the firmware image, it must be done in such a way that every intended recipient can decrypt it. The information that is encrypted individually for each device must maintain friendliness to Content Distribution Networks, bulk storage, and broadcast protocols.</p>
+<p id="rfc.section.3.3.p.5">A manifest specification must support different cryptographic algorithms and algorithm extensibility. Due of the nature of unchangeable code in ROM for use with bootloaders the use of post-quantum secure signature mechanisms, such as hash-based signatures <a href="#I-D.ietf-cose-hash-sig" class="xref">[I-D.ietf-cose-hash-sig]</a>, are attractive. These algorithms maintain security in presence of quantum computers.</p>
+<p id="rfc.section.3.3.p.6">A mandatory-to-implement set of algorithms will be specified in the manifest specification <a href="#I-D.ietf-suit-manifest" class="xref">[I-D.ietf-suit-manifest]</a>}.</p>
+<h2 id="rfc.section.3.4">
+<a href="#rfc.section.3.4">3.4.</a> <a href="#rollback-attacks-must-be-prevented" id="rollback-attacks-must-be-prevented">Rollback attacks must be prevented</a>
+</h2>
+<p id="rfc.section.3.4.p.1">A device presented with an old, but valid manifest and firmware must not be tricked into installing such firmware since a vulnerability in the old firmware image may allow an attacker to gain control of the device.</p>
+<h2 id="rfc.section.3.5">
+<a href="#rfc.section.3.5">3.5.</a> <a href="#high-reliability" id="high-reliability">High reliability</a>
+</h2>
+<p id="rfc.section.3.5.p.1">A power failure at any time must not cause a failure of the device.  A failure to validate any part of an update must not cause a failure of the device. One way to achieve this functionality is to provide a minimum of two storage locations for firmware and one bootable location for firmware. An alternative approach is to use a 2nd stage bootloader with build-in full featured firmware update functionality such that it is possible to return to the update process after power down.</p>
+<p id="rfc.section.3.5.p.2">Note: This is an implementation requirement rather than a requirement on the manifest format.</p>
+<h2 id="rfc.section.3.6">
+<a href="#rfc.section.3.6">3.6.</a> <a href="#operate-with-a-small-bootloader" id="operate-with-a-small-bootloader">Operate with a small bootloader</a>
+</h2>
+<p id="rfc.section.3.6.p.1">Throughout this document we assume that the bootloader itself is distinct from the role of the firmware consumer and therefore does not manage the firmware update process. This may give the impression that the bootloader itself is a completely separate component, which is mainly responsible for selecting a firmware image to boot.</p>
+<p id="rfc.section.3.6.p.2">The overlap between the firmware update process and the bootloader functionality comes in two forms, namely</p>
+<p></p>
+
+<ul>
+<li>First, a bootloader must verify the firmware image it boots as part of the secure boot process. Doing so requires meta-data to be stored alongside the firmware image so that the bootloader can cryptographically verify the firmware image before booting it to ensure it has not been tampered with or replaced. This meta-data used by the bootloader may well be the same manifest obtained with the firmware image during the update process (with the severable fields stripped off).</li>
+<li>Second, an IoT device needs a recovery strategy in case the firmware update / boot process fails. The recovery strategy may include storing two or more firmware images on the device or offering the ability to have a second stage bootloader perform the firmware update process again using firmware updates over serial, USB or even wireless connectivity like a limited version of Bluetooth Smart.  In the latter case the firmware consumer functionality is contained in the second stage bootloader and requires the necessary functionality for executing the firmware update process, including manifest parsing.</li>
+</ul>
+<p id="rfc.section.3.6.p.4">In general, it is assumed that the bootloader itself, or a minimal part of it, will not be updated since a failed update of the bootloader poses a risk in reliability.</p>
+<p id="rfc.section.3.6.p.5">All information necessary for a device to make a decision about the installation of a firmware update must fit into the available RAM of a constrained IoT device. This prevents flash write exhaustion.  This is typically not a difficult requirement to accomplish because there are not other task/processing running while the bootloader is active (unlike it may be the case when running the application firmware).</p>
+<p id="rfc.section.3.6.p.6">Note: This is an implementation requirement.</p>
+<h2 id="rfc.section.3.7">
+<a href="#rfc.section.3.7">3.7.</a> <a href="#small-parsers" id="small-parsers">Small Parsers</a>
+</h2>
+<p id="rfc.section.3.7.p.1">Since parsers are known sources of bugs they must be minimal.  Additionally, it must be easy to parse only those fields that are required to validate at least one signature or MAC with minimal exposure.</p>
+<h2 id="rfc.section.3.8">
+<a href="#rfc.section.3.8">3.8.</a> <a href="#minimal-impact-on-existing-firmware-formats" id="minimal-impact-on-existing-firmware-formats">Minimal impact on existing firmware formats</a>
+</h2>
+<p id="rfc.section.3.8.p.1">The design of the firmware update mechanism must not require changes to existing firmware formats.</p>
+<h2 id="rfc.section.3.9">
+<a href="#rfc.section.3.9">3.9.</a> <a href="#robust-permissions" id="robust-permissions">Robust permissions</a>
+</h2>
+<p id="rfc.section.3.9.p.1">When a device obtains a monolithic firmware image from a single author without any additional approval steps then the authorization flow is relatively simple. There are, however, other cases where more complex policy decisions need to be made before updating a device.</p>
+<p id="rfc.section.3.9.p.2">In this architecture the authorization policy is separated from the underlying communication architecture. This is accomplished by separating the entities from their permissions. For example, an author may not have the authority to install a firmware image on a device in critical infrastructure without the authorization of a device operator. In this case, the device may be programmed to reject firmware updates unless they are signed both by the firmware author and by the device operator.</p>
+<p id="rfc.section.3.9.p.3">Alternatively, a device may trust precisely one entity, which does all permission management and coordination. This entity allows the device to offload complex permissions calculations for the device.</p>
+<h2 id="rfc.section.3.10">
+<a href="#rfc.section.3.10">3.10.</a> <a href="#operating-modes" id="operating-modes">Operating modes</a>
+</h2>
+<p id="rfc.section.3.10.p.1">There are three broad classifications of update operating modes.</p>
+<p></p>
+
+<ul>
+<li>Client-initiated Update</li>
+<li>Server-initiated Update</li>
+<li>Hybrid Update</li>
+</ul>
+<p id="rfc.section.3.10.p.3">Client-initiated updates take the form of a firmware consumer on a device proactively checking (polling) for new firmware images.</p>
+<p id="rfc.section.3.10.p.4">Server-initiated updates are important to consider because timing of updates may need to be tightly controlled in some high- reliability environments. In this case the status tracker determines what devices qualify for a firmware update. Once those devices have been selected the firmware server distributes updates to the firmware consumers.</p>
+<p id="rfc.section.3.10.p.5">Note: This assumes that the status tracker is able to reach the device, which may require devices to keep reachability  information at the status tracker up-to-date. This may also require keeping state at NATs and stateful packet filtering firewalls alive.</p>
+<p id="rfc.section.3.10.p.6">Hybrid updates are those that require an interaction between the firmware consumer and the status tracker. The status tracker pushes notifications of availability of an update to the firmware consumer, and it then downloads the image from a firmware server as soon as possible.</p>
+<p id="rfc.section.3.10.p.7">An alternative view to the operating modes is to consider the steps a device has to go through in the course of an update:</p>
+<p></p>
+
+<ul>
+<li>Notification</li>
+<li>Pre-authorisation</li>
+<li>Dependency resolution</li>
+<li>Download</li>
+<li>Installation</li>
+</ul>
+<p id="rfc.section.3.10.p.9">The notification step consists of the status tracker informing the firmware consumer that an update is available. This can be accomplished via polling (client-initiated), push notifications (server-initiated), or more complex mechanisms.</p>
+<p id="rfc.section.3.10.p.10">The pre-authorisation step involves verifying whether the entity signing the manifest is indeed authorized to perform an update.  The firmware consumer must also determine whether it should fetch and process a firmware image, which is referenced in a manifest.</p>
+<p id="rfc.section.3.10.p.11">A dependency resolution phase is needed when more than one component can be updated or when a differential update is used.  The necessary dependencies must be available prior to installation.</p>
+<p id="rfc.section.3.10.p.12">The download step is the process of acquiring a local copy of the firmware image.  When the download is client-initiated, this means that the firmware consumer chooses when a download occurs and initiates the download process.  When a download is server-initiated, this means that the status tracker tells the device when to download or that it initiates the transfer directly to the firmware consumer. For example, a download from an HTTP-based firmware server is client-initiated. Pushing a manifest and firmware image to the transfer to the Package resource of the LwM2M Firmware Update object <a href="#LwM2M" class="xref">[LwM2M]</a> is server-initiated.</p>
+<p id="rfc.section.3.10.p.13">If the firmware consumer has downloaded a new firmware image and is ready to install it, it may need to wait for a trigger from the status tracker to initiate the installation, may trigger the update automatically, or may go through a more complex decision making process to determine the appropriate timing for an update (such as delaying the update process to a later time when end users are less impacted by the update process).</p>
+<p id="rfc.section.3.10.p.14">Installation is the act of processing the payload into a format that the IoT device can recognise and the bootloader is responsible for then booting from the newly installed firmware image.</p>
+<p id="rfc.section.3.10.p.15">Each of these steps may require different permissions.</p>
+<h2 id="rfc.section.3.11">
+<a href="#rfc.section.3.11">3.11.</a> <a href="#suitability-to-software-and-personalization-data" id="suitability-to-software-and-personalization-data">Suitability to software and personalization data</a>
+</h2>
+<p id="rfc.section.3.11.p.1">The work on a standardized manifest format initially focused on the most constrained IoT devices and those devices contain code put together by a single author (although that author may obtain code from other developers, some of it only in binary form).</p>
+<p id="rfc.section.3.11.p.2">Later it turns out that other use cases may benefit from a standardized manifest format also for conveying software and even personalization data alongside software. Trusted Execution Environments (TEEs), for example, greatly benefit from a protocol for managing the lifecycle of trusted applications (TAs) running inside a TEE. TEEs may obtain TAs from different authors and those TAs may require personalization data, such as payment information, to be securely conveyed to the TEE.</p>
+<p id="rfc.section.3.11.p.3">To support this wider range of use cases the manifest format should therefore be extensible to convey other forms of payloads as well.</p>
+<h1 id="rfc.section.4">
+<a href="#rfc.section.4">4.</a> <a href="#claims" id="claims">Claims</a>
+</h1>
+<p id="rfc.section.4.p.1">Claims in the manifest offer a way to convey instructions to a device that impact the firmware update process. To have any value the manifest containing those claims must be authenticated and integrity protected. The credential used must be directly or indirectly related to the trust anchor installed at the device by the Trust Provisioning Authority.</p>
+<p id="rfc.section.4.p.2">The baseline claims for all manifests are described in <a href="#I-D.ietf-suit-information-model" class="xref">[I-D.ietf-suit-information-model]</a>.  For example, there are:</p>
+<p></p>
+
+<ul>
+<li>Do not install firmware with earlier metadata than the current metadata.</li>
+<li>Only install firmware with a matching vendor, model, hardware revision, software version, etc.</li>
+<li>Only install firmware that is before its best-before timestamp.</li>
+<li>Only allow a firmware installation if dependencies have been met.</li>
+<li>Choose the mechanism to install the firmware, based on the type of firmware it is.</li>
+</ul>
+<h1 id="rfc.section.5">
+<a href="#rfc.section.5">5.</a> <a href="#architecture" id="architecture">Communication Architecture</a>
+</h1>
+<p><a href="#arch-figure" class="xref">Figure 1</a> shows the communication architecture where a firmware image is created by an author, and uploaded to a firmware server. The firmware image/manifest is distributed to the device either in a push or pull manner using the firmware consumer residing on the device. The device operator keeps track of the process using the status tracker. This allows the device operator to know and control what devices have received an update and which of them are still pending an update.</p>
+<div id="rfc.figure.1"></div>
+<div id="arch-figure"></div>
+<pre>
+              Firmware +  +----------+       Firmware + +-----------+
+              Manifest    |          |-+     Manifest   |           |-+
+               +---------&gt;| Firmware | |&lt;---------------|           | |
+               |          | Server   | |                |  Author   | |
+               |          |          | |                |           | |
+               |          +----------+ |                +-----------+ |
+               |            +----------+                  +-----------+
+               |
+               |
+               |
+              -+--                                  ------
+         ----  |  ----                          ----      ----
+       //      |      \\                      //              \\
+      /        |        \                    /                  \
+     /         |         \                  /                    \
+    /          |          \                /                      \
+   /           |           \              /                        \
+  |            v            |            |                          |
+  |     +------------+                                              |
+  |     |  Firmware  |      |            |                          |
+ |      |  Consumer  |       | Device    |       +--------+          |
+ |      +------------+       | Management|       |        |          |
+ |      |            |&lt;-------------------------&gt;| Status |          |
+ |      |   Device   |       |          |        | Tracker|          |
+ |      +------------+       |          ||       |        |         |
+  |                         |           ||       +--------+         |
+  |                         |            |                          |
+  |                         |             \                        /
+   \                       /               \                      /
+    \                     /                 \      Device        /
+     \     Network       /                   \     Operator     /
+      \   Operator      /                     \\              //
+       \\             //                        ----      ----
+         ----     ----                              ------
+             -----
+
+</pre>
+<p class="figure">Figure 1: Architecture.</p>
+<p id="rfc.section.5.p.2">End-to-end security mechanisms are used to protect the firmware image and the manifest although <a href="#e2e-figure" class="xref">Figure 2</a> does not show the manifest itself since it may be distributed independently.</p>
+<div id="rfc.figure.2"></div>
+<div id="e2e-figure"></div>
+<pre>
+                            +-----------+
++--------+                  |           |                   +--------+
+|        |  Firmware Image  | Firmware  |   Firmware Image  |        |
+| Device |&lt;-----------------| Server    |&lt;------------------| Author |
+|        |                  |           |                   |        |
++--------+                  +-----------+                   +--------+
+     ^                                                          *
+     *                                                          *
+     ************************************************************
+                        End-to-End Security
+</pre>
+<p class="figure">Figure 2: End-to-End Security.</p>
+<p id="rfc.section.5.p.3">Whether the firmware image and the manifest is pushed to the device or fetched by the device is a deployment specific decision.</p>
+<p id="rfc.section.5.p.4">The following assumptions are made to allow the firmware consumer to verify the received firmware image and manifest before updating software:</p>
+<p></p>
+
+<ul>
+<li>To accept an update, a device needs to verify the signature covering the manifest. There may be one or multiple manifests that need to be validated, potentially signed by different parties. The device needs to be in possession of the trust anchors to verify those signatures.  Installing trust anchors to devices via the Trust Provisioning Authority happens in an out-of-band fashion prior to the firmware update process.</li>
+<li>Not all entities creating and signing manifests have the same permissions. A device needs to determine whether the requested action is indeed covered by the permission of the party that signed the manifest.  Informing the device about the permissions of the different parties also happens in an out-of-band fashion and is also a duty of the Trust Provisioning Authority.</li>
+<li>For confidentiality protection of firmware images the author needs to be in possession of the certificate/public key or a pre-shared key of a device. The use of confidentiality protection of firmware images is deployment specific.</li>
+</ul>
+<p id="rfc.section.5.p.6">There are different types of delivery modes, which are illustrated based on examples below.</p>
+<p id="rfc.section.5.p.7">There is an option for embedding a firmware image into a manifest.  This is a useful approach for deployments where devices are not connected to the Internet and cannot contact a dedicated firmware server for the firmware download. It is also applicable when the firmware update happens via a USB stick or via Bluetooth Smart. <a href="#attached-firmware-figure" class="xref">Figure 3</a> shows this delivery mode graphically.</p>
+<div id="rfc.figure.3"></div>
+<div id="attached-firmware-figure"></div>
+<pre>
+              /------------\                 /------------\
+             /Manifest with \               /Manifest with \
+             |attached      |               |attached      |
+             \firmware image/               \firmware image/
+              \------------/  +-----------+  \------------/
+  +--------+                  |           |                 +--------+
+  |        |&lt;.................| Firmware  |&lt;................|        |
+  | Device |                  | Server    |                 | Author |
+  |        |                  |           |                 |        |
+  +--------+                  +-----------+                 +--------+
+</pre>
+<p class="figure">Figure 3: Manifest with attached firmware.</p>
+<p><a href="#online-firmware-figure" class="xref">Figure 4</a> shows an option for remotely updating a device where the device fetches the firmware image from some file server. The manifest itself is delivered independently and provides information about the firmware image(s) to download.</p>
+<div id="rfc.figure.4"></div>
+<div id="online-firmware-figure"></div>
+<pre>
+             /--------\                     /--------\
+            /          \                   /          \
+            | Manifest |                   | Manifest |
+            \          /                   \          /
+             \--------/                     \--------/
+                            +-----------+
++--------+                  |           |                 +--------+
+|        |&lt;.................| Status    |................&gt;|        |
+| Device |                  | Tracker   |              -- | Author |
+|        |&lt;-                |           |            ---  |        |
++--------+  --              +-----------+          ---    +--------+
+              --                                 ---
+                ---                            ---
+                   --       +-----------+    --
+                     --     |           |  --
+      /------------\   --   | Firmware  |&lt;-    /------------\
+     /              \    -- | Server    |     /              \
+     |   Firmware   |       |           |     |   Firmware   |
+     \              /       +-----------+     \              /
+      \------------/                           \------------/
+</pre>
+<p class="figure">Figure 4: Independent retrieval of the firmware image.</p>
+<p id="rfc.section.5.p.9">This architecture does not mandate a specific delivery mode but a solution must support both types.</p>
+<h1 id="rfc.section.6">
+<a href="#rfc.section.6">6.</a> <a href="#manifest" id="manifest">Manifest</a>
+</h1>
+<p id="rfc.section.6.p.1">In order for a device to apply an update, it has to make several decisions about the update:</p>
+<p></p>
+
+<ul>
+<li>Does it trust the author of the update?</li>
+<li>Has the firmware been corrupted?</li>
+<li>Does the firmware update apply to this device?</li>
+<li>Is the update older than the active firmware?</li>
+<li>When should the device apply the update?</li>
+<li>How should the device apply the update?</li>
+<li>What kind of firmware binary is it?</li>
+<li>Where should the update be obtained?</li>
+<li>Where should the firmware be stored?</li>
+</ul>
+<p id="rfc.section.6.p.3">The manifest encodes the information that devices need in order to make these decisions. It is a data structure that contains the following information:</p>
+<p></p>
+
+<ul>
+<li>information about the device(s) the firmware image is intended to be applied to,</li>
+<li>information about when the firmware update has to be applied,</li>
+<li>information about when the manifest was created,</li>
+<li>dependencies on other manifests,</li>
+<li>pointers to the firmware image and information about the format,</li>
+<li>information about where to store the firmware image,</li>
+<li>cryptographic information, such as digital signatures or message authentication codes (MACs).</li>
+</ul>
+<p id="rfc.section.6.p.5">The manifest information model is described in <a href="#I-D.ietf-suit-information-model" class="xref">[I-D.ietf-suit-information-model]</a>.</p>
+<h1 id="rfc.section.7">
+<a href="#rfc.section.7">7.</a> <a href="#device-firmware-update-examples" id="device-firmware-update-examples">Device Firmware Update Examples</a>
+</h1>
+<p id="rfc.section.7.p.1">Although these documents attempt to define a firmware update architecture that is applicable to both existing systems, as well as yet-to-be-conceived systems; it is still helpful to consider existing architectures.</p>
+<h2 id="rfc.section.7.1">
+<a href="#rfc.section.7.1">7.1.</a> <a href="#single-cpu-soc" id="single-cpu-soc">Single CPU SoC</a>
+</h2>
+<p id="rfc.section.7.1.p.1">The simplest, and currently most common, architecture consists of a single MCU along with its own peripherals.  These SoCs generally contain some amount of flash memory for code and fixed data, as well as RAM for working storage.  These systems either have a single firmware image, or an immutable bootloader that runs a single image.  A notable characteristic of these SoCs is that the primary code is generally execute in place (XIP).  Combined with the non-relocatable nature of the code, firmware updates need to be done in place.</p>
+<h2 id="rfc.section.7.2">
+<a href="#rfc.section.7.2">7.2.</a> <a href="#single-cpu-with-secure-normal-mode-partitioning" id="single-cpu-with-secure-normal-mode-partitioning">Single CPU with Secure - Normal Mode Partitioning</a>
+</h2>
+<p id="rfc.section.7.2.p.1">Another configuration consists of a similar architecture to the previous, with a single CPU.  However, this CPU supports a security partitioning scheme that allows memory (in addition to other things) to be divided into secure and normal mode.  There will generally be two images, one for secure mode, and one for normal mode.  In this configuration, firmware upgrades will generally be done by the CPU in secure mode, which is able to write to both areas of the flash device. In addition, there are requirements to be able to update either image independently, as well as to update them together atomically, as specified in the associated manifests.</p>
+<h2 id="rfc.section.7.3">
+<a href="#rfc.section.7.3">7.3.</a> <a href="#dual-cpu-shared-memory" id="dual-cpu-shared-memory">Dual CPU, shared memory</a>
+</h2>
+<p id="rfc.section.7.3.p.1">This configuration has two or more CPUs in a single SoC that share memory (flash and RAM).  Generally, they will be a protection mechanism to prevent one CPU from accessing the other&#8217;s memory. Upgrades in this case will typically be done by one of the CPUs, and is similar to the single CPU with secure mode.</p>
+<h2 id="rfc.section.7.4">
+<a href="#rfc.section.7.4">7.4.</a> <a href="#dual-cpu-other-bus" id="dual-cpu-other-bus">Dual CPU, other bus</a>
+</h2>
+<p id="rfc.section.7.4.p.1">This configuration has two or more CPUs, each having their own memory.  There will be a communication channel between them, but it will be used as a peripheral, not via shared memory.  In this case, each CPU will have to be responsible for its own firmware upgrade.  It is likely that one of the CPUs will be considered a master, and will direct the other CPU to do the upgrade.  This configuration is commonly used to offload specific work to other CPUs.  Firmware dependencies are similar to the other solutions above, sometimes allowing only one image to be upgraded, other times requiring several to be upgraded atomically.  Because the updates are happening on multiple CPUs, upgrading the two images atomically is challenging.</p>
+<h1 id="rfc.section.8">
+<a href="#rfc.section.8">8.</a> <a href="#bootloader" id="bootloader">Bootloader</a>
+</h1>
+<p id="rfc.section.8.p.1">More devices today than ever before are being connected to the Internet, which drives the need for firmware updates to be provided over the Internet rather than through traditional interfaces, such as USB or RS232. Updating a device over the Internet requires the device to fetch not only the firmware image but also the manifest. Hence, the following building blocks are necessary for a firmware update solution:</p>
+<p></p>
+
+<ul>
+<li>the Internet protocol stack for firmware downloads (*),</li>
+<li>the capability to write the received firmware image to persistent storage (most likely flash memory) prior to performing the update,</li>
+<li>the ability to unpack, decompress or otherwise process the received firmware image,</li>
+<li>the features to verify an image and a manifest, including digital signature verification or checking a message authentication code,</li>
+<li>a manifest parsing library, and</li>
+<li>integration of the device into a device management server to perform automatic firmware updates and to track their progress.</li>
+</ul>
+<p id="rfc.section.8.p.3">(*) Because firmware images are often multiple kilobytes, sometimes exceeding one hundred kilobytes, in size for low end IoT devices and even several megabytes large for IoT devices running full-fledged operating systems like Linux, the protocol mechanism for retrieving these images needs to offer features like congestion control, flow control, fragmentation and reassembly, and mechanisms to resume interrupted or corrupted transfers.</p>
+<p id="rfc.section.8.p.4">All these features are most likely offered by the application, i.e.  firmware consumer, running on the device (except for basic security algorithms that may run either on a trusted execution environment or on a separate hardware security MCU/module) rather than by the bootloader itself.</p>
+<p id="rfc.section.8.p.5">Once manifests have been processed and firmware images successfully downloaded and verified the device needs to hand control over to the bootloader.  In most cases this requires the MCU to restart. Once the MCU has initiated a restart, the bootloader takes over control and determines whether the newly downloaded firmware image should be executed.</p>
+<p id="rfc.section.8.p.6">The boot process is security sensitive because the firmware images may, for example, be stored in off-chip flash memory giving attackers easy access to the image for reverse engineering and potentially also for modifying the binary.  The bootloader will therefore have to perform security checks on the firmware image before it can be booted. These security checks by the bootloader happen in addition to the security checks that happened when the firmware image and the manifest were downloaded.</p>
+<p id="rfc.section.8.p.7">The manifest may have been stored alongside the firmware image to allow re-verification of the firmware image during every boot attempt.  Alternatively, secure boot-specific meta-data may have been created by the application after a successful firmware download and verification process.  Whether to re-use the standardized manifest format that was used during the initial firmware retrieval process or whether it is better to use a different format for the secure boot-specific meta-data depends on the system design.  The manifest format does, however, have the capability to serve also as a building block for secure boot with its severable elements that allow shrinking the size of the manifest by stripping elements that are no longer needed.</p>
+<p id="rfc.section.8.p.8">If the application image contains the firmware consumer functionality, as described above, then it is necessary that a working image is left on the device. This allows the bootloader to roll back to a working firmware image to execute a firmware download if the bootloader itself does not have enough functionality to fetch a firmware image plus manifest from a firmware server over the Internet.  A multi-stage bootloader may soften this requirement at the expense of a more sophisticated boot process.</p>
+<p id="rfc.section.8.p.9">For a bootloader to offer a secure boot mechanism it needs to provide the following features:</p>
+<p></p>
+
+<ul>
+<li>ability to access security algorithms, such as SHA-256 to compute a fingerprint over the firmware image and a digital signature algorithm.</li>
+<li>access keying material directly or indirectly to utilize the digital signature.  The device needs to have a trust anchor store.</li>
+<li>ability to expose boot process-related data to the application firmware (such as to the device management software).  This allows a device management server to determine whether the firmware update has been successful and, if not, what errors occurred.</li>
+<li>to (optionally) offer attestation information (such as measurements).</li>
+</ul>
+<p id="rfc.section.8.p.11">While the software architecture of the bootloader and its security mechanisms are implementation-specific, the manifest can be used to control the firmware download from the Internet in addition to augmenting secure boot process. These building blocks are highly relevant for the design of the manifest.</p>
+<h1 id="rfc.section.9">
+<a href="#rfc.section.9">9.</a> <a href="#example" id="example">Example</a>
+</h1>
+<p><a href="#firmware-update" class="xref">Figure 5</a> illustrates an example message flow for distributing a firmware image to a device starting with an author uploading the new firmware to firmware server and creating a manifest. The firmware and manifest are stored on the same firmware server. This setup does not use a status tracker and the firmware consumer component is therefore responsible for periodically checking whether a new firmware image is available for download.</p>
+<div id="rfc.figure.5"></div>
+<div id="firmware-update"></div>
+<pre>
++--------+    +-----------------+      +------------+ +----------+
+|        |    |                 |      |  Firmware  | |          |
+| Author |    | Firmware Server |      |  Consumer  | |Bootloader|
++--------+    +-----------------+      +------------+ +----------+
+  |                   |                     |                +
+  | Create Firmware   |                     |                |
+  |--------------+    |                     |                |
+  |              |    |                     |                |
+  |&lt;-------------+    |                     |                |
+  |                   |                     |                |
+  | Upload Firmware   |                     |                |
+  |------------------&gt;|                     |                |
+  |                   |                     |                |
+  | Create Manifest   |                     |                |
+  |---------------+   |                     |                |
+  |               |   |                     |                |
+  |&lt;--------------+   |                     |                |
+  |                   |                     |                |
+  | Sign Manifest     |                     |                |
+  |-------------+     |                     |                |
+  |             |     |                     |                |
+  |&lt;------------+     |                     |                |
+  |                   |                     |                |
+  | Upload Manifest   |                     |                |
+  |------------------&gt;|                     |                |
+  |                   |                     |                |
+  |                   |   Query Manifest    |                |
+  |                   |&lt;--------------------|                |
+  |                   |                     |                |
+  |                   |   Send Manifest     |                |
+  |                   |--------------------&gt;|                |
+  |                   |                     | Validate       |
+  |                   |                     | Manifest       |
+  |                   |                     |---------+      |
+  |                   |                     |         |      |
+  |                   |                     |&lt;--------+      |
+  |                   |                     |                |
+  |                   |  Request Firmware   |                |
+  |                   |&lt;--------------------|                |
+  |                   |                     |                |
+  |                   | Send Firmware       |                |
+  |                   |--------------------&gt;|                |
+  |                   |                     | Verify         |
+  |                   |                     | Firmware       |
+  |                   |                     |--------------+ |
+  |                   |                     |              | |
+  |                   |                     |&lt;-------------+ |
+  |                   |                     |                |
+  |                   |                     | Store          |
+  |                   |                     | Firmware       |
+  |                   |                     |-------------+  |
+  |                   |                     |             |  |
+  |                   |                     |&lt;------------+  |
+  |                   |                     |                |
+  |                   |                     |                |
+  |                   |                     | Trigger Reboot |
+  |                   |                     |---------------&gt;|
+  |                   |                     |                |
+  |                   |                     |                |
+  |                   |                 +---+----------------+--+
+  |                   |                S|   |                |  |
+  |                   |                E|   | Verify         |  |
+  |                   |                C|   | Firmware       |  |
+  |                   |                U|   | +--------------|  |
+  |                   |                R|   | |              |  |
+  |                   |                E|   | +-------------&gt;|  |
+  |                   |                 |   |                |  |
+  |                   |                B|   | Activate new   |  |
+  |                   |                O|   | Firmware       |  |
+  |                   |                O|   | +--------------|  |
+  |                   |                T|   | |              |  |
+  |                   |                 |   | +-------------&gt;|  |
+  |                   |                P|   |                |  |
+  |                   |                R|   | Boot new       |  |
+  |                   |                O|   | Firmware       |  |
+  |                   |                C|   | +--------------|  |
+  |                   |                E|   | |              |  |
+  |                   |                S|   | +-------------&gt;|  |
+  |                   |                S|   |                |  |
+  |                   |                 +---+----------------+--+
+  |                   |                     |                |
+</pre>
+<p class="figure">Figure 5: First Example Flow for a Firmware Upate.</p>
+<p><a href="#firmware-update2" class="xref">Figure 6</a> shows an example follow with the device using a status tracker. For editorial reasons the author publishing the manifest at the status tracker and the firmware image at the firmware server is not shown. Also omitted is the secure boot process following the successful firmware update process.</p>
+<p id="rfc.section.9.p.3">The exchange starts with the device interacting with the status tracker; the details of such exchange will vary with the different device management systems being used. In any case, the status tracker learns about the firmware version of the devices it manages. In our example, the device under management is using firmware version A.B.C. At a later point in time the author uploads a new firmware along with the manifest to the firmware server and the status tracker, respectively. While there is no need to store the manifest and the firmware on different servers this example shows a common pattern used in the industry. The status tracker may then automatically, based on human intervention or based on a more complex policy decide to inform the device about the newly available firmware image. In our example, it does so by pushing the manifest to the firmware consumer. The firmware consumer downloads the firmware image with the newer version X.Y.Z after successful validation of the manifest. Subsequently, a reboot is initiated and the secure boot process starts.</p>
+<div id="rfc.figure.6"></div>
+<div id="firmware-update2"></div>
+<pre>
+ +---------+   +-----------------+    +-----------------------------+
+ | Status  |   |                 |    | +------------+ +----------+ |
+ | Tracker |   | Firmware Server |    | |  Firmware  | |Bootloader| |
+ |         |   |                 |    | |  Consumer  | |          | |
+ +---------+   +-----------------+    | +------------+ +----------+ |
+      |                |              |      |  IoT Device    |     |
+      |                |               `''''''''''''''''''''''''''''
+      |                |                     |                |
+      |        Query Firmware Version        |                |
+      |-------------------------------------&gt;|                |
+      |        Firmware Version A.B.C        |                |
+      |&lt;-------------------------------------|                |
+      |                |                     |                |
+      |         &lt;&lt;some time later&gt;&gt;          |                |
+      |                |                     |                |
+    _,...._         _,...._                  |                |
+  ,'       `.     ,'       `.                |                |
+ |   New     |   |   New     |               |                |
+ \ Manifest  /   \ Firmware  /               |                |
+  `.._   _,,'     `.._   _,,'                |                |
+      `''             `''                    |                |
+      |            Push manifest             |                |
+      |----------------+--------------------&gt;|                |
+      |                |                     |                |
+      |                '                     |                '
+      |                |                     | Validate       |
+      |                |                     | Manifest       |
+      |                |                     |---------+      |
+      |                |                     |         |      |
+      |                |                     |&lt;--------+      |
+      |                | Request firmware    |                |
+      |                | X.Y.Z               |                |
+      |                |&lt;--------------------|                |
+      |                |                     |                |
+      |                | Firmware X.Y.Z      |                |
+      |                |--------------------&gt;|                |
+      |                |                     |                |
+      |                |                     | Verify         |
+      |                |                     | Firmware       |
+      |                |                     |--------------+ |
+      |                |                     |              | |
+      |                |                     |&lt;-------------+ |
+      |                |                     |                |
+      |                |                     | Store          |
+      |                |                     | Firmware       |
+      |                |                     |-------------+  |
+      |                |                     |             |  |
+      |                |                     |&lt;------------+  |
+      |                |                     |                |
+      |                |                     |                |
+      |                |                     | Trigger Reboot |
+      |                |                     |---------------&gt;|
+      |                |                     |                |
+      |                |                     |                |
+      |                |                     | __..-------..._'
+      |                |                    ,-'               `-.
+      |                |                   |      Secure Boot    |
+      |                |                   `-.                 _/
+      |                |                     |`--..._____,,.,-'
+      |                |                     |                |
+</pre>
+<p class="figure">Figure 6: Second Example Flow for a Firmware Upate.</p>
+<h1 id="rfc.section.10">
+<a href="#rfc.section.10">10.</a> <a href="#iana-considerations" id="iana-considerations">IANA Considerations</a>
+</h1>
+<p id="rfc.section.10.p.1">This document does not require any actions by IANA.</p>
+<h1 id="rfc.section.11">
+<a href="#rfc.section.11">11.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a>
+</h1>
+<p id="rfc.section.11.p.1">Firmware updates fix security vulnerabilities and are considered to be an important building block in securing IoT devices. Due to the importance of firmware updates for IoT devices the Internet Architecture Board (IAB) organized a &#8216;Workshop on Internet of Things (IoT) Software Update (IOTSU)&#8217;, which took place at Trinity College Dublin, Ireland on the 13th and 14th of June, 2016 to take a look at the big picture. A report about this workshop can be found at <a href="#RFC8240" class="xref">[RFC8240]</a>. A standardized firmware manifest format providing end-to-end security from the author to the device will be specified in a separate document.</p>
+<p id="rfc.section.11.p.2">There are, however, many other considerations raised during the workshop. Many of them are outside the scope of standardization organizations since they fall into the realm of product engineering, regulatory frameworks, and business models. The following considerations are outside the scope of this document, namely</p>
+<p></p>
+
+<ul>
+<li>installing firmware updates in a robust fashion so that the update does not break the device functionality of the environment this device operates in.</li>
+<li>installing firmware updates in a timely fashion considering the complexity of the decision making process of updating devices, potential re-certification requirements, and the need for user consent to install updates.</li>
+<li>the distribution of the actual firmware update, potentially in an efficient manner to a large number of devices without human involvement.</li>
+<li>energy efficiency and battery lifetime considerations.</li>
+<li>key management required for verifying the digital signature protecting the manifest.</li>
+<li>incentives for manufacturers to offer a firmware update mechanism as part of their IoT products.</li>
+</ul>
+<h1 id="rfc.section.12">
+<a href="#rfc.section.12">12.</a> <a href="#mailing-list-information" id="mailing-list-information">Mailing List Information</a>
+</h1>
+<p id="rfc.section.12.p.1">The discussion list for this document is located at the e-mail address <a href="mailto:suit@ietf.org">suit@ietf.org</a>. Information on the group and information on how to subscribe to the list is at <a href="https://www1.ietf.org/mailman/listinfo/suit">https://www1.ietf.org/mailman/listinfo/suit</a></p>
+<p id="rfc.section.12.p.2">Archives of the list can be found at: <a href="https://www.ietf.org/mail-archive/web/suit/current/index.html">https://www.ietf.org/mail-archive/web/suit/current/index.html</a></p>
+<h1 id="rfc.section.13">
+<a href="#rfc.section.13">13.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a>
+</h1>
+<p id="rfc.section.13.p.1">We would like to thank the following persons for their feedback:</p>
+<p></p>
+
+<ul>
+<li>Geraint Luff</li>
+<li>Amyas Phillips</li>
+<li>Dan Ros</li>
+<li>Thomas Eichinger</li>
+<li>Michael Richardson</li>
+<li>Emmanuel Baccelli</li>
+<li>Ned Smith</li>
+<li>Jim Schaad</li>
+<li>Carsten Bormann</li>
+<li>Cullen Jennings</li>
+<li>Olaf Bergmann</li>
+<li>Suhas Nandakumar</li>
+<li>Phillip Hallam-Baker</li>
+<li>Marti Bolivar</li>
+<li>Andrzej Puzdrowski</li>
+<li>Markus Gueller</li>
+<li>Henk Birkholz</li>
+<li>Jintao Zhu</li>
+<li>Takeshi Takahashi</li>
+<li>Jacob Beningo</li>
+<li>Kathleen Moriarty</li>
+</ul>
+<p id="rfc.section.13.p.3">We would also like to thank the WG chairs, Russ Housley, David Waltermire, Dave Thaler for their support and their reviews.</p>
+<h1 id="rfc.references">
+<a href="#rfc.references">14.</a> References</h1>
+<h2 id="rfc.references.1">
+<a href="#rfc.references.1">14.1.</a> Normative References</h2>
+<table><tbody><tr>
+<td class="reference"><b id="RFC7925">[RFC7925]</b></td>
+<td class="top">
+<a>Tschofenig, H.</a> and <a>T. Fossati</a>, "<a href="https://tools.ietf.org/html/rfc7925">Transport Layer Security (TLS) / Datagram Transport Layer Security (DTLS) Profiles for the Internet of Things</a>", RFC 7925, DOI 10.17487/RFC7925, July 2016.</td>
+</tr></tbody></table>
+<h2 id="rfc.references.2">
+<a href="#rfc.references.2">14.2.</a> Informative References</h2>
+<table><tbody>
+<tr>
+<td class="reference"><b id="I-D.ietf-cose-hash-sig">[I-D.ietf-cose-hash-sig]</b></td>
+<td class="top">
+<a>Housley, R.</a>, "<a href="https://tools.ietf.org/html/draft-ietf-cose-hash-sig-09">Use of the HSS/LMS Hash-based Signature Algorithm with CBOR Object Signing and Encryption (COSE)</a>", Internet-Draft draft-ietf-cose-hash-sig-09, December 2019.</td>
+</tr>
+<tr>
+<td class="reference"><b id="I-D.ietf-suit-information-model">[I-D.ietf-suit-information-model]</b></td>
+<td class="top">
+<a>Moran, B.</a>, <a>Tschofenig, H.</a> and <a>H. Birkholz</a>, "<a href="https://tools.ietf.org/html/draft-ietf-suit-information-model-05">An Information Model for Firmware Updates in IoT Devices</a>", Internet-Draft draft-ietf-suit-information-model-05, January 2020.</td>
+</tr>
+<tr>
+<td class="reference"><b id="I-D.ietf-suit-manifest">[I-D.ietf-suit-manifest]</b></td>
+<td class="top">
+<a>Moran, B.</a>, <a>Tschofenig, H.</a>, <a>Birkholz, H.</a> and <a>K. Zandberg</a>, "<a href="https://tools.ietf.org/html/draft-ietf-suit-manifest-04">A Concise Binary Object Representation (CBOR)-based Serialization Format for the Software Updates for Internet of Things (SUIT) Manifest</a>", Internet-Draft draft-ietf-suit-manifest-04, March 2020.</td>
+</tr>
+<tr>
+<td class="reference"><b id="I-D.ietf-teep-architecture">[I-D.ietf-teep-architecture]</b></td>
+<td class="top">
+<a>Pei, M.</a>, <a>Tschofenig, H.</a>, <a>Thaler, D.</a> and <a>D. Wheeler</a>, "<a href="https://tools.ietf.org/html/draft-ietf-teep-architecture-08">Trusted Execution Environment Provisioning (TEEP) Architecture</a>", Internet-Draft draft-ietf-teep-architecture-08, April 2020.</td>
+</tr>
+<tr>
+<td class="reference"><b id="LwM2M">[LwM2M]</b></td>
+<td class="top">
+<a>OMA, .</a>, "<a href="http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf">Lightweight Machine to Machine Technical Specification, Version 1.0.2</a>", February 2018.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC5649">[RFC5649]</b></td>
+<td class="top">
+<a>Housley, R.</a> and <a>M. Dworkin</a>, "<a href="https://tools.ietf.org/html/rfc5649">Advanced Encryption Standard (AES) Key Wrap with Padding Algorithm</a>", RFC 5649, DOI 10.17487/RFC5649, September 2009.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC6024">[RFC6024]</b></td>
+<td class="top">
+<a>Reddy, R.</a> and <a>C. Wallace</a>, "<a href="https://tools.ietf.org/html/rfc6024">Trust Anchor Management Requirements</a>", RFC 6024, DOI 10.17487/RFC6024, October 2010.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC7228">[RFC7228]</b></td>
+<td class="top">
+<a>Bormann, C.</a>, <a>Ersue, M.</a> and <a>A. Keranen</a>, "<a href="https://tools.ietf.org/html/rfc7228">Terminology for Constrained-Node Networks</a>", RFC 7228, DOI 10.17487/RFC7228, May 2014.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC8240">[RFC8240]</b></td>
+<td class="top">
+<a>Tschofenig, H.</a> and <a>S. Farrell</a>, "<a href="https://tools.ietf.org/html/rfc8240">Report from the Internet of Things Software Update (IoTSU) Workshop 2016</a>", RFC 8240, DOI 10.17487/RFC8240, September 2017.</td>
+</tr>
+</tbody></table>
+<h1 id="rfc.authors"><a href="#rfc.authors">Authors' Addresses</a></h1>
+<div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Brendan Moran</span> 
+	  <span class="n hidden">
+		<span class="family-name">Moran</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Arm Limited</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:Brendan.Moran@arm.com">Brendan.Moran@arm.com</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Hannes Tschofenig</span> 
+	  <span class="n hidden">
+		<span class="family-name">Tschofenig</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Arm Limited</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:hannes.tschofenig@arm.com">hannes.tschofenig@arm.com</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">David Brown</span> 
+	  <span class="n hidden">
+		<span class="family-name">Brown</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Linaro</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:david.brown@linaro.org">david.brown@linaro.org</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Milosch Meriac</span> 
+	  <span class="n hidden">
+		<span class="family-name">Meriac</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Consultant</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:milosch@meriac.com">milosch@meriac.com</a></span>
+
+  </address>
+</div>
+
+</body>
+</html>
