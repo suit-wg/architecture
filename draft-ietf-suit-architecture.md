@@ -1,7 +1,7 @@
 ---
 title: A Firmware Update Architecture for Internet of Things
 abbrev: A Firmware Update Architecture for IoT
-docname: draft-ietf-suit-architecture-09
+docname: draft-ietf-suit-architecture-10
 category: info
 
 ipr: pre5378Trust200902
@@ -118,8 +118,7 @@ While the standardization work has been informed by and optimised for firmware
 update use cases of Class 1 (as defined in RFC 7228 {{RFC7228}}) devices, there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
 Software update and delivery of arbitrary data, such as configuration information
-and keys, can equally be managed by manifests. The solution therefore applies to
-more capable devices, such as network storage devices, set top boxes, and IP-based cameras as well.
+and keys, can equally be managed by manifests.
 
 More details about the security goals are discussed in
 {{architecture}} and requirements are described in {{requirements}}.
