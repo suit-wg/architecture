@@ -1,10 +1,10 @@
 ---
 title: A Firmware Update Architecture for Internet of Things
 abbrev: A Firmware Update Architecture for IoT
-docname: draft-ietf-suit-architecture-10
+docname: draft-ietf-suit-architecture-11
 category: info
 
-ipr: pre5378Trust200902
+ipr: trust200902
 area: Security
 workgroup: SUIT
 keyword: Internet-Draft
@@ -46,17 +46,14 @@ author:
        organization: Consultant
        email: milosch@meriac.com
 
-normative:
-  RFC7925:
 informative:
   RFC8240:
   RFC6024:
-  RFC5649:
   RFC7228:
   I-D.ietf-suit-information-model:
   I-D.ietf-teep-architecture:
-  I-D.ietf-cose-hash-sig:
-  I-D.ietf-suit-manifest:
+  I-D.ietf-suit-manifest: 
+  RFC8778:
   LwM2M:
     target: http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf
     title: "Lightweight Machine to Machine Technical Specification, Version 1.0.2"
@@ -115,7 +112,7 @@ a public key infrastructure. Future versions may also describe
 a symmetric key approach for very constrained devices.
 
 While the standardization work has been informed by and optimised for firmware
-update use cases of Class 1 (as defined in RFC 7228 {{RFC7228}}) devices, there is nothing in
+update use cases of Class 1 devices (according to the device class definitions in RFC 7228 {{RFC7228}}), there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
 Software update and delivery of arbitrary data, such as configuration information
 and keys, can equally be managed by manifests.
@@ -355,7 +352,7 @@ A manifest specification must support different cryptographic algorithms
 and algorithm extensibility. Due of the nature of
 unchangeable code in ROM for use with bootloaders the use of
 post-quantum secure signature mechanisms, such as hash-based
-signatures {{I-D.ietf-cose-hash-sig}}, are attractive. These
+signatures {{RFC8778}}, are attractive. These
 algorithms maintain security in presence of quantum computers.
 
 A mandatory-to-implement set of algorithms will be specified in the
@@ -1136,15 +1133,6 @@ considerations are outside the scope of this document, namely
 
  * incentives for manufacturers to offer a firmware update mechanism
    as part of their IoT products.
-
-# Mailing List Information
-
-The discussion list for this document is located at the e-mail
-address <suit@ietf.org>. Information on the group and information on how to
-subscribe to the list is at <https://www1.ietf.org/mailman/listinfo/suit>
-
-Archives of the list can be found at:
-<https://www.ietf.org/mail-archive/web/suit/current/index.html>
 
 # Acknowledgements
 
