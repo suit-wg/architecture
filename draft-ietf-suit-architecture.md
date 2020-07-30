@@ -88,7 +88,7 @@ and associated meta-data.
 When developing Internet of Things (IoT) devices, one of the most difficult problems
 to solve is how to update firmware on the device. Once the
 device is deployed, firmware updates play a critical part in its
-lifetime, particularly when devices have a long lifetime, are
+lifetime, particularly when devices have a long lifetime, or are
 deployed in remote or inaccessible areas where manual
 intervention is cost prohibitive or otherwise difficult. Updates
 to the firmware of an IoT device are done to fix bugs in software,
@@ -102,9 +102,8 @@ The firmware update process, among other goals, has to ensure that
   Attempts to flash a modified firmware image or an image from
   an unknown source are prevented.
 
-- The firmware image can be confidentiality protected so that
-  attempts by an adversary to recover the plaintext binary can
-  be prevented. Obtaining the firmware is often one of
+- The firmware image can be kept confidential from adversaries.
+  Obtaining the firmware is often one of
   the first steps to mount an attack since it gives the adversary
   valuable insights into used software libraries, configuration
   settings and generic functionality (even though reverse
@@ -117,7 +116,7 @@ a symmetric key approach for very constrained devices.
 While the standardization work has been informed by and optimised for firmware
 update use cases of Class 1 (as defined in RFC 7228 {{RFC7228}}) devices, there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
-Software update and delivery of arbitrary data, such as configuration information
+Delivery of arbitrary data, such as configuration information
 and keys, can equally be managed by manifests.
 
 More details about the security goals are discussed in
@@ -231,6 +230,9 @@ The following entities are used:
   runs the client-side of the status tracker it will most likely not
   run a status tracker itself unless it acts as a proxy for other
   IoT devices in a protocol translation or edge computing device node.
+  However, if the device contains multiple MCUs, the main MCU must likely act
+  as a limited status tracker towards the other MCUs if updates are to be
+  synchronized across MCUs.
   How much functionality a status tracker includes depends on the selected
   configuration of the device management functionality and the communication
   environment it is used in. In a generic networking environment the protocol
@@ -373,8 +375,8 @@ gain control of the device.
 A power failure at any time must not cause a failure of the device.
 A failure to validate any part of an update must not cause a
 failure of the device. One way to achieve this functionality is
-to provide a minimum of two storage locations for firmware and one
-bootable location for firmware. An alternative approach is to use a
+to provide a minimum of two storage locations for firmware one or
+both of which are bootable. An alternative approach is to use a
 2nd stage bootloader with build-in full featured firmware update
 functionality such that it is possible to return to the update
 process after power down.
@@ -407,7 +409,7 @@ update / boot process fails. The recovery strategy may include
 storing two or more firmware images on the device or offering the
 ability to have a second stage bootloader perform the firmware update
 process again using firmware updates over serial, USB or even
-wireless connectivity like a limited version of Bluetooth Smart.
+wireless connectivity like a limited version of Bluetooth Low Energy.
 In the latter case the firmware consumer functionality is contained in the
 second stage bootloader and requires the necessary functionality for
 executing the firmware update process, including manifest parsing.
@@ -674,7 +676,7 @@ There is an option for embedding a firmware image into a manifest.
 This is a useful approach for deployments where devices are not connected
 to the Internet and cannot contact a dedicated firmware server for the firmware
 download. It is also applicable when the firmware update happens via a
-USB stick or via Bluetooth Smart. {{attached-firmware-figure}} shows this
+USB stick or via Bluetooth Low Energy. {{attached-firmware-figure}} shows this
 delivery mode graphically.
 
 ~~~~
