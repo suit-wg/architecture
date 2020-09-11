@@ -1,7 +1,7 @@
 ---
 title: A Firmware Update Architecture for Internet of Things
 abbrev: A Firmware Update Architecture for IoT
-docname: draft-ietf-suit-architecture-11
+docname: draft-ietf-suit-architecture-12
 category: info
 
 ipr: trust200902
@@ -50,6 +50,7 @@ informative:
   RFC8240:
   RFC6024:
   RFC7228:
+  RFC8778:
   I-D.ietf-suit-information-model:
   I-D.ietf-teep-architecture:
   I-D.ietf-suit-manifest:
@@ -112,10 +113,12 @@ a public key infrastructure. Future versions may also describe
 a symmetric key approach for very constrained devices.
 
 While the standardization work has been informed by and optimised for firmware
-update use cases of Class 1 devices (according to the device class definitions in RFC 7228 {{RFC7228}}), there is nothing in
+update use cases of Class 1 devices (according to the device class
+definitions in RFC 7228 {{RFC7228}}) devices, there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
-Software update and delivery of arbitrary data, such as configuration information
-and keys, can equally be managed by manifests.
+Moreover, this architecture is not limited to managing software updates,
+but can also be applied to managing the delivery of arbitrary data, such
+as configuration information and keys.
 
 More details about the security goals are discussed in
 {{architecture}} and requirements are described in {{requirements}}.
@@ -190,7 +193,8 @@ This document uses the following terms:
 * Trusted applications (TAs): An application component that runs in
   a TEE.
 
-For more information about TEEs see {{I-D.ietf-teep-architecture}}.
+For more information about TEEs see {{I-D.ietf-teep-architecture}}. TEEP
+requires the use of SUIT for delivering TAs.
 
 The following entities are used:
 
@@ -224,10 +228,13 @@ The following entities are used:
   The deployment of status trackers is flexible and they may be used
   as cloud-based servers, on-premise servers, embedded in edge computing device
   (such as Internet access gateways or protocol translation gateways),
-  or even in smart phones and tablets. While the IoT device itself
-  runs the client-side of the status tracker it will most likely not
-  run a status tracker itself unless it acts as a proxy for other
-  IoT devices in a protocol translation or edge computing device node.
+  or even in smart phones and tablets. IoT devices that self-initiate
+  updates may run a status tracker. Similarly, IoT devices that act as a
+  proxy for other IoT devices in a protocol translation or edge
+  computing device node may also run a status tracker.
+  However, if the device contains multiple MCUs, the main MCU may act
+  as a limited status tracker towards the other MCUs if updates are to be
+  synchronized across MCUs.
   How much functionality a status tracker includes depends on the selected
   configuration of the device management functionality and the communication
   environment it is used in. In a generic networking environment the protocol
@@ -249,6 +256,8 @@ The following entities are used:
 
 * Network Operator: The actor responsible for the operation of a
   network to which IoT devices connect.
+
+* Claim: A piece of information asserted about a recipient or payload.
 
 In addition to the entities in the list above there is an orthogonal
 infrastructure with a Trust Provisioning Authority (TPA) distributing
@@ -365,9 +374,11 @@ must not be tricked into installing such firmware since a
 vulnerability in the old firmware image may allow an attacker to
 gain control of the device.
 
-## High reliability
+## High reliability {#reliability}
 
 A power failure at any time must not cause a failure of the device.
+Equally, adverse network conditions during an update must not cause the
+failure of the device.
 A failure to validate any part of an update must not cause a
 failure of the device. One way to achieve this functionality is
 to provide a minimum of two storage locations for firmware and one
@@ -424,7 +435,8 @@ Note: This is an implementation requirement.
 
 ## Small Parsers
 
-Since parsers are known sources of bugs they must be minimal.
+Since parsers are known sources of bugs, any parsers used to process the
+manifest must be minimal.
 Additionally, it must be easy to parse only those fields that are
 required to validate at least one signature or MAC with minimal
 exposure.
@@ -473,7 +485,7 @@ what devices qualify for a firmware update. Once those devices have been
 selected the firmware server distributes updates to the firmware consumers.
 
 Note: This assumes that the status tracker is able to reach the
-device, which may require devices to keep reachability  information at
+device, which may require devices to keep reachability information at
 the status tracker up-to-date. This may also require keeping state at
 NATs and stateful packet filtering firewalls alive.
 
@@ -483,14 +495,28 @@ pushes notifications of availability of an update to the firmware consumer,
 and it then downloads the image from a firmware server
 as soon as possible.
 
-An alternative view to the operating modes is to consider the steps a
-device has to go through in the course of an update:
+While these broad classifications encompass the majority of operating
+modes, some may not be covered in these classifications. By
+reinterpreting these modes as a set of operations performed by the
+system as a whole, all operating modes can be represented.
+
+The steps performed in the course of an update by the system containing an updatable device are:
 
    * Notification
    * Pre-authorisation
    * Dependency resolution
    * Download
    * Installation
+
+This is a coarse-grained high level view of steps required to install a
+new firmware. By considering where in the system each of these steps is
+performed, each operating mode can be represented. Each of these steps
+is broken down into smaller constituent parts. {{architecture}} defines
+the steps taken from the perspective of the communication between
+actors in the system. {{bootloader}} describes some additional steps
+that a bootloader takes in addition to those described here. {{example}}
+shows an example of the steps undertaken by each party in the course
+of an update.
 
 The notification step consists of the status tracker informing the
 firmware consumer that an update is available. This can be accomplished via
@@ -551,24 +577,21 @@ therefore be extensible to convey other forms of payloads as well.
 
 # Claims
 
-Claims in the manifest offer a way to convey instructions to
-a device that impact the firmware update process. To have any
-value the manifest containing those claims must be authenticated
-and integrity protected. The credential used must be directly
+The information conveyed from an Author to a Firmware Consumer can be
+considered to be Claims as described in {{RFC7519}} and {{RFC8392}}.
+The same security considerations apply to the Claims expressed in the
+manifest. The chief difference between manifest Claims and CWT or JWT
+claims is that a manifest has multiple subjects. The manifest contains:
+
+1. Claims about the Firmware, including its dependencies
+2. Claims about the Firmware Consumer's physical or software properties
+3. Claims about the Author, or the Author's delegate
+
+The credential used to authenticate these Claims must be directly
 or indirectly related to the trust anchor installed at the device
 by the Trust Provisioning Authority.
 
 The baseline claims for all manifests are described in {{I-D.ietf-suit-information-model}}.
-For example, there are:
-
-* Do not install firmware with earlier metadata than the current
-  metadata.
-* Only install firmware with a matching vendor, model, hardware
-  revision, software version, etc.
-* Only install firmware that is before its best-before timestamp.
-* Only allow a firmware installation if dependencies have been met.
-* Choose the mechanism to install the firmware, based on the type
-  of firmware it is.
 
 # Communication Architecture {#architecture}
 
@@ -782,9 +805,23 @@ device. In addition, there are requirements to be able to update
 either image independently, as well as to update them together
 atomically, as specified in the associated manifests.
 
+## Symmetric Multiple CPUs
+
+In more complex SoCs with symmetric multi-processing support, advanced
+operating systems, such as Linux, are often used. These SoCs frequently
+use an external storage medium such as raw NAND flash or eMMC. Due to
+the higher quantity of resources, these devices are often capable of
+storing multiple copies of their firmware images and selecting the most
+appropriate one to boot. Many SoCs also support bootloaders that are
+capable of updating the firmware image, however this is typically a last
+resort because it requires the device to be held in the bootloader while
+the new firmware is downloaded and installed, which results in down-time
+for the device. Firmware updates in this class of device are typically
+not done in-place.
+
 ## Dual CPU, shared memory
 
-This configuration has two or more CPUs in a single SoC that share
+This configuration has two or more heterogeneous CPUs in a single SoC that share
 memory (flash and RAM).  Generally, they will be a protection mechanism
 to prevent one CPU from accessing the other's memory. Upgrades in this
 case will typically be done by one of the CPUs, and is similar to the
@@ -792,11 +829,11 @@ single CPU with secure mode.
 
 ## Dual CPU, other bus
 
-This configuration has two or more CPUs, each having their own memory.
+This configuration has two or more heterogeneous CPUs, each having their own memory.
 There will be a communication channel between them, but it will be
 used as a peripheral, not via shared memory.  In this case, each CPU
 will have to be responsible for its own firmware upgrade.  It is
-likely that one of the CPUs will be considered a master, and will
+likely that one of the CPUs will be considered the primary CPU, and will
 direct the other CPU to do the upgrade.  This configuration is
 commonly used to offload specific work to other CPUs.  Firmware
 dependencies are similar to the other solutions above, sometimes
@@ -873,11 +910,13 @@ building block for secure boot with its severable elements that allow
 shrinking the size of the manifest by stripping elements that are no
 longer needed.
 
-If the application image contains the firmware consumer
-functionality, as described above, then it is necessary that a
-working image is left on the device. This allows the bootloader to
-roll back to a working firmware image to execute a firmware download
-if the bootloader itself does not have enough functionality to
+In order to satisfy the reliability requirements defined in
+{{reliability}}, devices must always be able to return to a working
+firmware image. This has implications for the design of the bootloader:
+If the firmware image contains the firmware consumer
+functionality, as described above, then the bootloader must be able to
+roll back to a working firmware image. Alternatively, the bootloader
+may have enough functionality to
 fetch a firmware image plus manifest from a firmware server over the
 Internet.  A multi-stage bootloader may soften this requirement at
 the expense of a more sophisticated boot process.
@@ -906,7 +945,7 @@ be used to control the firmware download from the Internet in
 addition to augmenting secure boot process. These building blocks
 are highly relevant for the design of the manifest.
 
-#  Example
+#  Example {#example}
 
 {{firmware-update}} illustrates an example message flow
 for distributing a firmware image to a device
