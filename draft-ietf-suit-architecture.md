@@ -55,6 +55,8 @@ informative:
   I-D.ietf-teep-architecture:
   I-D.ietf-suit-manifest:
   RFC8778:
+  RFC7519:
+  RFC8392:
   LwM2M:
     target: http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf
     title: "Lightweight Machine to Machine Technical Specification, Version 1.0.2"
