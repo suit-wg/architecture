@@ -367,7 +367,7 @@ like Linux, the protocol mechanism for retrieving these images needs
 to offer features like congestion control, flow control, fragmentation
 and reassembly, and mechanisms to resume interrupted or corrupted transfers.
 
-These features are most likely offered by code in the application firmware 
+The features listed above are most likely offered by code in the application firmware 
 image, or more precisely by the firmware consumer, running
 on the device rather than by the bootloader itself. Note that 
 cryptographic algorithms will likely run in a trusted execution 
@@ -408,6 +408,29 @@ firmware server.
 Once the device operator triggers update via the status tracker, it will keep 
 track of the update process on the device. This allows the device operator to know what 
 devices have received an update and which of them are still pending an update.
+
+Firmware images can be conveyed to devices in a variety of ways,
+including USB, UART, WiFi, BLE, low-power WAN technologies. At the application layer 
+a variety of different protocols may be used as well. MQTT, CoAP, and HTT are the 
+most popular application layer protocols used by IoT devices. This architecture 
+does not make assumptions about how the firmware images are distributed to the 
+devices. 
+
+In some cases it may be desireable to distribute firmware images using a multicast
+or broadcast protocol. This architecture does not make any assumptions about such 
+a protocol. However, given that broadcast may be desirable for some networks,
+updates must cause the least disruption possible both in metadata
+and firmware transmission.
+
+For an update to be broadcast friendly, it cannot rely on link
+layer, network layer, or transport layer security. A solution has
+to rely on security protection applied to the manifest and firmware image
+instead. In addition,
+the same manifest must be deliverable to many devices, both those
+to which it applies and those to which it does not, without a
+chance that the wrong device will accept the update. Considerations
+that apply to network broadcasts apply equally to the use of
+third-party content distribution networks for payload distribution.
 
 ~~~~
                                                       +----------+
@@ -501,19 +524,34 @@ has retrieved and successfully processed the manifest and the firmware image it 
 to hand control over to the bootloader.  
 
 In most cases this requires the MCU to restart. Once the
-MCU has initiated a restart, the bootloader takes over control and
-determines whether the newly downloaded firmware image should be executed.  
+MCU has initiated a restart, the bootloader determines whether a newly available 
+firmware image should be executed.  
 
-At this stage the device has at least three firmware images available. 
-First, the bootloader itself is a firmware image. Second, the firmware image 
-that has to be replaced is still available on the device as a backup in case 
-the freshly downloaded firmware image does not boot correctly. Third, there 
-is the newly downloaded firmware image. To differentiate the firmware image 
-of the bootloader from the other firmware images that contain application code 
-we refer to the latter as application firmware images. Since many low end IoT 
-devices use non-relocatable code, the bootloader needs to copy the newly 
-downloaded application firmware image into the location of the old application 
-firmware image and vice versa.
+A power failure at any time during a firmware update must not cause a failure 
+of the device. Equally, adverse network conditions during an update must not 
+cause the failure of the device.
+
+One way to achieve this functionality is to provide a minimum of two storage 
+locations for firmware. An alternative approach is to use a second stage 
+bootloader with build-in full featured firmware update functionality such 
+that it is possible to return to the update process after power down.
+
+Assuming the first approach, there are (at least) three firmware images available
+on the device:  
+
+- First, the bootloader itself is a firmware image. 
+- Second, the firmware image that has to be replaced is still available on the 
+device as a backup in case the freshly downloaded firmware image does not 
+boot correctly. 
+- Third, there is the newly downloaded firmware image. 
+
+To differentiate the firmware image of the bootloader from the other firmware 
+images that contain application code we refer to the latter as application 
+firmware images. 
+
+Since many low end IoT devices use non-relocatable code, 
+the bootloader needs to copy the newly downloaded application firmware image 
+into the location of the old application firmware image and vice versa.
 
 The boot process is security sensitive. An attacker will typically try to 
 retrieve a firmware image from the device for reverse engineering or will try to get 
@@ -534,9 +572,9 @@ building block for secure boot with its severable elements that allow
 shrinking the size of the manifest by stripping elements that are no
 longer needed.
 
-In order to satisfy the reliability requirements defined in
-{{reliability}}, devices must always be able to return to a working
-firmware image. This has implications for the design of the bootloader.
+The design of a reliable firmware update solution requires devices 
+to return to a working firmware image. This has implications for the 
+design of the bootloader.
 If the firmware image contains the firmware consumer
 functionality, as described above, then the bootloader must be able to
 roll back to a working firmware image. Alternatively, the bootloader
@@ -545,13 +583,12 @@ fetch a firmware image plus manifest from a firmware server over the
 Internet.  A multi-stage bootloader may soften this requirement at
 the expense of a more sophisticated boot process.
 
-For a bootloader to offer a secure boot it needs to provide
-the following features:
+For a bootloader to offer a secure boot functionality it needs to 
+implement the following functionality: 
 
--  Availability of cryptographic libraries, such as SHA-256 to compute
-   a fingerprint over the firmware image and a digital signature
-   algorithm. (Alternatively, a symmetric key variant using a keyed 
-   message digest may be used instead.)
+-  Cryptographic libraries with hash functions, digital signatures
+   (for asymmetric crypto), keyed message digests (for symmetric 
+   crypto). 
 
 -  The device needs to have a trust anchor store to verify the 
    digital signature. (Alternatively, access to a key store for use 
@@ -559,21 +596,45 @@ the following features:
 
 -  Ability to expose boot process-related data to the application
    firmware (such as to the status tracker).  This allows
-   to share information about the firmware version running, and the 
+   to share information about the current firmware version, and the 
    status of the firmware update process and whether errors have occurred.
    
--  Offer attestation information, such as
-   boot measurements. (optional)
+-  Offer attestation information, such as boot measurements. (optional)
 
 -  Ability to decrypt firmware images, in case confidentiality protection 
    was applied). This requires a solution for key management. (optional)
    
-While the software architecture of the bootloader and its
-security mechanisms are implementation-specific, the manifest can
-be used to control the firmware download from the Internet in
-addition to augmenting secure boot process. These building blocks
-are relevant for the design of the manifest.
+Throughout this document we assume that the bootloader itself is
+distinct from the role of the firmware consumer and therefore does not
+manage the firmware update process. This may give the impression
+that the bootloader itself is a completely separate component,
+which is mainly responsible for selecting a firmware image to boot.
 
+The overlap between the firmware update process and the bootloader
+functionality comes in two forms, namely
+
+- First, a bootloader must verify the firmware image it boots as
+part of the secure boot process. Doing so requires meta-data to be
+stored alongside the firmware image so that the bootloader can
+cryptographically verify the firmware image before booting it to
+ensure it has not been tampered with or replaced. This meta-data
+used by the bootloader may well be the same manifest obtained with the
+firmware image during the update process (with the severable
+fields stripped off).
+
+- Second, an IoT device needs a recovery strategy in case the firmware
+update / boot process fails. As mentioned earlier, the recovery 
+strategy may includestoring two or more application firmware images 
+on the device or offering the ability to have a second stage bootloader 
+perform the firmware update process again using firmware updates over 
+serial, USB or even wireless connectivity like Bluetooth Smart.
+In the latter case the firmware consumer functionality is contained in the
+second stage bootloader and requires the necessary functionality for
+executing the firmware update process, including manifest parsing.
+
+In general, it is assumed that the bootloader itself, or a minimal part of it,
+will not be updated since a failed update of the bootloader poses a 
+reliability risk.
 
 # Types of IoT Devices {#device}
 
@@ -651,6 +712,7 @@ multiple CPUs, upgrading the two images atomically is challenging.
 # Manifests
 
 ## Overview 
+
 In order for a firmware consumer to apply an update, it has to make several decisions
 using manifest-provided information and data available on the device itself. For more 
 detailed information and a longer list of information elements in the manifest consult the 
@@ -663,7 +725,7 @@ information is included in the manifest.
 | Should I trust the author of the firmware? | Trust anchors and authorization policies on the device |
 | Has the firmware been corrupted?  | Digital signature and MAC covering the firmware image |
 | Does the firmware update apply to this device? | Conditions with Vendor ID, Class ID and Device ID |
-| Is the update older than the active firmware? | Sequence number in the manifest |
+| Is the update older than the active firmware? | Sequence number in the manifest (1) |
 | When should the device apply the update? | Wait directive |
 | How should the device apply the update? | Manifest commands |
 | What kind of firmware binary is it? | Unpack algorithms to interpret a format. |
@@ -671,54 +733,59 @@ information is included in the manifest.
 | Where should the firmware be stored? | Storage Location and Component Identifier |  
 {: #manifest-info title="Firmware Update Decisions."}
 
+(1): A device presented with an old, but valid manifest and firmware
+must not be tricked into installing such firmware since a
+vulnerability in the old firmware image may allow an attacker to
+gain control of the device.
 
-## Requirements {#requirements}
+Keeping the code size and complexity of a manifest parsers small is important 
+for constrained IoT devices. Since the manifest parsing code may 
+also be used by the bootloader it is part of the trusted computing base. 
 
-The manifest standardization is influenced by the requirements discussed
-in the sub-sections below. 
+A manifest may not only be used to protect firmware images but also personalization data
+related to firmware or software. Trusted Execution Environments (TEEs), for example,
+benefit from a protocol for managing the lifecycle of trusted
+applications (TAs) running inside a TEE. TEEs may obtain TAs
+from different authors and those TAs may require personalization data,
+such as payment information, to be securely conveyed to the TEE.
 
-### Agnostic to how firmware images are distributed
 
-Firmware images can be conveyed to devices in a variety of ways,
-including USB, UART, WiFi, BLE, low-power WAN technologies, etc.
-and use different protocols (e.g., CoAP, HTTP). The specified
-mechanism needs to be agnostic to the distribution of the
-firmware images and manifests.
+# Securing Firmware Updates {#securing}
 
-### Friendly to broadcast delivery
+Securing the firmware update process itself is important. Failure 
+to do so can help attackers to take control over the devices. 
 
-This architecture does not specify any specific broadcast protocol.
-However, given that broadcast may be desirable for some networks,
-updates must cause the least disruption possible both in metadata
-and firmware transmission.
+End-to-end security mechanisms are used to protect the firmware
+image and the manifest. The following assumptions are made to allow 
+the firmware consumer to verify the received firmware image and 
+manifest before updating software:
 
-For an update to be broadcast friendly, it cannot rely on link
-layer, network layer, or transport layer security. A solution has
-to rely on security protection applied to the manifest and firmware image
-instead. In addition,
-the same manifest must be deliverable to many devices, both those
-to which it applies and those to which it does not, without a
-chance that the wrong device will accept the update. Considerations
-that apply to network broadcasts apply equally to the use of
-third-party content distribution networks for payload distribution.
-
-### Use state-of-the-art security mechanisms
-
-End-to-end security between the author and the device is shown in
-{{architecture}}.
-
-Authentication ensures that the device can cryptographically identify
+* Authentication ensures that the device can cryptographically identify
 the author(s) creating firmware images and manifests. Authenticated
-identities may be used as input to the authorization process.
+identities may be used as input to the authorization process. Not all 
+entities creating and signing manifests have the same
+permissions. A device needs to determine whether the requested action
+is indeed covered by the permission of the party that signed the manifest.
+Informing the device about the permissions of the different parties
+also happens in an out-of-band fashion and is also a duty of the
+Trust Provisioning Authority.
 
-Integrity protection ensures that no third party can modify the manifest
-or the firmware image.
+* Integrity protection ensures that no third party can modify the manifest
+or the firmware image. To accept an update, a device needs to verify the signature covering
+the manifest. There may be one or multiple manifests that need to be
+validated, potentially signed by different parties. The device needs
+to be in possession of the trust anchors to verify those signatures.
+Installing trust anchors to devices via the Trust Provisioning Authority
+happens in an out-of-band fashion prior to the firmware update process.
 
-For confidentiality protection of the firmware image, it must be done in such a
-way that every intended recipient can decrypt it. The information
+* For confidentiality protection of the firmware image, it must be done in such a
+way that the intended firmware consumer(s) can decrypt it. The information
 that is encrypted individually for each device must maintain
 friendliness to Content Distribution Networks, bulk storage, and
-broadcast protocols.
+broadcast protocols. For confidentiality protection of firmware images the author needs
+to be in possession of the certificate/public key or a pre-shared key
+of a device. The use of confidentiality protection of firmware images
+is optional.  
 
 A manifest specification must support different cryptographic algorithms
 and algorithm extensibility. Due of the nature of
@@ -726,93 +793,6 @@ unchangeable code in ROM for use with bootloaders the use of
 post-quantum secure signature mechanisms, such as hash-based
 signatures {{RFC8778}}, are attractive. These
 algorithms maintain security in presence of quantum computers.
-
-A mandatory-to-implement set of algorithms will be specified in the
-manifest specification {{I-D.ietf-suit-manifest}}}.
-
-### Rollback attacks must be prevented
-
-A device presented with an old, but valid manifest and firmware
-must not be tricked into installing such firmware since a
-vulnerability in the old firmware image may allow an attacker to
-gain control of the device.
-
-### Robust against becoming unbootable {#reliability}
-
-A power failure at any time must not cause a failure of the device.
-Equally, adverse network conditions during an update must not cause the
-failure of the device.
-
-A failure to validate any part of an update must not cause a
-failure of the device. One way to achieve this functionality is
-to provide a minimum of two storage locations for firmware and one
-bootable location for firmware. An alternative approach is to use a
-second stage bootloader with build-in full featured firmware update
-functionality such that it is possible to return to the update
-process after power down.
-
-Note: This is an implementation requirement rather than a requirement
-on the manifest format.
-
-### Operate with a small bootloader
-
-Throughout this document we assume that the bootloader itself is
-distinct from the role of the firmware consumer and therefore does not
-manage the firmware update process. This may give the impression
-that the bootloader itself is a completely separate component,
-which is mainly responsible for selecting a firmware image to boot.
-
-The overlap between the firmware update process and the bootloader
-functionality comes in two forms, namely
-
-- First, a bootloader must verify the firmware image it boots as
-part of the secure boot process. Doing so requires meta-data to be
-stored alongside the firmware image so that the bootloader can
-cryptographically verify the firmware image before booting it to
-ensure it has not been tampered with or replaced. This meta-data
-used by the bootloader may well be the same manifest obtained with the
-firmware image during the update process (with the severable
-fields stripped off).
-
-- Second, an IoT device needs a recovery strategy in case the firmware
-update / boot process fails. The recovery strategy may include
-storing two or more firmware images on the device or offering the
-ability to have a second stage bootloader perform the firmware update
-process again using firmware updates over serial, USB or even
-wireless connectivity like Bluetooth Smart.
-In the latter case the firmware consumer functionality is contained in the
-second stage bootloader and requires the necessary functionality for
-executing the firmware update process, including manifest parsing.
-
-In general, it is assumed that the bootloader itself, or a minimal part of it,
-will not be updated since a failed update of the bootloader poses a 
-reliability risk.
-
-All information necessary for a device to make a decision about the
-installation of a firmware update must fit into the available memory of
-a constrained IoT device. This prevents flash write exhaustion.
-This is typically not a difficult requirement to accomplish because
-there are not other task/processes running while the bootloader is
-active (unlike that which may be the case when running the application firmware).
-
-Note: This last paragraph is an implementation requirement.
-
-### Small Parsers
-
-Keeping the code size and complexity of parsers small is important 
-for constrained IoT devices. Since the firmware image parsing code may 
-also be used by the bootloader it is part of the trusted computing base. 
-
-Additionally, it must be easy to parse only those fields that are
-required to validate at least one signature or MAC with minimal
-exposure.
-
-### No impact on existing firmware formats
-
-The design of the firmware update mechanism must not require
-changes to existing firmware formats.
-
-### Robust permissions
 
 When a device obtains a monolithic firmware image from a single author
 without any additional approval steps then the authorization flow is
@@ -832,53 +812,6 @@ Alternatively, a device may trust precisely one entity, which
 does all permission management and coordination. This entity
 allows the device to offload complex permissions
 calculations for the device.
-
-### Suitability for software and personalization data
-
-The work on a standardized manifest format initially focused on the
-most constrained IoT devices and those devices contain code put together
-by a single author (although that author may obtain code from other
-developers, some of it only in binary form).
-
-Later it turns out that other use cases may benefit from a standardized
-manifest format also for conveying software and even personalization data
-alongside software. Trusted Execution Environments (TEEs), for example,
-greatly benefit from a protocol for managing the lifecycle of trusted
-applications (TAs) running inside a TEE. TEEs may obtain TAs
-from different authors and those TAs may require personalization data,
-such as payment information, to be securely conveyed to the TEE.
-
-To support this wider range of use cases the manifest format should
-therefore be extensible to convey other forms of payloads as well.
-
-# Securing Firmware Updates {#securing}
-
-Securing the firmware update process itself is important. Failure 
-to do so can help attackers to take control over the devices. 
-
-End-to-end security mechanisms are used to protect the firmware
-image and the manifest. The following assumptions are made to allow 
-the firmware consumer to verify the received firmware image and 
-manifest before updating software:
-
-* To accept an update, a device needs to verify the signature covering
-the manifest. There may be one or multiple manifests that need to be
-validated, potentially signed by different parties. The device needs
-to be in possession of the trust anchors to verify those signatures.
-Installing trust anchors to devices via the Trust Provisioning Authority
-happens in an out-of-band fashion prior to the firmware update process.
-
-* Not all entities creating and signing manifests have the same
-permissions. A device needs to determine whether the requested action
-is indeed covered by the permission of the party that signed the manifest.
-Informing the device about the permissions of the different parties
-also happens in an out-of-band fashion and is also a duty of the
-Trust Provisioning Authority.
-
-* For confidentiality protection of firmware images the author needs
-to be in possession of the certificate/public key or a pre-shared key
-of a device. The use of confidentiality protection of firmware images
-is optional.  
 
 #  Example {#example}
 
