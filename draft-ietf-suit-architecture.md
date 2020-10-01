@@ -816,79 +816,93 @@ calculations for the device.
 #  Example {#example}
 
 {{firmware-update}} illustrates an example message flow
-for distributing a firmware image to a device
-starting with an author uploading the new firmware to
-the firmware server and creating a manifest. The firmware
-and manifest are stored on the same firmware server. 
+for distributing a firmware image to a device. The firmware
+and manifest are stored on the same firmware server and 
+distributed in a detached manner. 
 
-This
-setup does not use a status tracker and the firmware consumer
-component is therefore responsible for periodically checking
-whether a new firmware image is available for download.
 
 ~~~~
 +--------+    +-----------------+    +-----------------------------+
-|        |    |                 |    | +------------+ +----------+ |
-| Author |    | Firmware Server |    | |  Firmware  | |Bootloader| |
-+--------+    +-----------------+    | |  Consumer  | |          | |
+|        |    | Firmware Server |    |         IoT Device          |
+| Author |    | Status Tracker  |    | +------------+ +----------+ |
++--------+    | Server          |    | |  Firmware  | |Bootloader| |
+  |           +-----------------+    | |  Consumer  | |          | |
   |                   |              | +------------+ +----------+ |
-  |                   |              |      |  IoT Device    |     |
-  |                   |               `''''''''''''''''''''''''''''
-  |                   |                     |                |
-  | Create Firmware   |                     |                |
-  |--------------+    |                     |                |
-  |              |    |                     |                |
-  |<-------------+    |                     |                |
-  |                   |                     |                |
-  | Upload Firmware   |                     |                |
-  |------------------>|                     |                |
-  |                   |                     |                |
-  | Create Manifest   |                     |                |
-  |---------------+   |                     |                |
-  |               |   |                     |                |
-  |<--------------+   |                     |                |
-  |                   |                     |                |
-  | Sign Manifest     |                     |                |
-  |-------------+     |                     |                |
-  |             |     |                     |                |
-  |<------------+     |                     |                |
-  |                   |                     |                |
-  | Upload Manifest   |                     |                |
-  |------------------>|                     |                |
-  |                   |                     |                |
-  |                   |   Query Manifest    |                |
-  |                   |<--------------------|                |
-  |                   |                     |                |
-  |                   |   Send Manifest     |                |
-  |                   |-------------------->|                |
+  |                   |              |      |                |     |
+  |                   |              |  +-----------------------+  |
+  | Create Firmware   |              |  | Status Tracker Client |  |
+  |--------------+    |              |  +-----------------------+  |
+  |              |    |               `''''''''''''''''''''''''''''
+  |<-------------+    |                     |        |       |
+  |                   |                     |        |       |
+  | Upload Firmware   |                     |        |       |
+  |------------------>|                     |        |       |
+  |                   |                     |        |       |
+  | Create Manifest   |                     |        |       |
+  |---------------+   |                     |        |       |
+  |               |   |                     |        |       |
+  |<--------------+   |                     |        |       |
+  |                   |                     |        |       |
+  | Sign Manifest     |                     |        |       |
+  |-------------+     |                     |        |       |
+  |             |     |                     |        |       |
+  |<------------+     |                     |        |       |
+  |                   |                     |        |       |
+  | Upload Manifest   |                     |        |       |
+  |------------------>|  Notification of    |        |       |
+  |                   |  new firmware image |        |       |
+  |                   |----------------------------->|       |
+  |                   |                     |        |       |
+  |                   |                     |Initiate|       |
+  |                   |                     | Update |       |
+  |                   |                     |<-------|       |
+  |                   |                     |        |       |
+  |                   |   Query Manifest    |        |       |
+  |                   |<--------------------|        .       |
+  |                   |                     |        .       |
+  |                   |   Send Manifest     |        .       |
+  |                   |-------------------->|        .       |
   |                   |                     | Validate       |
   |                   |                     | Manifest       |
-  |                   |                     |---------+      |
-  |                   |                     |         |      |
-  |                   |                     |<--------+      |
-  |                   |                     |                |
-  |                   |  Request Firmware   |                |
-  |                   |<--------------------|                |
-  |                   |                     |                |
-  |                   | Send Firmware       |                |
-  |                   |-------------------->|                |
-  |                   |                     | Verify         |
+  |                   |                     |--------+       |
+  |                   |                     |        |       |
+  |                   |                     |<-------+       |
+  |                   |                     |        .       |
+  |                   |  Request Firmware   |        .       |
+  |                   |<--------------------|        .       |
+  |                   |                     |        .       |
+  |                   | Send Firmware       |        .       |
+  |                   |-------------------->|        .       |
+  |                   |                     | Verify .       |
   |                   |                     | Firmware       |
-  |                   |                     |--------------+ |
-  |                   |                     |              | |
-  |                   |                     |<-------------+ |
-  |                   |                     |                |
-  |                   |                     | Store          |
+  |                   |                     |--------+       |
+  |                   |                     |        |       |
+  |                   |                     |<-------+       |
+  |                   |                     |        .       |
+  |                   |                     | Store  .       |
   |                   |                     | Firmware       |
-  |                   |                     |-------------+  |
-  |                   |                     |             |  |
-  |                   |                     |<------------+  |
-  |                   |                     |                |
-  |                   |                     |                |
-  |                   |                     | Trigger Reboot |
-  |                   |                     |--------------->|
-  |                   |                     |                |
-  |                   |                     |                |
+  |                   |                     |--------+       |
+  |                   |                     |        |       |
+  |                   |                     |<-------+       |
+  |                   |                     |        .       |
+  |                   |                     |        .       |
+  |                   |                     |        .       |
+  |                   |                     |        |       |
+  |                   |                     | Update |       |
+  |                   |                     |Complete|       |
+  |                   |                     |------->|       |
+  |                   |                              |       |
+  |                   |  Firmware Update Completed   |       |
+  |                   |<-----------------------------|       |
+  |                   |                              |       |
+  |                   |  Reboot                      |       |
+  |                   |----------------------------->|       |
+  |                   |                     |        |       |
+  |                   |                     |        |       |
+                      |                     |        |Reboot |
+  |                   |                     |        |------>|
+  |                   |                     |        |       |
+  |                   |                     |        .       |
   |                   |                 +---+----------------+--+
   |                   |                S|   |                |  |
   |                   |                E|   | Verify         |  |
@@ -910,41 +924,39 @@ whether a new firmware image is available for download.
   |                   |                S|   | +------------->|  |
   |                   |                S|   |                |  |
   |                   |                 +---+----------------+--+
-  |                   |                     |                |
+  |                   |                     |        .       |
+  |                   |                     |        |       |
+  |                   |                     .        |       |
+  |                   |  Device running new firmware |       |
+  |                   |<-----------------------------|       |
+  |                   |                     .        |       |
+  |                   |                              |       |
 ~~~~
 {: #firmware-update title="First Example Flow for a Firmware Upate."}
 
-{{firmware-update2}} shows an example with the device using
-a status tracker. Depiction of the author publishing the manifest at
-the status tracker and the firmware image at the firmware server would
-be the same as in {{firmware-update}}. So for brevity they are not shown.
-Also omitted is the secure boot process following the successful 
-firmware update process.
+{{firmware-update2}} shows an exchange that starts with the 
+status tracker querying the device for its current firmware version. 
+Later, a new firmware version becomes available and since this 
+device is running an older version the status tracker server interacts
+with the device to initiate an update. 
 
-The exchange starts with the device interacting with the status
-tracker; the details of such exchange will vary with the different
-device management systems being used. In any case, the status
-tracker learns about the firmware version of the devices it
-manages. In our example, the device under management is using
-firmware version A.B.C. At a later point in time the author uploads
-a new firmware along with the manifest to the firmware server and the
-status tracker, respectively. While there is no need to store the
-manifest and the firmware on different servers this example shows
-a common pattern used in the industry. The status tracker may then
-automatically, based on human intervention or based on a more
-complex policy decide to inform the device about the newly available
-firmware image. In our example, it does so by pushing the manifest
-to the firmware consumer. The firmware consumer downloads the firmware
-image with the newer version X.Y.Z after successful validation
+The manifest and the firmware are stored on different servers in this 
+example. When the device processes the manifest it learns where to 
+download the new firmware version. The firmware consumer downloads 
+the firmware image with the newer version X.Y.Z after successful validation
 of the manifest. Subsequently, a reboot is initiated and the secure
-boot process starts.
+boot process starts. Finally, the device reports the successful boot 
+of the new firmware version. 
 
 ~~~~
  +---------+   +-----------------+    +-----------------------------+
- | Status  |   |                 |    | +------------+ +----------+ |
- | Tracker |   | Firmware Server |    | |  Firmware  | |Bootloader| |
- |         |   |                 |    | |  Consumer  | |          | |
- +---------+   +-----------------+    | +------------+ +----------+ |
+ | Status  |   | Firmware Server |    | +------------+ +----------+ |
+ | Tracker |   | Status Tracker  |    | |  Firmware  | |Bootloader| |
+ | Server  |   | Server          |    | |  Consumer  | |          | |
+ +---------+   +-----------------+    | |  +Status   | +----------+ |
+      |                |              | |  Tracker   |        |     |
+      |                |              | |  Client    |        |     |
+      |                |              | +------------+        |     |
       |                |              |      |  IoT Device    |     |
       |                |               `''''''''''''''''''''''''''''
       |                |                     |                |
@@ -999,6 +1011,10 @@ boot process starts.
       |                |                   |      Secure Boot    |
       |                |                   `-.                 _/
       |                |                     |`--..._____,,.,-'
+      |                |                     |                |
+      | Device running firmware X.Y.Z        |                |
+      |<-------------------------------------|                |
+      |                |                     |                |
       |                |                     |                |
 ~~~~
 {: #firmware-update2 title="Second Example Flow for a Firmware Upate."}
