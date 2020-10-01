@@ -88,9 +88,9 @@ Table of Contents
    8.  Example . . . . . . . . . . . . . . . . . . . . . . . . . . .  20
    9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  24
    10. Security Considerations . . . . . . . . . . . . . . . . . . .  24
-   11. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  24
-   12. Informative References  . . . . . . . . . . . . . . . . . . .  25
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  26
+   11. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  25
+   12. Informative References  . . . . . . . . . . . . . . . . . . .  26
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  27
 
 1.  Introduction
 
@@ -1091,29 +1091,29 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 8.  Example
 
    Figure 2 illustrates an example message flow for distributing a
-   firmware image to a device starting with an author uploading the new
-   firmware to the firmware server and creating a manifest.  The
-   firmware and manifest are stored on the same firmware server.
-
-   This setup does not use a status tracker and the firmware consumer
-   component is therefore responsible for periodically checking whether
-   a new firmware image is available for download.
+   firmware image to a device.  The firmware and manifest are stored on
+   the same firmware server and distributed in a detached manner.
 
    +--------+    +-----------------+    +-----------------------------+
-   |        |    |                 |    | +------------+ +----------+ |
-   | Author |    | Firmware Server |    | |  Firmware  | |Bootloader| |
-   +--------+    +-----------------+    | |  Consumer  | |          | |
+   |        |    | Firmware Server |    |         IoT Device          |
+   | Author |    | Status Tracker  |    | +------------+ +----------+ |
+   +--------+    | Server          |    | |  Firmware  | |Bootloader| |
+     |           +-----------------+    | |  Consumer  | |          | |
      |                   |              | +------------+ +----------+ |
-     |                   |              |      |  IoT Device    |     |
-     |                   |               `''''''''''''''''''''''''''''
-     |                   |                     |                |
-     | Create Firmware   |                     |                |
-     |--------------+    |                     |                |
-     |              |    |                     |                |
-     |<-------------+    |                     |                |
-     |                   |                     |                |
-     | Upload Firmware   |                     |                |
-     |------------------>|                     |                |
+     |                   |              |      |                |     |
+     |                   |              |  +-----------------------+  |
+     | Create Firmware   |              |  | Status Tracker Client |  |
+     |--------------+    |              |  +-----------------------+  |
+     |              |    |               `''''''''''''''''''''''''''''
+     |<-------------+    |                     |        |       |
+     |                   |                     |        |       |
+     | Upload Firmware   |                     |        |       |
+     |------------------>|                     |        |       |
+     |                   |                     |        |       |
+     | Create Manifest   |                     |        |       |
+     |---------------+   |                     |        |       |
+     |               |   |                     |        |       |
+     |<--------------+   |                     |        |       |
 
 
 
@@ -1122,54 +1122,54 @@ Moran, et al.             Expires April 4, 2021                [Page 20]
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
-     |                   |                     |                |
-     | Create Manifest   |                     |                |
-     |---------------+   |                     |                |
-     |               |   |                     |                |
-     |<--------------+   |                     |                |
-     |                   |                     |                |
-     | Sign Manifest     |                     |                |
-     |-------------+     |                     |                |
-     |             |     |                     |                |
-     |<------------+     |                     |                |
-     |                   |                     |                |
-     | Upload Manifest   |                     |                |
-     |------------------>|                     |                |
-     |                   |                     |                |
-     |                   |   Query Manifest    |                |
-     |                   |<--------------------|                |
-     |                   |                     |                |
-     |                   |   Send Manifest     |                |
-     |                   |-------------------->|                |
+     |                   |                     |        |       |
+     | Sign Manifest     |                     |        |       |
+     |-------------+     |                     |        |       |
+     |             |     |                     |        |       |
+     |<------------+     |                     |        |       |
+     |                   |                     |        |       |
+     | Upload Manifest   |                     |        |       |
+     |------------------>|  Notification of    |        |       |
+     |                   |  new firmware image |        |       |
+     |                   |----------------------------->|       |
+     |                   |                     |        |       |
+     |                   |                     |Initiate|       |
+     |                   |                     | Update |       |
+     |                   |                     |<-------|       |
+     |                   |                     |        |       |
+     |                   |   Query Manifest    |        |       |
+     |                   |<--------------------|        .       |
+     |                   |                     |        .       |
+     |                   |   Send Manifest     |        .       |
+     |                   |-------------------->|        .       |
      |                   |                     | Validate       |
      |                   |                     | Manifest       |
-     |                   |                     |---------+      |
-     |                   |                     |         |      |
-     |                   |                     |<--------+      |
-     |                   |                     |                |
-     |                   |  Request Firmware   |                |
-     |                   |<--------------------|                |
-     |                   |                     |                |
-     |                   | Send Firmware       |                |
-     |                   |-------------------->|                |
-     |                   |                     | Verify         |
+     |                   |                     |--------+       |
+     |                   |                     |        |       |
+     |                   |                     |<-------+       |
+     |                   |                     |        .       |
+     |                   |  Request Firmware   |        .       |
+     |                   |<--------------------|        .       |
+     |                   |                     |        .       |
+     |                   | Send Firmware       |        .       |
+     |                   |-------------------->|        .       |
+     |                   |                     | Verify .       |
      |                   |                     | Firmware       |
-     |                   |                     |--------------+ |
-     |                   |                     |              | |
-     |                   |                     |<-------------+ |
-     |                   |                     |                |
-     |                   |                     | Store          |
+     |                   |                     |--------+       |
+     |                   |                     |        |       |
+     |                   |                     |<-------+       |
+     |                   |                     |        .       |
+     |                   |                     | Store  .       |
      |                   |                     | Firmware       |
-     |                   |                     |-------------+  |
-     |                   |                     |             |  |
-     |                   |                     |<------------+  |
-     |                   |                     |                |
-     |                   |                     |                |
-     |                   |                     | Trigger Reboot |
-     |                   |                     |--------------->|
-     |                   |                     |                |
-     |                   |                     |                |
-     |                   |                 +---+----------------+--+
+     |                   |                     |--------+       |
+     |                   |                     |        |       |
+     |                   |                     |<-------+       |
+     |                   |                     |        .       |
+     |                   |                     |        .       |
+     |                   |                     |        .       |
+     |                   |                     |        |       |
+     |                   |                     | Update |       |
+     |                   |                     |Complete|       |
 
 
 
@@ -1178,6 +1178,20 @@ Moran, et al.             Expires April 4, 2021                [Page 21]
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
+     |                   |                     |------->|       |
+     |                   |                              |       |
+     |                   |  Firmware Update Completed   |       |
+     |                   |<-----------------------------|       |
+     |                   |                              |       |
+     |                   |  Reboot                      |       |
+     |                   |----------------------------->|       |
+     |                   |                     |        |       |
+     |                   |                     |        |       |
+                         |                     |        |Reboot |
+     |                   |                     |        |------>|
+     |                   |                     |        |       |
+     |                   |                     |        .       |
+     |                   |                 +---+----------------+--+
      |                   |                S|   |                |  |
      |                   |                E|   | Verify         |  |
      |                   |                C|   | Firmware       |  |
@@ -1198,33 +1212,19 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
      |                   |                S|   | +------------->|  |
      |                   |                S|   |                |  |
      |                   |                 +---+----------------+--+
-     |                   |                     |                |
+     |                   |                     |        .       |
+     |                   |                     |        |       |
+     |                   |                     .        |       |
+     |                   |  Device running new firmware |       |
+     |                   |<-----------------------------|       |
+     |                   |                     .        |       |
+     |                   |                              |       |
 
             Figure 2: First Example Flow for a Firmware Upate.
 
-   Figure 3 shows an example with the device using a status tracker.
-   Depiction of the author publishing the manifest at the status tracker
-   and the firmware image at the firmware server would be the same as in
-   Figure 2.  So for brevity they are not shown.  Also omitted is the
-   secure boot process following the successful firmware update process.
-
-   The exchange starts with the device interacting with the status
-   tracker; the details of such exchange will vary with the different
-   device management systems being used.  In any case, the status
-   tracker learns about the firmware version of the devices it manages.
-   In our example, the device under management is using firmware version
-   A.B.C.  At a later point in time the author uploads a new firmware
-   along with the manifest to the firmware server and the status
-   tracker, respectively.  While there is no need to store the manifest
-   and the firmware on different servers this example shows a common
-   pattern used in the industry.  The status tracker may then
-   automatically, based on human intervention or based on a more complex
-   policy decide to inform the device about the newly available firmware
-   image.  In our example, it does so by pushing the manifest to the
-   firmware consumer.  The firmware consumer downloads the firmware
-   image with the newer version X.Y.Z after successful validation of the
-   manifest.  Subsequently, a reboot is initiated and the secure boot
-   process starts.
+   Figure 3 shows an exchange that starts with the status tracker
+   querying the device for its current firmware version.  Later, a new
+   firmware version becomes available and since this device is running
 
 
 
@@ -1234,11 +1234,25 @@ Moran, et al.             Expires April 4, 2021                [Page 22]
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
+   an older version the status tracker server interacts with the device
+   to initiate an update.
+
+   The manifest and the firmware are stored on different servers in this
+   example.  When the device processes the manifest it learns where to
+   download the new firmware version.  The firmware consumer downloads
+   the firmware image with the newer version X.Y.Z after successful
+   validation of the manifest.  Subsequently, a reboot is initiated and
+   the secure boot process starts.  Finally, the device reports the
+   successful boot of the new firmware version.
+
     +---------+   +-----------------+    +-----------------------------+
-    | Status  |   |                 |    | +------------+ +----------+ |
-    | Tracker |   | Firmware Server |    | |  Firmware  | |Bootloader| |
-    |         |   |                 |    | |  Consumer  | |          | |
-    +---------+   +-----------------+    | +------------+ +----------+ |
+    | Status  |   | Firmware Server |    | +------------+ +----------+ |
+    | Tracker |   | Status Tracker  |    | |  Firmware  | |Bootloader| |
+    | Server  |   | Server          |    | |  Consumer  | |          | |
+    +---------+   +-----------------+    | |  +Status   | +----------+ |
+         |                |              | |  Tracker   |        |     |
+         |                |              | |  Client    |        |     |
+         |                |              | +------------+        |     |
          |                |              |      |  IoT Device    |     |
          |                |               `''''''''''''''''''''''''''''
          |                |                     |                |
@@ -1268,6 +1282,14 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
          |                | X.Y.Z               |                |
          |                |<--------------------|                |
          |                |                     |                |
+
+
+
+Moran, et al.             Expires April 4, 2021                [Page 23]
+
+Internet-Draft   A Firmware Update Architecture for IoT     October 2020
+
+
          |                | Firmware X.Y.Z      |                |
          |                |-------------------->|                |
          |                |                     |                |
@@ -1282,14 +1304,6 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
          |                |                     |-------------+  |
          |                |                     |             |  |
          |                |                     |<------------+  |
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 23]
-
-Internet-Draft   A Firmware Update Architecture for IoT     October 2020
-
-
          |                |                     |                |
          |                |                     |                |
          |                |                     | Trigger Reboot |
@@ -1301,6 +1315,10 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
          |                |                   |      Secure Boot    |
          |                |                   `-.                 _/
          |                |                     |`--..._____,,.,-'
+         |                |                     |                |
+         | Device running firmware X.Y.Z        |                |
+         |<-------------------------------------|                |
+         |                |                     |                |
          |                |                     |                |
 
             Figure 3: Second Example Flow for a Firmware Upate.
@@ -1316,6 +1334,17 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    thereby focused on improving security of IoT devices via firmware
    update mechanisms and informs the standardization of a manifest
    format.
+
+
+
+
+
+
+
+Moran, et al.             Expires April 4, 2021                [Page 24]
+
+Internet-Draft   A Firmware Update Architecture for IoT     October 2020
+
 
 11.  Acknowledgements
 
@@ -1338,13 +1367,6 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    -  Jim Schaad
 
    -  Carsten Bormann
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 24]
-
-Internet-Draft   A Firmware Update Architecture for IoT     October 2020
-
 
    -  Cullen Jennings
 
@@ -1372,6 +1394,14 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
    -  Bob Briscoe
 
+
+
+
+Moran, et al.             Expires April 4, 2021                [Page 25]
+
+Internet-Draft   A Firmware Update Architecture for IoT     October 2020
+
+
    We would also like to thank the WG chairs, Russ Housley, David
    Waltermire, Dave Thaler for their support and their reviews.
 
@@ -1389,18 +1419,6 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
               Serialization Format for the Software Updates for Internet
               of Things (SUIT) Manifest", draft-ietf-suit-manifest-09
               (work in progress), July 2020.
-
-
-
-
-
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 25]
-
-Internet-Draft   A Firmware Update Architecture for IoT     October 2020
-
 
    [I-D.ietf-teep-architecture]
               Pei, M., Tschofenig, H., Thaler, D., and D. Wheeler,
@@ -1432,6 +1450,14 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
               RFC 8240, DOI 10.17487/RFC8240, September 2017,
               <https://www.rfc-editor.org/info/rfc8240>.
 
+
+
+
+Moran, et al.             Expires April 4, 2021                [Page 26]
+
+Internet-Draft   A Firmware Update Architecture for IoT     October 2020
+
+
    [RFC8392]  Jones, M., Wahlstroem, E., Erdtman, S., and H. Tschofenig,
               "CBOR Web Token (CWT)", RFC 8392, DOI 10.17487/RFC8392,
               May 2018, <https://www.rfc-editor.org/info/rfc8392>.
@@ -1447,15 +1473,6 @@ Authors' Addresses
    Arm Limited
 
    EMail: Brendan.Moran@arm.com
-
-
-
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 26]
-
-Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
    Hannes Tschofenig
@@ -1474,23 +1491,6 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    Consultant
 
    EMail: milosch@meriac.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
