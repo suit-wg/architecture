@@ -260,7 +260,7 @@ The following stakeholders are used in this document:
 
 * Author: The author is the entity that creates the firmware image.
   There may be multiple authors involved in producing firmware running 
-  on an IoT device. {{devices}} talks about those IoT device deployment cases.
+  on an IoT device. {{device}} talks about those IoT device deployment cases.
 
 * Device Operator: The device operator is responsible for the day-to-day operation
   of a fleet of IoT devices. Customers of IoT devices, as the owners of 
