@@ -5,11 +5,11 @@
 SUIT                                                            B. Moran
 Internet-Draft                                             H. Tschofenig
 Intended status: Informational                               Arm Limited
-Expires: April 4, 2021                                          D. Brown
+Expires: April 5, 2021                                          D. Brown
                                                                   Linaro
                                                                M. Meriac
                                                               Consultant
-                                                        October 01, 2020
+                                                        October 02, 2020
 
 
          A Firmware Update Architecture for Internet of Things
@@ -18,8 +18,8 @@ Expires: April 4, 2021                                          D. Brown
 Abstract
 
    Vulnerabilities with Internet of Things (IoT) devices have raised the
-   need for a solid and secure firmware update mechanism that is also
-   suitable for constrained devices.  Incorporating such update
+   need for a reliable and secure firmware update mechanism suitable for
+   devices with resource constraints.  Incorporating such update
    mechanism to fix vulnerabilities, to update configuration settings as
    well as adding new functionality is recommended by security experts.
 
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 4, 2021.
+   This Internet-Draft will expire on April 5, 2021.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Moran, et al.             Expires April 4, 2021                 [Page 1]
+Moran, et al.             Expires April 5, 2021                 [Page 1]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -72,25 +72,25 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Conventions and Terminology . . . . . . . . . . . . . . . . .   5
-     2.1.  Stakeholders  . . . . . . . . . . . . . . . . . . . . . .   6
-       2.1.1.  Functions . . . . . . . . . . . . . . . . . . . . . .   7
+     2.1.  Terms . . . . . . . . . . . . . . . . . . . . . . . . . .   5
+     2.2.  Stakeholders  . . . . . . . . . . . . . . . . . . . . . .   6
+     2.3.  Functions . . . . . . . . . . . . . . . . . . . . . . . .   7
    3.  Architecture  . . . . . . . . . . . . . . . . . . . . . . . .   8
    4.  The Bootloader  . . . . . . . . . . . . . . . . . . . . . . .  12
    5.  Types of IoT Devices  . . . . . . . . . . . . . . . . . . . .  15
      5.1.  Single MCU  . . . . . . . . . . . . . . . . . . . . . . .  15
-     5.2.  Single CPU with Secure - Normal Mode Partitioning . . . .  16
-     5.3.  Symmetric Multiple CPUs . . . . . . . . . . . . . . . . .  16
+     5.2.  Single CPU with Secure - Normal Mode Partitioning . . . .  15
+     5.3.  Symmetric Multiple CPUs . . . . . . . . . . . . . . . . .  15
      5.4.  Dual CPU, shared memory . . . . . . . . . . . . . . . . .  16
      5.5.  Dual CPU, other bus . . . . . . . . . . . . . . . . . . .  16
-   6.  Manifests . . . . . . . . . . . . . . . . . . . . . . . . . .  17
-     6.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .  17
-   7.  Securing Firmware Updates . . . . . . . . . . . . . . . . . .  19
-   8.  Example . . . . . . . . . . . . . . . . . . . . . . . . . . .  20
-   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  24
-   10. Security Considerations . . . . . . . . . . . . . . . . . . .  24
-   11. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  25
-   12. Informative References  . . . . . . . . . . . . . . . . . . .  26
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  27
+   6.  Manifests . . . . . . . . . . . . . . . . . . . . . . . . . .  16
+   7.  Securing Firmware Updates . . . . . . . . . . . . . . . . . .  18
+   8.  Example . . . . . . . . . . . . . . . . . . . . . . . . . . .  19
+   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  23
+   10. Security Considerations . . . . . . . . . . . . . . . . . . .  23
+   11. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  24
+   12. Informative References  . . . . . . . . . . . . . . . . . . .  25
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  26
 
 1.  Introduction
 
@@ -102,52 +102,52 @@ Table of Contents
    Dublin, Ireland on the 13th and 14th of June, 2016 to take a look at
    the bigger picture.  A report about this workshop can be found at
    [RFC8240].  The workshop revealed a number of challenges for
-   developers and the need to initiate standardization activites.  The
-   workshop subsequently led to the formation of the IETF SUIT working
-   group.
+   developers and led to the formation of the IETF Software Updates for
+   Internet of Things (SUIT) working group.
 
 
 
 
-Moran, et al.             Expires April 4, 2021                 [Page 2]
+
+Moran, et al.             Expires April 5, 2021                 [Page 2]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
    Developing secure Internet of Things (IoT) devices is not an easy
    task and supporting a firmware update solution requires skillful
-   engineers.  Once the device is deployed, firmware updates play a
-   critical part in its lifecycle management, particularly when devices
-   have a long lifetime, are deployed in remote or inaccessible areas
-   where manual intervention is cost prohibitive or otherwise difficult.
-   Solutions for IoT devices are expected to work automatic, i.e.
-   without user involvement.  Automatic updates that do not require
-   human intervention are key to a scalable solution for fixing software
+   engineers.  Once devices are deployed, firmware updates play a
+   critical part in their lifecycle management, particularly when
+   devices have a long lifetime, are deployed in remote or inaccessible
+   areas where manual intervention is cost prohibitive or otherwise
+   difficult.  Firmware updates
+   for IoT devices are expected to work automatic, i.e. without user
+   involvement.  Automatic updates that do not require human
+   intervention are key to a scalable solution for fixing software
    vulnerabilities.
 
-   Updates to the firmware of an IoT device are not only done to fix
-   bugs, but they can also add new functionality, and to re-configure
-   the device to work in new environments or to behave differently in an
-   already deployed context.
+   Firmware updates are not only done to fix bugs, but they can also add
+   new functionality, and to re-configure the device to work in new
+   environments or to behave differently in an already deployed context.
 
    The firmware update process has to ensure that
 
    -  The firmware image is authenticated and integrity protected.
       Attempts to flash a maliciously modified firmware image or an
-      image from an unknown, untrusted source are prevented.
+      image from an unknown, untrusted source must be prevented.  In
+      examples this document uses asymmetric cryptography because it is
+      the preferred approach by many IoT deployments.  The use of
+      symmetric credentials is also supported and can be used by very
+      constrained IoT devices.
 
    -  The firmware image can be confidentiality protected so that
       attempts by an adversary to recover the plaintext binary can be
-      prevented or at least made more difficult.  Obtaining the firmware
+      mitigated or at least made more difficult.  Obtaining the firmware
       is often one of the first steps to mount an attack since it gives
       the adversary valuable insights into used software libraries,
-      configuration settings and generic functionality (even though
-      reverse engineering the binary can be a tedious process).
-
-   In examples this document uses asymmetric cryptography because it is
-   the preferred approach by many IoT deployments.  The use of symmetric
-   credentials is also supported and can be used by
-   very constrained IoT devices.
+      configuration settings and generic functionality.  Even though
+      reverse engineering the binary can be a tedious process modern
+      reverse engineering frameworks have made this task a lot easier.
 
    While the standardization work has been informed by and optimised for
    firmware update use cases of Class 1 devices (according to the device
@@ -165,7 +165,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-Moran, et al.             Expires April 4, 2021                 [Page 3]
+Moran, et al.             Expires April 5, 2021                 [Page 3]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -186,10 +186,11 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    device management solution.  The LwM2M protocol is one IoT device
    management protocol.
 
-   There are, however, several areas that fall outside the scope of the
-   IETF and other standards organizations but need to be considered by
-   firmware authors, as well as device and network operators.  Here are
-   some of them, as highlighted during the IOTSU workshop:
+   There are, however, several areas that (partially) fall outside the
+   scope of the IETF and other standards organizations but need to be
+   considered by firmware authors, as well as device and network
+   operators.  Here are some of them, as highlighted during the IOTSU
+   workshop:
 
    -  Installing firmware updates in a robust fashion so that the update
       does not break the device functionality of the environment this
@@ -203,30 +204,31 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
       end customer, and the need for user consent to install updates.
 
    -  Ensuring an energy efficient design of a battery-powered IoT
-      devices because a firmware update (particularly writing the
-      firmware image to flash).
+      devices because a firmware update, particularly writing the
+      firmware image to flash, is a heavy task for a device.
 
    -  Creating incentives for device operators to use a firmware update
-      mechanism and to demand the integration of a firmware update
-      mechanism from IoT device vendors.
+      mechanism and to demand the integration of it from IoT device
+      vendors.
 
-   This document is structured as follows.  Section 2 offers terminology
-   for talking about firmware updates supporting the standardization of
-   a manfest format.
-
-
-
-
-
-
+   This document starts with a terminology followed by the description
+   of the architecture.  We then explain the bootloader and how it
+   integrates with the firmware update mechanism.  Subsequently, we
+   offer a categorization of IoT devices in terms of their hardware
+   capabilities relevant for firmware updates.  Next, we talk about the
+   manifest structure and how to use it to secure firmware updates.  We
+   conclude with a more detailed example.
 
 
-Moran, et al.             Expires April 4, 2021                 [Page 4]
+
+Moran, et al.             Expires April 5, 2021                 [Page 4]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 2.  Conventions and Terminology
+
+2.1.  Terms
 
    This document uses the following terms:
 
@@ -240,17 +242,15 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
       contains more than one microcontroller.  Often it is also a
       compressed archive that contains code, configuration data, and
       even the entire file system.  The image may consist of a
-      differential update for performance reasons.  Firmware is the more
-      universal term.  The terms, firmware image, firmware, and image,
-      are used in this document and are interchangeable.  The term
-      application firmware image is used to differentiate it from a
-      firmware image that contains the bootloader.  An application
-      firmware image, as the name indicates, contains the application
-      program often including all the necessary code to run it (such as
-      protocol stacks, and embedded operating system).
+      differential update for performance reasons.
 
-   -  Software: The terms "software" and "firmware" are used
-      interchangeably.
+      The terms, firmware image, firmware, and image, are used in this
+      document and are interchangeable.  We use the term application
+      firmware image to differentiate it from a firmware image that
+      contains the bootloader.  An application firmware image, as the
+      name indicates, contains the application program often including
+      all the necessary code to run it (such as protocol stacks, and
+      embedded operating system).
 
    -  Microcontroller (MCU for microcontroller unit): An MCU is a
       compact integrated circuit designed for use in embedded systems.
@@ -261,8 +261,9 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
       limited peripheral functions.
 
    -  System on Chip (SoC): An SoC is an integrated circuit that
-      integrates all components of a computer, such as CPU, memory,
-      input/output ports, secondary storage, etc.
+      contains all components of a computer, such as CPU, memory, input/
+      output ports, secondary storage, a bus to connect the components,
+      and other hardware blocks of logic.
 
    -  Homogeneous Storage Architecture (HoSA): A device that stores all
       firmware components in the same way, for example in a file system
@@ -270,14 +271,13 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
    -  Heterogeneous Storage Architecture (HeSA): A device that stores at
       least one firmware component differently from the rest, for
-      example a device with an external, updatable radio, or a device
+      example a device with an external, updateable radio, or a device
       with internal and external flash memory.
 
 
 
 
-
-Moran, et al.             Expires April 4, 2021                 [Page 5]
+Moran, et al.             Expires April 5, 2021                 [Page 5]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -308,7 +308,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
       must resist modification against unauthorized insertion, deletion,
       and modification.
 
-2.1.  Stakeholders
+2.2.  Stakeholders
 
    The following stakeholders are used in this document:
 
@@ -333,7 +333,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-Moran, et al.             Expires April 4, 2021                 [Page 6]
+Moran, et al.             Expires April 5, 2021                 [Page 6]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -342,7 +342,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
       and may decide to remain in full control over the firmware update
       process of their products.
 
-2.1.1.  Functions
+2.3.  Functions
 
    -  (IoT) Device: A device refers to the entire IoT product, which
       consists of one or many MCUs, sensors and/or actuators.  Many IoT
@@ -353,21 +353,20 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    -  Status Tracker: The status tracker has a client and a server
       component and performs three tasks: 1) It communicates the
       availability of a new firmware version.  This information will
-      flow from the server to the server.
+      flow from the server to the client.
       2) It conveys information about software and hardware
       characteristics of the device.  The information flow is from the
       client to the server.
-      3) It can trigger the firmware update process on the device.  The
+      3) It can remotely trigger the firmware update process.  The
       information flow is from the server to the client.
 
       For example, a device operator may want to read the installed
       firmware version number running on the device and information
       about available flash memory.  Once an update has been triggered,
-      the device operator may want to obtain the state information about
-      the firmware update process.  If errors occurred, the device
-      operator may want to troubleshoot problems by first obtaining
-      diagnostic information (typically using a device management
-      software).
+      the device operator may want to obtain information about the state
+      of the firmware update.  If errors occurred, the device operator
+      may want to troubleshoot problems by first obtaining diagnostic
+      information (typically using a device management protocol).
 
       We make no assumptions about where the server-side component is
       deployed.  The deployment of status trackers is flexible and may
@@ -385,11 +384,12 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
       firmware image.  The firmware consumer plays the role of the
       update component on the IoT device typically running in the
       application firmware.  It interacts with the firmware server and
-      with the status tracker, if present.
+      with the status tracker client (locally).
 
 
 
-Moran, et al.             Expires April 4, 2021                 [Page 7]
+
+Moran, et al.             Expires April 5, 2021                 [Page 7]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -409,51 +409,49 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 3.  Architecture
 
-   More devices today than ever before are being connected to the
-   Internet, which drives the need for firmware updates to be provided
-   over the Internet rather than through traditional interfaces, such as
-   USB or RS232.  Updating a device over the Internet requires the
-   device to fetch the new firmware image and the manifest.
+   More devices today than ever before are connected to the Internet,
+   which drives the need for firmware updates to be provided over the
+   Internet rather than through traditional interfaces, such as USB or
+   RS-232.  Updating updates over the Internet requires the device to
+   fetch the new firmware image as well as the manifest.
 
    Hence, the following components are necessary on a device for a
    firmware update solution:
 
-   -  the Internet protocol stack for firmware downloads (*),
+   -  the Internet protocol stack for firmware downloads.  Because
+      firmware images are often multiple kilobytes, sometimes exceeding
+      one hundred kilobytes, in size for low end IoT devices and even
+      several megabytes large for IoT devices running full-fledged
+      operating systems like Linux, the protocol mechanism for
+      retrieving these images needs to offer features like congestion
+      control, flow control, fragmentation and reassembly, and
+      mechanisms to resume interrupted or corrupted transfers.
 
    -  the capability to write the received firmware image to persistent
-      storage (most likely flash memory) prior to performing the update,
+      storage (most likely flash memory).
 
    -  a manifest parser with code to verify a digital signature or a
-      message authentication code,
+      message authentication code.
 
    -  the ability to unpack, to decompress and/or to decrypt the
-      received firmware image,
+      received firmware image.
 
    -  (optionally) a status tracker.
 
-   (*) Because firmware images are often multiple kilobytes, sometimes
-   exceeding one hundred kilobytes, in size for low end IoT devices and
-   even several megabytes large for IoT devices running full-fledged
-   operating systems like Linux, the protocol mechanism for retrieving
-   these images needs to offer features like congestion control, flow
-   control, fragmentation and reassembly, and mechanisms to resume
-   interrupted or corrupted transfers.
-
    The features listed above are most likely offered by code in the
-   application firmware image, or more precisely by the firmware
-   consumer, running on the device rather than by the bootloader itself.
+   application firmware image running on the device rather than by the
+   bootloader itself.  Note that cryptographic algorithms will likely
+   run in a trusted execution environment, on a separate MCU, in a
 
 
 
-Moran, et al.             Expires April 4, 2021                 [Page 8]
+Moran, et al.             Expires April 5, 2021                 [Page 8]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
-   Note that cryptographic algorithms will likely run in a trusted
-   execution environment, on a separate MCU, in a hardware security
-   module, or in a secure element rather than in the same context with
-   the application code.
+   hardware security module, or in a secure element rather than in the
+   same context with the application code.
 
    Figure 1 shows the architecture where a firmware image is created by
    an author, and made available to a firmware server.  For security
@@ -465,25 +463,27 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    party that can then finally make a decision to deploy it with IoT
    devices.
 
-   As a first step in the firmware update process, the firmware consumer
-   needs to be made aware of the availability of a new firmware update
-   by the status tracker.  This can be accomplished via polling (client-
-   initiated), push notifications (server-initiated), or more complex
-   mechanisms (such as a hybrid approach):
+   As a first step in the firmware update process, the the status
+   tracker client need to be made aware of the availability of a new
+   firmware update by the status tracker server.  This can be
+   accomplished via polling (client-initiated), push notifications
+   (server-initiated), or more complex mechanisms (such as a hybrid
+   approach):
 
-   -  Client-initiated updates take the form of a firmware consumer on a
-      device proactively checking (polling) for updates.
+   -  Client-initiated updates take the form of a status tracker client
+      proactively checking (polling) for updates.
 
    -  With Server-initiated updates the server-side component of the
       status tracker learns about a new firmware version and determines
       what devices qualify for a firmware update.  Once the relevant
-      devices have been selected the updates are distributed to the
-      firmware consumers on those devices.  Server-initiated updates are
-      important because they allow timely update of firmware images.
-      Note that the client-side status tracker needs to be reachable by
-      the server-side component.  This may require devices to keep
-      reachability information on the server-side up-to-date and to keep
-      state at NATs and stateful packet filtering firewalls alive.
+      devices have been selected, the status tracker informs these
+      devices and the firmware consumers obtain those images and
+      manifests.  Server-initiated updates are important because they
+      allow a quick response time.  Note that the client-side status
+      tracker needs to be reachable by the server-side component.  This
+      may require devices to keep reachability information on the
+      server-side up-to-date and state at NATs and stateful packet
+      filtering firewalls alive.
 
    -  Using a hybrid approach the server-side of the status tracker
       pushes notifications of availability of an update to the client
@@ -496,27 +496,27 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    which of them are still pending an update.
 
    Firmware images can be conveyed to devices in a variety of ways,
-   including USB, UART, WiFi, BLE, low-power WAN technologies.  At the
-   application layer a variety of different protocols may be used as
+   including USB, UART, WiFi, BLE, low-power WAN technologies, mesh
+   networks and many more.  At the application layer a variety of
 
 
 
-Moran, et al.             Expires April 4, 2021                 [Page 9]
+Moran, et al.             Expires April 5, 2021                 [Page 9]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
-   well.  MQTT, CoAP, and HTT are the most popular application layer
-   protocols used by IoT devices.  This architecture does not make
-   assumptions about how the firmware images are distributed to the
-   devices.
+   protocols are also available: MQTT, CoAP, and HTTP are the most
+   popular application layer protocols used by IoT devices.  This
+   architecture does not make assumptions about how the firmware images
+   are distributed to the devices and therefore aims to support all
+   these technologies.
 
    In some cases it may be desireable to distribute firmware images
    using a multicast or broadcast protocol.  This architecture does not
-   make any assumptions about such a protocol.  However, given that
+   make recommendations for any such protocol.  However, given that
    broadcast may be desirable for some networks, updates must cause the
    least disruption possible both in metadata and firmware transmission.
-
    For an update to be broadcast friendly, it cannot rely on link layer,
    network layer, or transport layer security.  A solution has to rely
    on security protection applied to the manifest and firmware image
@@ -557,7 +557,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-Moran, et al.             Expires April 4, 2021                [Page 10]
+Moran, et al.             Expires April 5, 2021                [Page 10]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -603,7 +603,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    Firmware images and manifests may be conveyed as a bundle or
    detached.  The manifest must support both approaches.
 
-   For distribution as a bundle, the firmware image is embedded into a
+   For distribution as a bundle, the firmware image is embedded into the
    manifest.  This is a useful approach for deployments where devices
    are not connected to the Internet and cannot contact a dedicated
    firmware server for the firmware download.  It is also applicable
@@ -613,7 +613,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-Moran, et al.             Expires April 4, 2021                [Page 11]
+Moran, et al.             Expires April 5, 2021                [Page 11]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -638,16 +638,18 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    initiates the download process.  When a download is server-initiated,
    this means that the status tracker tells the device when to download
    or that it initiates the transfer directly to the firmware consumer.
-   For example, a download from an HTTP-based firmware server is client-
-   initiated.  Pushing a manifest and firmware image to the Package
-   resource of the LwM2M Firmware Update object [LwM2M] is server-
-   initiated update.
+   For example, a download from an HTTP/1.1-based firmware server is
+   client-initiated.  Pushing a manifest and firmware image to the
+   Package resource of the LwM2M Firmware Update object [LwM2M] is
+   server-initiated update.
 
    If the firmware consumer has downloaded a new firmware image and is
    ready to install it, to initiate the installation, it may - either
    need to wait for a trigger from the status tracker, - or trigger the
    update automatically, - or go through a more complex decision making
-   process to determine the appropriate timing for an update.
+   process to determine the appropriate timing for an update.  Sometimes
+   the final decision may require confirmation of the user of the device
+   for safety reasons.
 
    Installation is the act of processing the payload into a format that
    the IoT device can recognise and the bootloader is responsible for
@@ -667,9 +669,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-
-
-Moran, et al.             Expires April 4, 2021                [Page 12]
+Moran, et al.             Expires April 5, 2021                [Page 12]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -687,17 +687,15 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    Assuming the first approach, there are (at least) three firmware
    images available on the device:
 
-   -  First, the bootloader itself is a firmware image.
+   -  First, the bootloader is also firmware.  If a bootloader is
+      updatable then its firmware image is treated like any other
+      application firmware image.
 
    -  Second, the firmware image that has to be replaced is still
       available on the device as a backup in case the freshly downloaded
       firmware image does not boot correctly.
 
    -  Third, there is the newly downloaded firmware image.
-
-   To differentiate the firmware image of the bootloader from the other
-   firmware images that contain application code we refer to the latter
-   as application firmware images.
 
    Since many low end IoT devices use non-relocatable code, the
    bootloader needs to copy the newly downloaded application firmware
@@ -710,61 +708,8 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    modified firmware image.  The bootloader will therefore have to
    perform security checks on the firmware image before it can be
    booted.  These security checks by the bootloader happen in addition
-   to the security checks that happened when the firmware image and the
-   manifest were downloaded by the firmware consumer.
-
-   The manifest will likely be stored alongside the firmware image on
-   flash to allow re-verification of the firmware image with every boot
-   attempt.  The firmware consumer may strip information from the
-   manifest instead of storing the complete manifest.  Whether to re-use
-   the standardized manifest format also for the boot process or to use
-   a different format for the secure boot-specific meta-data depends on
-   the system design.  The manifest format does, however, have the
-   capability to serve also as a building block for secure boot with its
-
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 13]
-
-Internet-Draft   A Firmware Update Architecture for IoT     October 2020
-
-
-   severable elements that allow shrinking the size of the manifest by
-   stripping elements that are no longer needed.
-
-   The design of a reliable firmware update solution requires devices to
-   return to a working firmware image.  This has implications for the
-   design of the bootloader.  If the firmware image contains the
-   firmware consumer functionality, as described above, then the
-   bootloader must be able to roll back to a working firmware image.
-   Alternatively, the bootloader may have enough functionality to fetch
-   a firmware image plus manifest from a firmware server over the
-   Internet.  A multi-stage bootloader may soften this requirement at
-   the expense of a more sophisticated boot process.
-
-   For a bootloader to offer a secure boot functionality it needs to
-   implement the following functionality:
-
-   -  Cryptographic libraries with hash functions, digital signatures
-      (for asymmetric crypto), keyed message digests (for symmetric
-      crypto).
-
-   -  The device needs to have a trust anchor store to verify the
-      digital signature.  (Alternatively, access to a key store for use
-      with the keyed message digest.)
-
-   -  Ability to expose boot process-related data to the application
-      firmware (such as to the status tracker).  This allows to share
-      information about the current firmware version, and the status of
-      the firmware update process and whether errors have occurred.
-
-   -  Offer attestation information, such as boot measurements.
-      (optional)
-
-   -  Ability to decrypt firmware images, in case confidentiality
-      protection was applied).  This requires a solution for key
-      management. (optional)
+   to the security checks that took place when the firmware image and
+   the manifest were downloaded by the firmware consumer.
 
    Throughout this document we assume that the bootloader itself is
    distinct from the role of the firmware consumer and therefore does
@@ -775,37 +720,71 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    The overlap between the firmware update process and the bootloader
    functionality comes in two forms, namely
 
-   -  First, a bootloader must verify the firmware image it boots as
-      part of the secure boot process.  Doing so requires meta-data to
-      be stored alongside the firmware image so that the bootloader can
+   -  A bootloader must verify the firmware image it boots as part of
+      the secure boot process.  Doing so requires meta-data to be stored
 
 
 
-Moran, et al.             Expires April 4, 2021                [Page 14]
+Moran, et al.             Expires April 5, 2021                [Page 13]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
+      alongside the firmware image so that the bootloader can
       cryptographically verify the firmware image before booting it to
       ensure it has not been tampered with or replaced.  This meta-data
       used by the bootloader may well be the same manifest obtained with
       the firmware image during the update process (with the severable
       fields stripped off).
 
-   -  Second, an IoT device needs a recovery strategy in case the
-      firmware update / boot process fails.  As mentioned earlier, the
-      recovery strategy may includestoring two or more application
-      firmware images on the device or offering the ability to have a
-      second stage bootloader perform the firmware update process again
-      using firmware updates over serial, USB or even wireless
-      connectivity like Bluetooth Smart.  In the latter case the
-      firmware consumer functionality is contained in the second stage
-      bootloader and requires the necessary functionality for executing
-      the firmware update process, including manifest parsing.
+   -  An IoT device needs a recovery strategy in case the firmware
+      update / boot process fails.  As mentioned earlier, the recovery
+      strategy may include storing two or more application firmware
+      images on the device or offering the ability to have a second
+      stage bootloader perform the firmware update process again using
+      firmware updates over serial, USB or even wireless connectivity
+      like Bluetooth Smart.  In the latter case the firmware consumer
+      functionality is contained in the second stage bootloader and
+      requires the necessary functionality for executing the firmware
+      update process, including manifest parsing.
 
    In general, it is assumed that the bootloader itself, or a minimal
    part of it, will not be updated since a failed update of the
    bootloader poses a reliability risk.
+
+   For a bootloader to offer a secure boot functionality it needs to
+   implement the following functionality:
+
+   -  The bootloader needs to fetch the manifest (or manifest-alike
+      headers) stored in flash memory alongside the firmware image and
+      parse their content for subsequent cryptographic verification.
+
+   -  Cryptographic libraries with hash functions, digital signatures
+      (for asymmetric crypto), keyed message digests (for symmetric
+      crypto) need to be accessible.
+
+   -  The device needs to have a trust anchor store to verify the
+      digital signature.  (Alternatively, access to a key store for use
+      with the keyed message digest.)
+
+   -  Ability to expose boot process-related data to the application
+      firmware (such as to the status tracker).  This allows to share
+      information about the current firmware version, and the status of
+      the firmware update process and whether errors have occurred.
+
+   -  Produce boot measurements as part of an attestation solution.  See
+      [I-D.ietf-rats-architecture] for more information. (optional)
+
+   -  Ability to decrypt firmware images, in case confidentiality
+      protection was applied).  This requires a solution for key
+      management. (optional)
+
+
+
+Moran, et al.             Expires April 5, 2021                [Page 14]
+
+Internet-Draft   A Firmware Update Architecture for IoT     October 2020
+
 
 5.  Types of IoT Devices
 
@@ -815,8 +794,8 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    us to categorize in groups.
 
    The firmware update architecture, and the manifest format in
-   particular, needs to offer enough flexibility to cover the most
-   common deployment cases.
+   particular, needs to offer enough flexibility to cover these common
+   deployment cases.
 
 5.1.  Single MCU
 
@@ -830,17 +809,6 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    executed from an arbitrary location in flash.  Hence, then the
    firmware image is updated it is necessary to swap the old and the new
    image.
-
-
-
-
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 15]
-
-Internet-Draft   A Firmware Update Architecture for IoT     October 2020
-
 
 5.2.  Single CPU with Secure - Normal Mode Partitioning
 
@@ -866,6 +834,14 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    SoCs also support bootloaders that are capable of updating the
    firmware image, however this is typically a last resort because it
    requires the device to be held in the bootloader while the new
+
+
+
+Moran, et al.             Expires April 5, 2021                [Page 15]
+
+Internet-Draft   A Firmware Update Architecture for IoT     October 2020
+
+
    firmware is downloaded and installed, which results in down-time for
    the device.  Firmware updates in this class of device are typically
    not done in-place.
@@ -890,21 +866,11 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    configuration is commonly used to offload specific work to other
    CPUs.  Firmware dependencies are similar to the other solutions
    above, sometimes allowing only one image to be upgraded, other times
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 16]
-
-Internet-Draft   A Firmware Update Architecture for IoT     October 2020
-
-
    requiring several to be upgraded atomically.  Because the updates are
    happening on multiple CPUs, upgrading the two images atomically is
    challenging.
 
 6.  Manifests
-
-6.1.  Overview
 
    In order for a firmware consumer to apply an update, it has to make
    several decisions using manifest-provided information and data
@@ -915,6 +881,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    [I-D.ietf-suit-manifest]}, for details about how this information is
    included in the manifest.
 
+   Table 1 provides examples of decisions to be made.
 
 
 
@@ -926,30 +893,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 17]
+Moran, et al.             Expires April 5, 2021                [Page 16]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -1005,7 +949,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-Moran, et al.             Expires April 4, 2021                [Page 18]
+Moran, et al.             Expires April 5, 2021                [Page 17]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -1015,8 +959,10 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 7.  Securing Firmware Updates
 
-   Securing the firmware update process itself is important.  Failure to
-   do so can help attackers to take control over the devices.
+   Using firmware updates to fix vulnerabilities in devices is important
+   but securing this update mechanism is equally important since
+   security problems are exacerbated.  Failure to secure the firmware
+   update process will help attackers to take control over devices.
 
    End-to-end security mechanisms are used to protect the firmware image
    and the manifest.  The following assumptions are made to allow the
@@ -1055,19 +1001,18 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
    A manifest specification must support different cryptographic
    algorithms and algorithm extensibility.  Due of the nature of
-   unchangeable code in ROM for use with bootloaders the use of post-
-   quantum secure signature mechanisms, such as hash-based signatures
+   unchangeable code in ROM for bootloaders the use of post-quantum
 
 
 
-
-Moran, et al.             Expires April 4, 2021                [Page 19]
+Moran, et al.             Expires April 5, 2021                [Page 18]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
-   [RFC8778], are attractive.  These algorithms maintain security in
-   presence of quantum computers.
+   secure signature mechanisms, such as hash-based signatures [RFC8778],
+   are attractive.  These algorithms maintain security in presence of
+   quantum computers.
 
    When a device obtains a monolithic firmware image from a single
    author without any additional approval steps then the authorization
@@ -1113,15 +1058,15 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
      | Create Manifest   |                     |        |       |
      |---------------+   |                     |        |       |
      |               |   |                     |        |       |
-     |<--------------+   |                     |        |       |
 
 
 
-Moran, et al.             Expires April 4, 2021                [Page 20]
+Moran, et al.             Expires April 5, 2021                [Page 19]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
+     |<--------------+   |                     |        |       |
      |                   |                     |        |       |
      | Sign Manifest     |                     |        |       |
      |-------------+     |                     |        |       |
@@ -1169,15 +1114,15 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
      |                   |                     |        .       |
      |                   |                     |        |       |
      |                   |                     | Update |       |
-     |                   |                     |Complete|       |
 
 
 
-Moran, et al.             Expires April 4, 2021                [Page 21]
+Moran, et al.             Expires April 5, 2021                [Page 20]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
+     |                   |                     |Complete|       |
      |                   |                     |------->|       |
      |                   |                              |       |
      |                   |  Firmware Update Completed   |       |
@@ -1228,8 +1173,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-
-Moran, et al.             Expires April 4, 2021                [Page 22]
+Moran, et al.             Expires April 5, 2021                [Page 21]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -1285,7 +1229,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-Moran, et al.             Expires April 4, 2021                [Page 23]
+Moran, et al.             Expires April 5, 2021                [Page 22]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -1341,7 +1285,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-Moran, et al.             Expires April 4, 2021                [Page 24]
+Moran, et al.             Expires April 5, 2021                [Page 23]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -1397,7 +1341,7 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
 
 
-Moran, et al.             Expires April 4, 2021                [Page 25]
+Moran, et al.             Expires April 5, 2021                [Page 24]
 
 Internet-Draft   A Firmware Update Architecture for IoT     October 2020
 
@@ -1406,6 +1350,12 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
    Waltermire, Dave Thaler for their support and their reviews.
 
 12.  Informative References
+
+   [I-D.ietf-rats-architecture]
+              Birkholz, H., Thaler, D., Richardson, M., Smith, N., and
+              W. Pan, "Remote Attestation Procedures Architecture",
+              draft-ietf-rats-architecture-06 (work in progress),
+              September 2020.
 
    [I-D.ietf-suit-information-model]
               Moran, B., Tschofenig, H., and H. Birkholz, "An
@@ -1445,18 +1395,17 @@ Internet-Draft   A Firmware Update Architecture for IoT     October 2020
               (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
               <https://www.rfc-editor.org/info/rfc7519>.
 
+
+
+Moran, et al.             Expires April 5, 2021                [Page 25]
+
+Internet-Draft   A Firmware Update Architecture for IoT     October 2020
+
+
    [RFC8240]  Tschofenig, H. and S. Farrell, "Report from the Internet
               of Things Software Update (IoTSU) Workshop 2016",
               RFC 8240, DOI 10.17487/RFC8240, September 2017,
               <https://www.rfc-editor.org/info/rfc8240>.
-
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 26]
-
-Internet-Draft   A Firmware Update Architecture for IoT     October 2020
-
 
    [RFC8392]  Jones, M., Wahlstroem, E., Erdtman, S., and H. Tschofenig,
               "CBOR Web Token (CWT)", RFC 8392, DOI 10.17487/RFC8392,
@@ -1504,9 +1453,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-Moran, et al.             Expires April 4, 2021                [Page 27]
+Moran, et al.             Expires April 5, 2021                [Page 26]
