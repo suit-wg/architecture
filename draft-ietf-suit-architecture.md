@@ -79,16 +79,16 @@ experts.
 
 In addition to the definition of terminology and an architecture
 this document motivates the standardization of a manifest format
-as transport-agnostic means for describing and protecting firmware 
+as a transport-agnostic means for describing and protecting firmware
 updates.
 
 --- middle
 
 #  Introduction
 
-Firmware updates can help to fix security vulnerabilities and are 
-considered to be an important building block in securing IoT devices. 
-Due to rising concerns about insecurre IoT devices the Internet
+Firmware updates can help to fix security vulnerabilities and are
+considered to be an important building block in securing IoT devices.
+Due to rising concerns about insecure IoT devices the Internet
 Architecture Board (IAB) organized a 'Workshop on Internet of Things
 (IoT) Software Update (IOTSU)', which took place at Trinity College
 Dublin, Ireland on the 13th and 14th of June, 2016 to take a look at
@@ -98,18 +98,18 @@ and led to the formation of the IETF
 Software Updates for Internet of Things (SUIT) working group.
 
 Developing secure Internet of Things (IoT) devices is not an easy 
-task and supporting a firmware update solution requires skillful 
-engineers. Once devices are deployed, firmware updates play a 
-critical part in their lifecycle management, particularly when devices have a 
-long lifetime, are deployed in remote or inaccessible areas where manual
+task and supporting a firmware update solution requires skillful
+engineers. Once devices are deployed, firmware updates play a
+critical part in their lifecycle management, particularly when devices have a
+long lifetime, or are deployed in remote or inaccessible areas where manual
 intervention is cost prohibitive or otherwise difficult. Firmware updates  
-for IoT devices are expected to work automatic, i.e. without user 
-involvement. Automatic updates that do not require human intervention 
+for IoT devices are expected to work automatically, i.e. without user
+involvement. Automatic updates that do not require human intervention
 are key to a scalable solution for fixing software vulnerabilities.
 
-Firmware updates are not only done to fix 
-bugs, but they can also add new functionality, and to re-configure
-the device to work in new environments or to behave differently in 
+Firmware updates are not only done to fix
+bugs, but they can also add new functionality, and re-configure
+the device to work in new environments or to behave differently in
 an already deployed context.
 
 The firmware update process has to ensure that
@@ -136,12 +136,12 @@ definitions in RFC 7228 {{RFC7228}}) devices, there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
 Moreover, this architecture is not limited to managing software updates,
 but can also be applied to managing the delivery of arbitrary data, such
-as configuration information and keys. Unlike higher end devices, like 
-laptops and desktop PCs, many IoT devices do not have user interfaces 
-and support for unattended updates are therefore essential for the design
-of a practical solution. Constrained IoT devices often use a 
+as configuration information and keys. Unlike higher end devices, like
+laptops and desktop PCs, many IoT devices do not have user interfaces
+and support for unattended updates is, therefore, essential for the design
+of a practical solution. Constrained IoT devices often use a
 software engineering model where a developer is responsible for creating
-and compiling all software running on the device into a single, monolithic 
+and compiling all software running on the device into a single, monolithic
 firmware image. On higher end devices application software is, on the other 
 hand, often downloaded separately and even obtained from developers different 
 to the developers of the lower level software. The details for how to obtain 
@@ -534,9 +534,9 @@ A power failure at any time during a firmware update must not cause a failure
 of the device. Equally, adverse network conditions during an update must not 
 cause the failure of the device.
 
-One way to achieve this functionality is to provide a minimum of two storage 
-locations for firmware. An alternative approach is to use a second stage 
-bootloader with build-in full featured firmware update functionality such 
+One way to achieve this functionality is to provide a minimum of two storage
+locations for firmware. An alternative approach is to use a second stage
+bootloader with built-in full featured firmware update functionality such
 that it is possible to return to the update process after power down.
 
 Assuming the first approach, there are (at least) three firmware images available
@@ -738,9 +738,12 @@ such as payment information, to be securely conveyed to the TEE.
 
 # Securing Firmware Updates {#securing}
 
-Using firmware updates to fix vulnerabilities in devices is important but securing this 
-update mechanism is equally important since security problems are exacerbated. Failure 
-to secure the firmware update process will help attackers to take control over devices. 
+Using firmware updates to fix vulnerabilities in devices is important but securing this
+update mechanism is equally important since security problems are
+exacerbated by the update mechanism: update is essentially authorized
+remote code execution, so any security problems in the update process
+expose that remote code execution system. Failure 
+to secure the firmware update process will help attackers to take control over devices.
 
 End-to-end security mechanisms are used to protect the firmware
 image and the manifest. The following assumptions are made to allow 
