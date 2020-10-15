@@ -58,6 +58,26 @@ informative:
   RFC8778:
   RFC7519:
   RFC8392:
+  quantum-factorization:
+    target: https://www.nature.com/articles/s41598-018-36058-z
+    title: Quantum Annealing for Prime Factorization
+    author:
+      -
+        ins: Department of Computer Science, Purdue University
+        name: Shuxian Jiang
+      -
+        ins: Quantum Computing Institute, Oak Ridge National Laboratory
+        name: Keith A. Britt
+      -
+        ins: Quantum Computing Institute, Oak Ridge National Laboratory
+        name: Alexander J. McCaskey
+      -
+        ins: Quantum Computing Institute, Oak Ridge National Laboratory
+        name: Travis S. Humble
+      -
+        ins: Department of Computer Science, Purdue University
+        ins: Department of Chemistry, Physics and Birck Nanotechnology Center, Purdue University
+        name: Sabre Kais
   LwM2M:
     target: http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf
     title: "Lightweight Machine to Machine Technical Specification, Version 1.0.2"
@@ -72,10 +92,11 @@ informative:
 
 Vulnerabilities with Internet of Things (IoT) devices have raised
 the need for a reliable and secure firmware update mechanism
-suitable for devices with resource constraints. Incorporating such update
-mechanism to fix vulnerabilities, to update configuration settings
-as well as adding new functionality is recommended by security
-experts.
+suitable for devices with resource constraints. Incorporating such an
+update mechanism is a fundamental requirement for fixing vulnerabilities
+but it also enables other important capabilities such as updating
+configuration settings
+as well as adding new functionality.
 
 In addition to the definition of terminology and an architecture
 this document motivates the standardization of a manifest format
@@ -125,12 +146,12 @@ The firmware update process has to ensure that
   attempts by an adversary to recover the plaintext binary can
   be mitigated or at least made more difficult. Obtaining the firmware is often one of
   the first steps to mount an attack since it gives the adversary
-  valuable insights into used software libraries, configuration
+  valuable insights into the software libraries used, configuration
   settings and generic functionality. Even though reverse
   engineering the binary can be a tedious process modern reverse
   engineering frameworks have made this task a lot easier.
 
-While the standardization work has been informed by and optimised for firmware
+While the standardization work has been informed by and optimized for firmware
 update use cases of Class 1 devices (according to the device class
 definitions in RFC 7228 {{RFC7228}}) devices, there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
@@ -154,7 +175,7 @@ manifest. For example, protocols for transferring firmware images
 and manifests to the device need to be available as well as the status tracker
 functionality. Devices also require a mechanism to discover the status
 tracker(s) and/or firmware servers.
-These building blocks have been developed by various organizations 
+These building blocks have been developed by various organizations
 under the umbrella of an IoT device management solution. The LwM2M protocol is one
 IoT device management protocol.   
 
@@ -197,10 +218,6 @@ and how to use it to secure firmware updates. We conclude with a more detailed e
 
 This document uses the following terms:
 
-* Manifest: The manifest contains meta-data about the firmware
-  image. The manifest is protected against modification and
-  provides information about the author.
-
 * Firmware Image: The firmware image, or image, is a binary
   that may contain the complete software of a device or a subset of
   it. The firmware image may consist of multiple images, if
@@ -219,6 +236,19 @@ This document uses the following terms:
   all the necessary code to run it (such as protocol stacks, and
   embedded operating system).
 
+* Heterogeneous Storage Architecture (HeSA): A device that
+  stores at least one firmware component differently from the rest,
+  for example a device with an external, updateable radio, or a
+  device with internal and external flash memory.
+
+* Homogeneous Storage Architecture (HoSA): A device that stores
+  all firmware components in the same way, for example in a file
+  system or in flash memory.
+
+* Manifest: The manifest contains meta-data about the firmware
+  image. The manifest is protected against modification and
+  provides information about the author.
+
 * Microcontroller (MCU for microcontroller unit): An MCU is a
   compact integrated circuit designed for use in embedded systems.
   A typical microcontroller includes a processor, memory (RAM and
@@ -227,32 +257,16 @@ This document uses the following terms:
   often used interchangeably with MCU, but MCU tends to imply more
   limited peripheral functions.
 
-* System on Chip (SoC): An SoC is an integrated circuit that
-  contains all components of a computer, such as CPU, memory,
-  input/output ports, secondary storage, a bus to connect the
-  components, and other hardware blocks of logic.
-
-* Homogeneous Storage Architecture (HoSA): A device that stores
-  all firmware components in the same way, for example in a file
-  system or in flash memory.
-
-* Heterogeneous Storage Architecture (HeSA): A device that
-  stores at least one firmware component differently from the rest,
-  for example a device with an external, updateable radio, or a
-  device with internal and external flash memory.
-
-* Trusted Execution Environments (TEEs): An execution environment
-  that runs alongside of, but is isolated from, an REE. For more
-  information about TEEs see {{I-D.ietf-teep-architecture}}.
-
 * Rich Execution Environment (REE): An environment that is provided
   and governed by a typical OS (e.g., Linux, Windows, Android, iOS),
   potentially in conjunction with other supporting operating systems
   and hypervisors; it is outside of the TEE.  This environment and
   applications running on it are considered un-trusted.
 
-* Trusted applications (TAs): An application component that runs in
-  a TEE.
+* System on Chip (SoC): An SoC is an integrated circuit that
+  contains all components of a computer, such as CPU, memory,
+  input/output ports, secondary storage, a bus to connect the
+  components, and other hardware blocks of logic.
 
 * Trust Anchor: A trust anchor, as defined in {{RFC6024}}, represents
   an authoritative entity via a public key and associated data.  The
@@ -265,6 +279,14 @@ This document uses the following terms:
   may have more than one trust anchor store, each of which may be used
   by one or more applications. A trust anchor store must resist
   modification against unauthorized insertion, deletion, and modification.
+
+* Trusted Applications (TAs): An application component that runs in
+  a TEE.
+
+* Trusted Execution Environments (TEEs): An execution environment
+  that runs alongside of, but is isolated from, an REE. For more
+  information about TEEs see {{I-D.ietf-teep-architecture}}.
+
 
 ## Stakeholders
 
@@ -325,6 +347,9 @@ The following stakeholders are used in this document:
   multiple MCUs, then the main MCU may act as a status tracker towards the
   other MCUs. Such deployment is useful when updates have to be
   synchronized across MCUs.
+
+  The status tracker may be operated by any suitable stakeholder;
+  typically the Author, Device Operator, or Network Operator.
 
 * Firmware Consumer: The firmware consumer is the recipient of the
   firmware image and the manifest. It is responsible for parsing
@@ -391,7 +416,7 @@ Instead, authors will make firmware images available to the device operators. No
 there may be a longer supply chain involved to pass software updates from the author all
 the way to the party that can then finally make a decision to deploy it with IoT devices.
 
-As a first step in the firmware update process, the the status tracker client need to be
+As a first step in the firmware update process, the status tracker client need to be
 made aware of the availability of a new firmware update by the status tracker server.
 This can be accomplished via polling (client-initiated), push notifications (server-initiated),
 or more complex mechanisms (such as a hybrid approach):
@@ -426,7 +451,7 @@ most popular application layer protocols used by IoT devices. This architecture
 does not make assumptions about how the firmware images are distributed to the
 devices and therefore aims to support all these technologies.  
 
-In some cases it may be desireable to distribute firmware images using a multicast
+In some cases it may be desirable to distribute firmware images using a multicast
 or broadcast protocol. This architecture does not make recommendations for any
 such protocol. However, given that broadcast may be desirable for some networks,
 updates must cause the least disruption possible both in metadata
@@ -522,8 +547,15 @@ the appropriate timing for an update. Sometimes the final decision may
 require confirmation of the user of the device for safety reasons.
 
 Installation is the act of processing the payload into a format that
-the IoT device can recognise and the bootloader is responsible for
+the IoT device can recognize and the bootloader is responsible for
 then booting from the newly installed firmware image.
+This process is different when a bootloader is not involved. For example,
+when an application is updated in a full-featured operating system, the
+updater may halt and restart the application in isolation. Devices must
+not fail when a disruption occurs during the update process.
+For example, a power failure or network disruption during the update
+process must not cause the device to fail.
+
 
 # The Bootloader {#bootloader}
 
@@ -536,34 +568,15 @@ In most cases this requires the MCU to restart. Once the
 MCU has initiated a restart, the bootloader determines whether a newly available
 firmware image should be executed.  
 
-A power failure at any time during a firmware update must not cause a failure
-of the device. Equally, adverse network conditions during an update must not
-cause the failure of the device.
-
-One way to achieve this functionality is to provide a minimum of two storage
-locations for firmware. An alternative approach is to use a second stage
-bootloader with built-in full featured firmware update functionality such
-that it is possible to return to the update process after power down.
-
-Assuming the first approach, there are (at least) three firmware images available
-on the device:  
-
-- First, the bootloader is also firmware. If a bootloader is updatable then its
-  firmware image is treated like any other application firmware image.
-
-- Second, the firmware image that has to be replaced is still available on the
-device as a backup in case the freshly downloaded firmware image does not
-boot correctly.
-
-- Third, there is the newly downloaded firmware image.
-
-Since many low end IoT devices use non-relocatable code,
-the bootloader needs to copy the newly downloaded application firmware image
-into the location of the old application firmware image and vice versa.
+Some designs use the bootloader to implement the robustness requirements
+identified by the IOTSU workshop {{RFC8240}}. Where the bootloader makes
+changes that can affect the device's ability to boot successfully, it
+must do this in a way that is resilient to disruption, for example, by
+power failure.
 
 The boot process is security sensitive. An attacker will typically try to
 retrieve a firmware image from the device for reverse engineering or will try to get
-the bootloader to excute an attacker-modified firmware image. The
+the bootloader to execute an attacker-modified firmware image. The
 bootloader will therefore have to perform security checks on the
 firmware image before it can be booted. These security checks by the
 bootloader happen in addition to the security checks that took place
@@ -605,8 +618,8 @@ For a bootloader to offer a secure boot functionality it needs to
 implement the following functionality:
 
 -  The bootloader needs to fetch the manifest (or manifest-alike headers)
-   stored in flash memory alongside the firmware image and parse their
-   content for subsequent cryptographic verification.
+   from nonvolatile storage and parse its
+   contents for subsequent cryptographic verification.
 
 -  Cryptographic libraries with hash functions, digital signatures
    (for asymmetric crypto), keyed message digests (for symmetric
@@ -707,7 +720,7 @@ In order for a firmware consumer to apply an update, it has to make several deci
 using manifest-provided information and data available on the device itself. For more
 detailed information and a longer list of information elements in the manifest consult the
 information model specification {{I-D.ietf-suit-information-model}}, which offers justifications
-for each element, and the manifest, see {{I-D.ietf-suit-manifest}}}, for details about how this
+for each element, and the manifest, see {{I-D.ietf-suit-manifest}}, for details about how this
 information is included in the manifest.
 
 {{manifest-info}} provides examples of decisions to be made.
@@ -734,12 +747,19 @@ Keeping the code size and complexity of a manifest parsers small is important
 for constrained IoT devices. Since the manifest parsing code may
 also be used by the bootloader it is part of the trusted computing base.
 
-A manifest may not only be used to protect firmware images but also personalization data
-related to firmware or software. Trusted Execution Environments (TEEs), for example,
+A manifest may not only be used to protect firmware images but also
+configuration data such as network credentials or personalization data
+related to firmware or software.
+Personalization data demonstrates the need for mutually-distrustful
+delivery of two or more images into a device. Personalization data
+is used with
+Trusted Execution Environments (TEEs), which
 benefit from a protocol for managing the lifecycle of trusted
 applications (TAs) running inside a TEE. TEEs may obtain TAs
 from different authors and those TAs may require personalization data,
-such as payment information, to be securely conveyed to the TEE.
+such as payment information, to be securely conveyed to the TEE. The
+TA's author does not want to expose the TA to the user, and the user
+does not want to expose the payment information to the TA's author.
 
 
 # Securing Firmware Updates {#securing}
@@ -775,8 +795,9 @@ Installing trust anchors to devices via the Trust Provisioning Authority
 happens in an out-of-band fashion prior to the firmware update process.
 
 * For confidentiality protection of the firmware image, it must be done in such a
-way that the intended firmware consumer(s) can decrypt it. The information
-that is encrypted individually for each device must maintain
+way that the intended firmware consumer(s), other authorized parties,
+and no one else can decrypt it. The information
+that is encrypted individually for each device/recipient must maintain
 friendliness to Content Distribution Networks, bulk storage, and
 broadcast protocols. For confidentiality protection of firmware images the author needs
 to be in possession of the certificate/public key or a pre-shared key
@@ -784,11 +805,15 @@ of a device. The use of confidentiality protection of firmware images
 is optional.  
 
 A manifest specification must support different cryptographic algorithms
-and algorithm extensibility. Due of the nature of
-unchangeable code in ROM for bootloaders the use of
-post-quantum secure signature mechanisms, such as hash-based
-signatures {{RFC8778}}, are attractive. These
-algorithms maintain security in presence of quantum computers.
+and algorithm extensibility. Moreover, since RSA- and ECC-based signature
+schemes may become vulnerable to quantum-accelerated key extraction in the
+future, unchangeable bootloader code in ROM is recommended to use post-quantum
+secure signature schemes such as hash-based signatures {{RFC8778}}. A
+bootloader author must carefully consider the service lifetime of their
+product and the time horizon for quantum-accelerated key extraction.
+The worst-case estimate, at time of writing, for the time horizon to key
+extraction with quantum acceleration is approximately 2030, based on
+current research {{quantum-factorization}}.
 
 When a device obtains a monolithic firmware image from a single author
 without any additional approval steps then the authorization flow is
@@ -927,7 +952,7 @@ distributed in a detached manner.
   |                   |                     .        |       |
   |                   |                              |       |
 ~~~~
-{: #firmware-update title="First Example Flow for a Firmware Upate."}
+{: #firmware-update title="First Example Flow for a Firmware Update."}
 
 {{firmware-update2}} shows an exchange that starts with the
 status tracker querying the device for its current firmware version.
@@ -1012,7 +1037,7 @@ of the new firmware version.
       |                |                     |                |
       |                |                     |                |
 ~~~~
-{: #firmware-update2 title="Second Example Flow for a Firmware Upate."}
+{: #firmware-update2 title="Second Example Flow for a Firmware Update."}
 
 #  IANA Considerations
 
@@ -1054,6 +1079,10 @@ We would like to thank the following persons for their feedback:
 *  Jacob Beningo
 *  Kathleen Moriarty
 *  Bob Briscoe
+*  Roman Danyliw
+*  Brian Carpenter
+*  Theresa Enghardt
+*  Rich Salz
 
 We would also like to thank the WG chairs, Russ Housley, David Waltermire,
 Dave Thaler for their support and their reviews.
