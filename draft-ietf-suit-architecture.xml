@@ -46,7 +46,7 @@
       </address>
     </author>
 
-    <date year="2020" month="October" day="14"/>
+    <date year="2020" month="October" day="16"/>
 
     <area>Security</area>
     <workgroup>SUIT</workgroup>
@@ -56,11 +56,12 @@
 
 
 <t>Vulnerabilities with Internet of Things (IoT) devices have raised
-the need for a reliable and secure firmware update mechanism 
-suitable for devices with resource constraints. Incorporating such update
-mechanism to fix vulnerabilities, to update configuration settings
-as well as adding new functionality is recommended by security
-experts.</t>
+the need for a reliable and secure firmware update mechanism
+suitable for devices with resource constraints. Incorporating such an
+update mechanism is a fundamental requirement for fixing vulnerabilities
+but it also enables other important capabilities such as updating
+configuration settings
+as well as adding new functionality.</t>
 
 <t>In addition to the definition of terminology and an architecture
 this document motivates the standardization of a manifest format
@@ -87,10 +88,10 @@ Architecture Board (IAB) organized a ‘Workshop on Internet of Things
 Dublin, Ireland on the 13th and 14th of June, 2016 to take a look at
 the bigger picture. A report about this workshop can be found at
 <xref target="RFC8240"/>. The workshop revealed a number of challenges for developers
-and led to the formation of the IETF 
+and led to the formation of the IETF
 Software Updates for Internet of Things (SUIT) working group.</t>
 
-<t>Developing secure Internet of Things (IoT) devices is not an easy 
+<t>Developing secure Internet of Things (IoT) devices is not an easy
 task and supporting a firmware update solution requires skillful
 engineers. Once devices are deployed, firmware updates play a
 critical part in their lifecycle management, particularly when devices have a
@@ -110,21 +111,21 @@ an already deployed context.</t>
 <t><list style="symbols">
   <t>The firmware image is authenticated and integrity protected.
 Attempts to flash a maliciously modified firmware image or an image from
-an unknown, untrusted source must be prevented. In examples this document 
-uses asymmetric cryptography because it is the preferred approach by 
-many IoT deployments. The use of symmetric credentials is also supported 
+an unknown, untrusted source must be prevented. In examples this document
+uses asymmetric cryptography because it is the preferred approach by
+many IoT deployments. The use of symmetric credentials is also supported
 and can be used by very constrained IoT devices.</t>
   <t>The firmware image can be confidentiality protected so that
 attempts by an adversary to recover the plaintext binary can
 be mitigated or at least made more difficult. Obtaining the firmware is often one of
 the first steps to mount an attack since it gives the adversary
-valuable insights into used software libraries, configuration
+valuable insights into the software libraries used, configuration
 settings and generic functionality. Even though reverse
-engineering the binary can be a tedious process modern reverse 
+engineering the binary can be a tedious process modern reverse
 engineering frameworks have made this task a lot easier.</t>
 </list></t>
 
-<t>While the standardization work has been informed by and optimised for firmware
+<t>While the standardization work has been informed by and optimized for firmware
 update use cases of Class 1 devices (according to the device class
 definitions in RFC 7228 <xref target="RFC7228"/>) devices, there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
@@ -136,46 +137,51 @@ and support for unattended updates is, therefore, essential for the design
 of a practical solution. Constrained IoT devices often use a
 software engineering model where a developer is responsible for creating
 and compiling all software running on the device into a single, monolithic
-firmware image. On higher end devices application software is, on the other 
-hand, often downloaded separately and even obtained from developers different 
-to the developers of the lower level software. The details for how to obtain 
-those application layer software binaries then depends heavily on the platform, 
+firmware image. On higher end devices application software is, on the other
+hand, often downloaded separately and even obtained from developers different
+to the developers of the lower level software. The details for how to obtain
+those application layer software binaries then depends heavily on the platform,
 programming language uses and the sandbox the software is executed in.</t>
 
-<t>While the IETF standardization work has been focused on the 
-manifest format, a fully interoperable solution needs more than a standardized 
-manifest. For example, protocols for transferring firmware images 
-and manifests to the device need to be available as well as the status tracker 
-functionality. These building blocks have been developed by various organizations 
-under the umbrella of an IoT device management solution. The LwM2M protocol is one 
+<t>While the IETF standardization work has been focused on the
+manifest format, a fully interoperable solution needs more than a standardized
+manifest. For example, protocols for transferring firmware images
+and manifests to the device need to be available as well as the status tracker
+functionality. Devices also require a mechanism to discover the status
+tracker(s) and/or firmware servers.
+These building blocks have been developed by various organizations
+under the umbrella of an IoT device management solution. The LwM2M protocol is one
 IoT device management protocol.</t>
 
 <t>There are, however, several areas that (partially) fall outside the scope of the IETF
-and other standards organizations but need to be considered by firmware authors, 
-as well as device and network operators. Here are some of them, as highlighted during 
+and other standards organizations but need to be considered by firmware authors,
+as well as device and network operators. Here are some of them, as highlighted during
 the IOTSU workshop:</t>
 
 <t><list style="symbols">
   <t>Installing firmware updates in a robust fashion so that the
 update does not break the device functionality of the environment
-this device operates in. This requires proper testing and offering 
+this device operates in. This requires proper testing and offering
 recovery strategies when a firmware update is unsuccessful.</t>
   <t>Making firmware updates available in a timely fashion considering the
 complexity of the decision making process for updating devices,
-potential re-certification requirements, the length of a supply chain 
-an update needs to go through before it reaches the end customer, 
+potential re-certification requirements, the length of a supply chain
+an update needs to go through before it reaches the end customer,
 and the need for user consent to install updates.</t>
-  <t>Ensuring an energy efficient design of a battery-powered IoT devices because a 
-firmware update, particularly writing the firmware image to flash, is a heavy 
+  <t>Ensuring an energy efficient design of a battery-powered IoT devices because a
+firmware update, particularly writing the firmware image to flash, is a heavy
 task for a device.</t>
-  <t>Creating incentives for device operators to use a firmware update mechanism and to 
+  <t>Creating incentives for device operators to use a firmware update mechanism and to
 demand the integration of it from IoT device vendors.</t>
+  <t>Ensuring that firmware updates addressing critical flaws can be
+obtained even after a product is discontinued or a vendor goes out of
+business.</t>
 </list></t>
 
-<t>This document starts with a terminology followed by the description of the architecture. 
-We then explain the bootloader and how it integrates with the firmware update mechanism. 
-Subsequently, we offer a categorization of IoT devices in terms of their hardware 
-capabilities relevant for firmware updates. Next, we talk about the manifest structure 
+<t>This document starts with a terminology followed by the description of the architecture.
+We then explain the bootloader and how it integrates with the firmware update mechanism.
+Subsequently, we offer a categorization of IoT devices in terms of their hardware
+capabilities relevant for firmware updates. Next, we talk about the manifest structure
 and how to use it to secure firmware updates. We conclude with a more detailed example.</t>
 
 </section>
@@ -186,9 +192,6 @@ and how to use it to secure firmware updates. We conclude with a more detailed e
 <t>This document uses the following terms:</t>
 
 <t><list style="symbols">
-  <t>Manifest: The manifest contains meta-data about the firmware
-image. The manifest is protected against modification and
-provides information about the author.</t>
   <t>Firmware Image: The firmware image, or image, is a binary
 that may contain the complete software of a device or a subset of
 it. The firmware image may consist of multiple images, if
@@ -200,49 +203,45 @@ reasons.  <vspace blankLines='1'/>
 The terms,
 firmware image, firmware, and image, are used in this
 document and are interchangeable. We use the term application firmware
-image to differentiate it from a firmware image that 
-contains the bootloader. An application firmware image, as the 
-name indicates, contains the application program often including 
-all the necessary code to run it (such as protocol stacks, and 
+image to differentiate it from a firmware image that
+contains the bootloader. An application firmware image, as the
+name indicates, contains the application program often including
+all the necessary code to run it (such as protocol stacks, and
 embedded operating system).</t>
+  <t>Manifest: The manifest contains meta-data about the firmware
+image. The manifest is protected against modification and
+provides information about the author.</t>
   <t>Microcontroller (MCU for microcontroller unit): An MCU is a
 compact integrated circuit designed for use in embedded systems.
 A typical microcontroller includes a processor, memory (RAM and
 flash), input/output (I/O) ports and other features connected via
-some bus on a single chip. The term ’system on chip (SoC)’ is 
-often used interchangeably with MCU, but MCU tends to imply more 
+some bus on a single chip. The term ’system on chip (SoC)’ is
+often used interchangeably with MCU, but MCU tends to imply more
 limited peripheral functions.</t>
-  <t>System on Chip (SoC): An SoC is an integrated circuit that
-contains all components of a computer, such as CPU, memory,
-input/output ports, secondary storage, a bus to connect the 
-components, and other hardware blocks of logic.</t>
-  <t>Homogeneous Storage Architecture (HoSA): A device that stores
-all firmware components in the same way, for example in a file
-system or in flash memory.</t>
-  <t>Heterogeneous Storage Architecture (HeSA): A device that
-stores at least one firmware component differently from the rest,
-for example a device with an external, updateable radio, or a
-device with internal and external flash memory.</t>
-  <t>Trusted Execution Environments (TEEs): An execution environment
-that runs alongside of, but is isolated from, an REE. For more 
-information about TEEs see <xref target="I-D.ietf-teep-architecture"/>.</t>
   <t>Rich Execution Environment (REE): An environment that is provided
 and governed by a typical OS (e.g., Linux, Windows, Android, iOS),
 potentially in conjunction with other supporting operating systems
 and hypervisors; it is outside of the TEE.  This environment and
 applications running on it are considered un-trusted.</t>
-  <t>Trusted applications (TAs): An application component that runs in
-a TEE.</t>
-  <t>Trust Anchor: A trust anchor, as defined in <xref target="RFC6024"/>, represents 
-an authoritative entity via a public key and associated data.  The 
-public key is used to verify digital signatures, and the associated 
-data is used to constrain the types of information for which the 
+  <t>System on Chip (SoC): An SoC is an integrated circuit that
+contains all components of a computer, such as CPU, memory,
+input/output ports, secondary storage, a bus to connect the
+components, and other hardware blocks of logic.</t>
+  <t>Trust Anchor: A trust anchor, as defined in <xref target="RFC6024"/>, represents
+an authoritative entity via a public key and associated data.  The
+public key is used to verify digital signatures, and the associated
+data is used to constrain the types of information for which the
 trust anchor is authoritative.”</t>
-  <t>Trust Anchor Store: A trust anchor store, as defined in <xref target="RFC6024"/>, 
-is a set of one or more trust anchors stored in a device.  A device 
-may have more than one trust anchor store, each of which may be used 
-by one or more applications. A trust anchor store must resist 
+  <t>Trust Anchor Store: A trust anchor store, as defined in <xref target="RFC6024"/>,
+is a set of one or more trust anchors stored in a device.  A device
+may have more than one trust anchor store, each of which may be used
+by one or more applications. A trust anchor store must resist
 modification against unauthorized insertion, deletion, and modification.</t>
+  <t>Trusted Applications (TAs): An application component that runs in
+a TEE.</t>
+  <t>Trusted Execution Environments (TEEs): An execution environment
+that runs alongside of, but is isolated from, an REE. For more
+information about TEEs see <xref target="I-D.ietf-teep-architecture"/>.</t>
 </list></t>
 
 </section>
@@ -252,17 +251,17 @@ modification against unauthorized insertion, deletion, and modification.</t>
 
 <t><list style="symbols">
   <t>Author: The author is the entity that creates the firmware image.
-There may be multiple authors involved in producing firmware running 
+There may be multiple authors involved in producing firmware running
 on an IoT device. <xref target="device"/> talks about those IoT device deployment cases.</t>
   <t>Device Operator: The device operator is responsible for the day-to-day operation
-of a fleet of IoT devices. Customers of IoT devices, as the owners of 
-IoT devices - such as enterprise customers or end users, interact 
-with their IoT devices indirectly through the device operator via 
+of a fleet of IoT devices. Customers of IoT devices, as the owners of
+IoT devices - such as enterprise customers or end users, interact
+with their IoT devices indirectly through the device operator via
 web or smart phone apps.</t>
   <t>Network Operator: The network operator is responsible for the operation of a
 network to which IoT devices connect.</t>
   <t>Trust Provisioning Authority (TPA): The TPA distributes
-trust anchors and authorization policies to various stakeholders. 
+trust anchors and authorization policies to various stakeholders.
 The TPA may also delegate rights to stakeholders. For example,
 in some cases, the Original Design Manufacturer (ODM), which is a
 company that designs and manufactures a product, may act as a
@@ -278,31 +277,33 @@ update process of their products.</t>
 consists of one or many MCUs, sensors and/or actuators. Many IoT
 devices sold today contain multiple MCUs and therefore a single
 device may need to obtain more than one firmware image and
-manifest to succesfully perform an update.</t>
+manifest to successfully perform an update.</t>
   <t>Status Tracker: The status tracker has a client and a server component
-and performs three tasks: 
-1) It communicates the availability of a new firmware version. This 
+and performs three tasks:
+1) It communicates the availability of a new firmware version. This
    information will flow from the server to the client. <vspace />
-2) It conveys information about software and hardware characteristics of 
+2) It conveys information about software and hardware characteristics of
    the device. The information flow is from the client to the server. <vspace />
-3) It can remotely trigger the firmware update process. The 
+3) It can remotely trigger the firmware update process. The
    information flow is from the server to the client.  <vspace blankLines='1'/>
 For example, a device operator may want to read the installed firmware
-version number running on the device and information 
-about available flash memory. Once an update has been triggered, the device 
-operator may want to obtain information about the state of the firmware 
-update. If errors occurred, the device operator may want to 
-troubleshoot problems by first obtaining diagnostic information (typically 
+version number running on the device and information
+about available flash memory. Once an update has been triggered, the device
+operator may want to obtain information about the state of the firmware
+update. If errors occurred, the device operator may want to
+troubleshoot problems by first obtaining diagnostic information (typically
 using a device management protocol).  <vspace blankLines='1'/>
-We make no 
-assumptions about where the server-side component is deployed. The 
+We make no
+assumptions about where the server-side component is deployed. The
 deployment of status trackers is flexible and may be found at<vspace />
-cloud-based servers, on-premise servers, or may be embedded in edge 
-computing device. A status tracker server component may even be 
-deployed on an IoT device. For example, if the IoT device contains 
-multiple MCUs, then the main MCU may act as a status tracker towards the 
-other MCUs. Such deployment is useful when updates have to be 
-synchronized across MCUs.</t>
+cloud-based servers, on-premise servers, or may be embedded in edge
+computing device. A status tracker server component may even be
+deployed on an IoT device. For example, if the IoT device contains
+multiple MCUs, then the main MCU may act as a status tracker towards the
+other MCUs. Such deployment is useful when updates have to be
+synchronized across MCUs.  <vspace blankLines='1'/>
+The status tracker may be operated by any suitable stakeholder;
+typically the Author, Device Operator, or Network Operator.</t>
   <t>Firmware Consumer: The firmware consumer is the recipient of the
 firmware image and the manifest. It is responsible for parsing
 and verifying the received manifest and for storing the obtained
@@ -310,9 +311,9 @@ firmware image. The firmware consumer plays the role of the
 update component on the IoT device typically running in the
 application firmware. It interacts with the firmware server and
 with the status tracker client (locally).</t>
-  <t>Firmware Server: The firmware server stores firmware images and 
-manifests and distributes them to IoT devices. Some deployments 
-may require a store-and-forward concept, which requires storing 
+  <t>Firmware Server: The firmware server stores firmware images and
+manifests and distributes them to IoT devices. Some deployments
+may require a store-and-forward concept, which requires storing
 the firmware images/manifests on more than one entity before<vspace />
 they reach the device. There is typically some interaction between the
 firmware server and the status tracker and these two entities are often
@@ -332,7 +333,7 @@ Internet rather than through traditional interfaces, such as USB or
 RS-232. Updating updates over the Internet requires the device to fetch
 the new firmware image as well as the manifest.</t>
 
-<t>Hence, the following components are necessary on a device for a firmware 
+<t>Hence, the following components are necessary on a device for a firmware
 update solution:</t>
 
 <t><list style="symbols">
@@ -346,63 +347,63 @@ and reassembly, and mechanisms to resume interrupted or corrupted transfers.</t>
 persistent storage (most likely flash memory).</t>
   <t>a manifest parser with code to verify a digital
 signature or a message authentication code.</t>
-  <t>the ability to unpack, to decompress and/or to decrypt the 
+  <t>the ability to unpack, to decompress and/or to decrypt the
 received firmware image.</t>
   <t>(optionally) a status tracker.</t>
 </list></t>
 
-<t>The features listed above are most likely offered by code in the application firmware 
+<t>The features listed above are most likely offered by code in the application firmware
 image running
-on the device rather than by the bootloader itself. Note that 
-cryptographic algorithms will likely run in a trusted execution 
+on the device rather than by the bootloader itself. Note that
+cryptographic algorithms will likely run in a trusted execution
 environment, on a separate MCU, in a hardware security module, or in a secure element
 rather than in the same context with the application code.</t>
 
 <t><xref target="arch-figure"/> shows the architecture where a
 firmware image is created by an author, and made available to a firmware
-server. For security reasons, the author will not have the permissions to 
-upload firmware images to the firmware server and to initiate an update him- or herself. 
-Instead, authors will make firmware images available to the device operators. Note that 
-there may be a longer supply chain involved to pass software updates from the author all 
+server. For security reasons, the author will not have the permissions to
+upload firmware images to the firmware server and to initiate an update him- or herself.
+Instead, authors will make firmware images available to the device operators. Note that
+there may be a longer supply chain involved to pass software updates from the author all
 the way to the party that can then finally make a decision to deploy it with IoT devices.</t>
 
-<t>As a first step in the firmware update process, the the status tracker client need to be 
-made aware of the availability of a new firmware update by the status tracker server. 
+<t>As a first step in the firmware update process, the status tracker client need to be
+made aware of the availability of a new firmware update by the status tracker server.
 This can be accomplished via polling (client-initiated), push notifications (server-initiated),
 or more complex mechanisms (such as a hybrid approach):</t>
 
 <t><list style="symbols">
-  <t>Client-initiated updates take the form of a status tracker client proactively 
+  <t>Client-initiated updates take the form of a status tracker client proactively
 checking (polling) for updates.</t>
-  <t>With Server-initiated updates the server-side component of the status tracker 
-learns about a new firmware version and determines what devices qualify for a 
-firmware update. Once the relevant devices have been selected, the 
-status tracker informs these devices and the firmware consumers obtain those 
-images and manifests. Server-initiated updates are important because they allow a quick 
+  <t>With Server-initiated updates the server-side component of the status tracker
+learns about a new firmware version and determines what devices qualify for a
+firmware update. Once the relevant devices have been selected, the
+status tracker informs these devices and the firmware consumers obtain those
+images and manifests. Server-initiated updates are important because they allow a quick
 response time. Note that the client-side status tracker needs to be reachable by the server-side
-component. This may require devices to keep reachability information on the 
-server-side up-to-date and state at NATs and stateful packet filtering 
+component. This may require devices to keep reachability information on the
+server-side up-to-date and state at NATs and stateful packet filtering
 firewalls alive.</t>
   <t>Using a hybrid approach the server-side of the status tracker
-pushes notifications of availability of an update to the client side and requests 
-the firmware consumer to pull the manifest and the firmware image from the 
+pushes notifications of availability of an update to the client side and requests
+the firmware consumer to pull the manifest and the firmware image from the
 firmware server.</t>
 </list></t>
 
-<t>Once the device operator triggers update via the status tracker, it will keep 
-track of the update process on the device. This allows the device operator to know what 
+<t>Once the device operator triggers update via the status tracker, it will keep
+track of the update process on the device. This allows the device operator to know what
 devices have received an update and which of them are still pending an update.</t>
 
 <t>Firmware images can be conveyed to devices in a variety of ways,
-including USB, UART, WiFi, BLE, low-power WAN technologies, mesh networks and many more. 
-At the application layer 
-a variety of protocols are also available: MQTT, CoAP, and HTTP are the 
-most popular application layer protocols used by IoT devices. This architecture 
-does not make assumptions about how the firmware images are distributed to the 
+including USB, UART, WiFi, BLE, low-power WAN technologies, mesh networks and many more.
+At the application layer
+a variety of protocols are also available: MQTT, CoAP, and HTTP are the
+most popular application layer protocols used by IoT devices. This architecture
+does not make assumptions about how the firmware images are distributed to the
 devices and therefore aims to support all these technologies.</t>
 
-<t>In some cases it may be desireable to distribute firmware images using a multicast
-or broadcast protocol. This architecture does not make recommendations for any 
+<t>In some cases it may be desirable to distribute firmware images using a multicast
+or broadcast protocol. This architecture does not make recommendations for any
 such protocol. However, given that broadcast may be desirable for some networks,
 updates must cause the least disruption possible both in metadata
 and firmware transmission. For an update to be broadcast friendly, it cannot rely on link
@@ -453,7 +454,7 @@ third-party content distribution networks for payload distribution.</t>
             -----                             -----------
 ]]></artwork></figure>
 
-<t>Firmware images and manifests may be conveyed as a bundle or detached. The 
+<t>Firmware images and manifests may be conveyed as a bundle or detached. The
 manifest must support both approaches.</t>
 
 <t>For distribution as a bundle, the firmware image is embedded into the manifest.
@@ -462,9 +463,9 @@ to the Internet and cannot contact a dedicated firmware server for the firmware
 download. It is also applicable when the firmware update happens via a
 USB sticks or short range radio technologies (such as Bluetooth Smart).</t>
 
-<t>Alternatively, the manifest is distributed detached from the firmware image. 
-Using this approach, the firmware consumer is presented with the manifest first 
-and then needs to obtain one or more firmware images as dictated in the 
+<t>Alternatively, the manifest is distributed detached from the firmware image.
+Using this approach, the firmware consumer is presented with the manifest first
+and then needs to obtain one or more firmware images as dictated in the
 manifest.</t>
 
 <t>The pre-authorisation step involves verifying whether the entity
@@ -488,127 +489,153 @@ and firmware image to the Package resource of the LwM2M
 Firmware Update object <xref target="LwM2M"/> is server-initiated update.</t>
 
 <t>If the firmware consumer has downloaded a new firmware image and is ready to
-install it, to initiate the installation, it may 
-- either need to wait for a trigger from the status tracker, 
-- or trigger the update automatically, 
-- or go through a more complex decision making process to determine 
-the appropriate timing for an update. Sometimes the final decision may 
+install it, to initiate the installation, it may
+- either need to wait for a trigger from the status tracker,
+- or trigger the update automatically,
+- or go through a more complex decision making process to determine
+the appropriate timing for an update. Sometimes the final decision may
 require confirmation of the user of the device for safety reasons.</t>
 
 <t>Installation is the act of processing the payload into a format that
-the IoT device can recognise and the bootloader is responsible for
-then booting from the newly installed firmware image.</t>
+the IoT device can recognize and the bootloader is responsible for
+then booting from the newly installed firmware image.
+This process is different when a bootloader is not involved. For example,
+when an application is updated in a full-featured operating system, the
+updater may halt and restart the application in isolation. Devices must
+not fail when a disruption occurs during the update process.
+For example, a power failure or network disruption during the update
+process must not cause the device to fail.</t>
 
 </section>
-<section anchor="bootloader" title="The Bootloader">
+<section anchor="invocation" title="Invoking the Firmware">
 
 <t><xref target="architecture"/> describes the steps for getting the firmware image and the manifest
-from the author to the firmware consumer on the IoT device. Once the firmware consumer 
-has retrieved and successfully processed the manifest and the firmware image it needs 
-to hand control over to the bootloader.</t>
+from the author to the firmware consumer on the IoT device. Once the firmware consumer
+has retrieved and successfully processed the manifest and the firmware image it needs
+to invoke the new firmware image. This is managed in many different ways, depending
+on the type of device, but it typically involves halting the current version of the
+firmware, handing control over to a firmware with a higher privilege/trust level
+(the firmware verifier)
+verifying the new firmware’s authenticity &amp; integrity, and then invoking it.</t>
 
-<t>In most cases this requires the MCU to restart. Once the
-MCU has initiated a restart, the bootloader determines whether a newly available 
-firmware image should be executed.</t>
+<t>In an execute-in-place microcontroller, this is often done by rebooting into a
+bootloader (simultaneously halting the application &amp; handing over to the higher
+privilege level) then executing a secure boot process (verifying and invoking
+the new image).</t>
 
-<t>A power failure at any time during a firmware update must not cause a failure 
-of the device. Equally, adverse network conditions during an update must not 
-cause the failure of the device.</t>
+<t>In a rich OS, this may be done by halting one or more processes, then invoking
+new applications. In some OSs, this implicitly involves the kernel verifying
+the code signatures on the new applications.</t>
 
-<t>One way to achieve this functionality is to provide a minimum of two storage
-locations for firmware. An alternative approach is to use a second stage
-bootloader with built-in full featured firmware update functionality such
-that it is possible to return to the update process after power down.</t>
+<t>The invocation process is security sensitive. An attacker will typically try to
+retrieve a firmware image from the device for reverse engineering or will try to get
+the firmware verifier to execute an attacker-modified firmware image. The
+firmware verifier will therefore have to perform security checks on the
+firmware image before it can be invoked. These security checks by the
+firmware verifier happen in addition to the security checks that took place
+when the firmware image and the manifest were downloaded by the firmware consumer.</t>
+
+<t>The overlap between the firmware consumer and the firmware verifier
+functionality comes in two forms, namely</t>
+
+<t><list style="symbols">
+  <t>A firmware verifier must verify the firmware image it boots as
+part of the secure boot process. Doing so requires meta-data to be
+stored alongside the firmware image so that the firmware verifier can
+cryptographically verify the firmware image before booting it to
+ensure it has not been tampered with or replaced. This meta-data
+used by the firmware verifier may well be the same manifest obtained with the
+firmware image during the update process.</t>
+  <t>An IoT device needs a recovery strategy in case the firmware
+update / invocation process fails. The recovery
+strategy may include storing two or more application firmware images
+on the device or offering the ability to invoke a recovery image to
+perform the firmware update process again using firmware updates over
+serial, USB or even wireless connectivity like Bluetooth Smart.
+In the latter case the firmware consumer functionality is contained in the
+recovery image and requires the necessary functionality for
+executing the firmware update process, including manifest parsing.</t>
+</list></t>
+
+<t>While this document assumes that the firmware verifier itself is
+distinct from the role of the firmware consumer and therefore does not
+manage the firmware update process, this is not a requirement and these
+roles may be combined in practice.</t>
+
+<t>Using a bootloader as the firmware verifier requires some special
+considerations, particularly when the bootloader
+implements the robustness requirements identified by the IOTSU workshop <xref target="RFC8240"/>.</t>
+
+<section anchor="bootloader" title="The Bootloader">
+
+<t>In most cases the MCU must restart in order to hand over control to the bootloader.
+Once the MCU has initiated a restart, the bootloader determines whether a newly available
+firmware image should be executed. If the bootloader concludes that the newly available
+firmware image is invalid, a recovery strategy is necessary. There are only two
+approaches recovering from an invalid firmware: either the bootloader must be able
+to select a different, valid firmware, or it must be able to obtain a new, valid firmware.
+Both of these approaches have implications for the architecture of the update system.</t>
 
 <t>Assuming the first approach, there are (at least) three firmware images available
 on the device:</t>
 
 <t><list style="symbols">
-  <t>First, the bootloader is also firmware. If a bootloader is updatable then its 
+  <t>First, the bootloader is also firmware. If a bootloader is updatable then its
 firmware image is treated like any other application firmware image.</t>
-  <t>Second, the firmware image that has to be replaced is still available on the 
-device as a backup in case the freshly downloaded firmware image does not 
-boot correctly.</t>
+  <t>Second, the firmware image that has to be replaced is still available on the
+device as a backup in case the freshly downloaded firmware image does not
+boot or operate correctly.</t>
   <t>Third, there is the newly downloaded firmware image.</t>
 </list></t>
 
-<t>Since many low end IoT devices use non-relocatable code, 
-the bootloader needs to copy the newly downloaded application firmware image 
-into the location of the old application firmware image and vice versa.</t>
+<t>Therefore, the firmware consumer must know where to store the new firmware.
+In some cases, this may be implicit, for example replacing the least-recently-used
+firmware image. In other cases, the storage location of the new firmware must be
+explicit, for example when a device has one or more application firmware images
+and a recovery image with limited functionality, sufficient only to perform an update.</t>
 
-<t>The boot process is security sensitive. An attacker will typically try to 
-retrieve a firmware image from the device for reverse engineering or will try to get 
-the bootloader to excute an attacker-modified firmware image. The
-bootloader will therefore have to perform security checks on the
-firmware image before it can be booted. These security checks by the
-bootloader happen in addition to the security checks that took place
-when the firmware image and the manifest were downloaded by the firmware consumer.</t>
-
-<t>Throughout this document we assume that the bootloader itself is
-distinct from the role of the firmware consumer and therefore does not
-manage the firmware update process. This may give the impression
-that the bootloader itself is a completely separate component,
-which is mainly responsible for selecting a firmware image to boot.</t>
-
-<t>The overlap between the firmware update process and the bootloader
-functionality comes in two forms, namely</t>
-
-<t><list style="symbols">
-  <t>A bootloader must verify the firmware image it boots as
-part of the secure boot process. Doing so requires meta-data to be
-stored alongside the firmware image so that the bootloader can
-cryptographically verify the firmware image before booting it to
-ensure it has not been tampered with or replaced. This meta-data
-used by the bootloader may well be the same manifest obtained with the
-firmware image during the update process (with the severable
-fields stripped off).</t>
-  <t>An IoT device needs a recovery strategy in case the firmware
-update / boot process fails. As mentioned earlier, the recovery 
-strategy may include storing two or more application firmware images 
-on the device or offering the ability to have a second stage bootloader 
-perform the firmware update process again using firmware updates over 
-serial, USB or even wireless connectivity like Bluetooth Smart.
-In the latter case the firmware consumer functionality is contained in the
-second stage bootloader and requires the necessary functionality for
-executing the firmware update process, including manifest parsing.</t>
-</list></t>
+<t>Since many low end IoT devices use non-relocatable code,
+either the bootloader needs to copy the newly downloaded application firmware image
+into the location of the old application firmware image and vice versa or
+multiple versions of the firmware need to be prepared for different locations.</t>
 
 <t>In general, it is assumed that the bootloader itself, or a minimal part of it,
-will not be updated since a failed update of the bootloader poses a 
+will not be updated since a failed update of the bootloader poses a
 reliability risk.</t>
 
-<t>For a bootloader to offer a secure boot functionality it needs to 
+<t>For a bootloader to offer a secure boot functionality it needs to
 implement the following functionality:</t>
 
 <t><list style="symbols">
   <t>The bootloader needs to fetch the manifest (or manifest-alike headers)
-stored in flash memory alongside the firmware image and parse their 
-content for subsequent cryptographic verification.</t>
+from nonvolatile storage and parse its
+contents for subsequent cryptographic verification.</t>
   <t>Cryptographic libraries with hash functions, digital signatures
-(for asymmetric crypto), keyed message digests (for symmetric 
+(for asymmetric crypto), keyed message digests (for symmetric
 crypto) need to be accessible.</t>
-  <t>The device needs to have a trust anchor store to verify the 
-digital signature. (Alternatively, access to a key store for use 
+  <t>The device needs to have a trust anchor store to verify the
+digital signature. (Alternatively, access to a key store for use
 with the keyed message digest.)</t>
   <t>Ability to expose boot process-related data to the application
 firmware (such as to the status tracker).  This allows
-to share information about the current firmware version, and the 
+to share information about the current firmware version, and the
 status of the firmware update process and whether errors have occurred.</t>
-  <t>Produce boot measurements as part of an attestation solution. See 
+  <t>Produce boot measurements as part of an attestation solution. See
 <xref target="I-D.ietf-rats-architecture"/> for more information. (optional)</t>
-  <t>Ability to decrypt firmware images, in case confidentiality protection 
+  <t>Ability to decrypt firmware images, in case confidentiality protection
 was applied). This requires a solution for key management. (optional)</t>
 </list></t>
 
 </section>
+</section>
 <section anchor="device" title="Types of IoT Devices">
 
-<t>There are billions of MCUs used in devices today produced by a large 
-number of silicon manufacturers. While MCUs can vary significantly 
-in their characteristics, there are a number of similiaries allowing 
+<t>There are billions of MCUs used in devices today produced by a large
+number of silicon manufacturers. While MCUs can vary significantly
+in their characteristics, there are a number of similiaries allowing
 us to categorize in groups.</t>
 
-<t>The firmware update architecture, and the manifest format in particular, 
+<t>The firmware update architecture, and the manifest format in particular,
 needs to offer enough flexibility to cover these common deployment cases.</t>
 
 <section anchor="single-mcu" title="Single MCU">
@@ -616,12 +643,12 @@ needs to offer enough flexibility to cover these common deployment cases.</t>
 <t>The simplest, and currently most common, architecture consists of
 a single MCU along with its own peripherals.  These SoCs generally
 contain some amount of flash memory for code and fixed data, as
-well as RAM for working storage.  A notable characteristic of these 
-SoCs is that the primary code is generally execute in place (XIP). 
-Due to the non-relocatable nature of the code, the firmware image 
-needs to be placed in a specific location in flash since the code 
-cannot be executed from an arbitrary location in flash. Hence, then 
-the firmware image is updated it is necessary to swap the old and 
+well as RAM for working storage.  A notable characteristic of these
+SoCs is that the primary code is generally execute in place (XIP).
+Due to the non-relocatable nature of the code, the firmware image
+needs to be placed in a specific location in flash since the code
+cannot be executed from an arbitrary location in flash. Hence, then
+the firmware image is updated it is necessary to swap the old and
 the new image.</t>
 
 </section>
@@ -656,10 +683,10 @@ not done in-place.</t>
 </section>
 <section anchor="dual-cpu-shared-memory" title="Dual CPU, shared memory">
 
-<t>This configuration has two or more heterogeneous CPUs in a single SoC that 
-share memory (flash and RAM).  Generally, there will be a mechanism to prevent 
+<t>This configuration has two or more heterogeneous CPUs in a single SoC that
+share memory (flash and RAM).  Generally, there will be a mechanism to prevent
 one CPU from unintentionally accessing memory currently allocated to the other.
-Upgrades in this case will typically be done by one of the CPUs, and is 
+Upgrades in this case will typically be done by one of the CPUs, and is
 similar to the single CPU with secure mode.</t>
 
 </section>
@@ -682,10 +709,10 @@ multiple CPUs, upgrading the two images atomically is challenging.</t>
 <section anchor="manifests" title="Manifests">
 
 <t>In order for a firmware consumer to apply an update, it has to make several decisions
-using manifest-provided information and data available on the device itself. For more 
-detailed information and a longer list of information elements in the manifest consult the 
-information model specification <xref target="I-D.ietf-suit-information-model"/>, which offers justifications 
-for each element, and the manifest, see <xref target="I-D.ietf-suit-manifest"/>}, for details about how this 
+using manifest-provided information and data available on the device itself. For more
+detailed information and a longer list of information elements in the manifest consult the
+information model specification <xref target="I-D.ietf-suit-information-model"/>, which offers justifications
+for each element, and the manifest, see <xref target="I-D.ietf-suit-manifest"/>, for details about how this
 information is included in the manifest.</t>
 
 <t><xref target="manifest-info"/> provides examples of decisions to be made.</t>
@@ -718,16 +745,23 @@ must not be tricked into installing such firmware since a
 vulnerability in the old firmware image may allow an attacker to
 gain control of the device.</t>
 
-<t>Keeping the code size and complexity of a manifest parsers small is important 
-for constrained IoT devices. Since the manifest parsing code may 
+<t>Keeping the code size and complexity of a manifest parsers small is important
+for constrained IoT devices. Since the manifest parsing code may
 also be used by the bootloader it is part of the trusted computing base.</t>
 
-<t>A manifest may not only be used to protect firmware images but also personalization data
-related to firmware or software. Trusted Execution Environments (TEEs), for example,
+<t>A manifest may not only be used to protect firmware images but also
+configuration data such as network credentials or personalization data
+related to firmware or software.
+Personalization data demonstrates the need for mutually-distrustful
+delivery of two or more images into a device. Personalization data
+is used with
+Trusted Execution Environments (TEEs), which
 benefit from a protocol for managing the lifecycle of trusted
 applications (TAs) running inside a TEE. TEEs may obtain TAs
 from different authors and those TAs may require personalization data,
-such as payment information, to be securely conveyed to the TEE.</t>
+such as payment information, to be securely conveyed to the TEE. The
+TA’s author does not want to expose the TA to the user, and the user
+does not want to expose the payment information to the TA’s author.</t>
 
 </section>
 <section anchor="securing" title="Securing Firmware Updates">
@@ -736,18 +770,18 @@ such as payment information, to be securely conveyed to the TEE.</t>
 update mechanism is equally important since security problems are
 exacerbated by the update mechanism: update is essentially authorized
 remote code execution, so any security problems in the update process
-expose that remote code execution system. Failure 
+expose that remote code execution system. Failure
 to secure the firmware update process will help attackers to take control over devices.</t>
 
 <t>End-to-end security mechanisms are used to protect the firmware
-image and the manifest. The following assumptions are made to allow 
-the firmware consumer to verify the received firmware image and 
+image and the manifest. The following assumptions are made to allow
+the firmware consumer to verify the received firmware image and
 manifest before updating software:</t>
 
 <t><list style="symbols">
   <t>Authentication ensures that the device can cryptographically identify
 the author(s) creating firmware images and manifests. Authenticated
-identities may be used as input to the authorization process. Not all 
+identities may be used as input to the authorization process. Not all
 entities creating and signing manifests have the same
 permissions. A device needs to determine whether the requested action
 is indeed covered by the permission of the party that signed the manifest.
@@ -762,8 +796,9 @@ to be in possession of the trust anchors to verify those signatures.
 Installing trust anchors to devices via the Trust Provisioning Authority
 happens in an out-of-band fashion prior to the firmware update process.</t>
   <t>For confidentiality protection of the firmware image, it must be done in such a
-way that the intended firmware consumer(s) can decrypt it. The information
-that is encrypted individually for each device must maintain
+way that the intended firmware consumer(s), other authorized parties,
+and no one else can decrypt it. The information
+that is encrypted individually for each device/recipient must maintain
 friendliness to Content Distribution Networks, bulk storage, and
 broadcast protocols. For confidentiality protection of firmware images the author needs
 to be in possession of the certificate/public key or a pre-shared key
@@ -772,11 +807,15 @@ is optional.</t>
 </list></t>
 
 <t>A manifest specification must support different cryptographic algorithms
-and algorithm extensibility. Due of the nature of
-unchangeable code in ROM for bootloaders the use of
-post-quantum secure signature mechanisms, such as hash-based
-signatures <xref target="RFC8778"/>, are attractive. These
-algorithms maintain security in presence of quantum computers.</t>
+and algorithm extensibility. Moreover, since RSA- and ECC-based signature
+schemes may become vulnerable to quantum-accelerated key extraction in the
+future, unchangeable bootloader code in ROM is recommended to use post-quantum
+secure signature schemes such as hash-based signatures <xref target="RFC8778"/>. A
+bootloader author must carefully consider the service lifetime of their
+product and the time horizon for quantum-accelerated key extraction.
+The worst-case estimate, at time of writing, for the time horizon to key
+extraction with quantum acceleration is approximately 2030, based on
+current research <xref target="quantum-factorization"/>.</t>
 
 <t>When a device obtains a monolithic firmware image from a single author
 without any additional approval steps then the authorization flow is
@@ -802,10 +841,10 @@ calculations for the device.</t>
 
 <t><xref target="firmware-update"/> illustrates an example message flow
 for distributing a firmware image to a device. The firmware
-and manifest are stored on the same firmware server and 
+and manifest are stored on the same firmware server and
 distributed in a detached manner.</t>
 
-<figure title="First Example Flow for a Firmware Upate." anchor="firmware-update"><artwork><![CDATA[
+<figure title="First Example Flow for a Firmware Update." anchor="firmware-update"><artwork><![CDATA[
 +--------+    +-----------------+    +-----------------------------+
 |        |    | Firmware Server |    |         IoT Device          |
 | Author |    | Status Tracker  |    | +------------+ +----------+ |
@@ -917,21 +956,21 @@ distributed in a detached manner.</t>
   |                   |                              |       |
 ]]></artwork></figure>
 
-<t><xref target="firmware-update2"/> shows an exchange that starts with the 
-status tracker querying the device for its current firmware version. 
-Later, a new firmware version becomes available and since this 
+<t><xref target="firmware-update2"/> shows an exchange that starts with the
+status tracker querying the device for its current firmware version.
+Later, a new firmware version becomes available and since this
 device is running an older version the status tracker server interacts
 with the device to initiate an update.</t>
 
-<t>The manifest and the firmware are stored on different servers in this 
-example. When the device processes the manifest it learns where to 
-download the new firmware version. The firmware consumer downloads 
+<t>The manifest and the firmware are stored on different servers in this
+example. When the device processes the manifest it learns where to
+download the new firmware version. The firmware consumer downloads
 the firmware image with the newer version X.Y.Z after successful validation
 of the manifest. Subsequently, a reboot is initiated and the secure
-boot process starts. Finally, the device reports the successful boot 
+boot process starts. Finally, the device reports the successful boot
 of the new firmware version.</t>
 
-<figure title="Second Example Flow for a Firmware Upate." anchor="firmware-update2"><artwork><![CDATA[
+<figure title="Second Example Flow for a Firmware Update." anchor="firmware-update2"><artwork><![CDATA[
  +---------+   +-----------------+    +-----------------------------+
  | Status  |   | Firmware Server |    | +------------+ +----------+ |
  | Tracker |   | Status Tracker  |    | |  Firmware  | |Bootloader| |
@@ -1009,10 +1048,13 @@ of the new firmware version.</t>
 </section>
 <section anchor="security-considerations" title="Security Considerations">
 
-<t>This document describes terminology, requirements and an architecture for 
-firmware updates of IoT devices. The content of the document is thereby 
+<t>This document describes terminology, requirements and an architecture for
+firmware updates of IoT devices. The content of the document is thereby
 focused on improving security of IoT devices via firmware update mechanisms
 and informs the standardization of a manifest format.</t>
+
+<t>An in-depth examination of the security considerations of the
+architecture is presented in <xref target="I-D.ietf-suit-information-model"/>.</t>
 
 </section>
 <section anchor="acknowledgements" title="Acknowledgements">
@@ -1042,6 +1084,10 @@ and informs the standardization of a manifest format.</t>
   <t>Jacob Beningo</t>
   <t>Kathleen Moriarty</t>
   <t>Bob Briscoe</t>
+  <t>Roman Danyliw</t>
+  <t>Brian Carpenter</t>
+  <t>Theresa Enghardt</t>
+  <t>Rich Salz</t>
 </list></t>
 
 <t>We would also like to thank the WG chairs, Russ Housley, David Waltermire,
@@ -1279,6 +1325,27 @@ Dave Thaler for their support and their reviews.</t>
 </reference>
 
 
+<reference anchor="quantum-factorization" target="https://www.nature.com/articles/s41598-018-36058-z">
+  <front>
+    <title>Quantum Annealing for Prime Factorization</title>
+    <author initials="." surname="Department of Computer Science, Purdue University" fullname="Shuxian Jiang">
+      <organization></organization>
+    </author>
+    <author initials="." surname="Quantum Computing Institute, Oak Ridge National Laboratory" fullname="Keith A. Britt">
+      <organization></organization>
+    </author>
+    <author initials="." surname="Quantum Computing Institute, Oak Ridge National Laboratory" fullname="Alexander J. McCaskey">
+      <organization></organization>
+    </author>
+    <author initials="." surname="Quantum Computing Institute, Oak Ridge National Laboratory" fullname="Travis S. Humble">
+      <organization></organization>
+    </author>
+    <author initials="." surname="Department of Chemistry, Physics and Birck Nanotechnology Center, Purdue University" fullname="Sabre Kais">
+      <organization></organization>
+    </author>
+    <date year="n.d."/>
+  </front>
+</reference>
 <reference anchor="LwM2M" target="http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf">
   <front>
     <title>Lightweight Machine to Machine Technical Specification, Version 1.0.2</title>
@@ -1298,355 +1365,377 @@ Dave Thaler for their support and their reviews.</t>
   </back>
 
 <!-- ##markdown-source:
-H4sIADPahl8AA+19e3Pb2JXn//gUqPiPyGOS6nZmJom3NzOy7E47036MJadn
-p7qqA5KgiAgEGACUmrG8tV9jv95+kj2/87gPAJQlu5PerRpV0iYJ3Ne55573
-OXc6nSZd0ZX5k/Qk/bpoNtdZk6fvtsusy9OTZrEuunzR7ei3Vd2kL6oub6q8
-S+tVer4uqos2yebzJr+6W+v6PFnWiyrb0GjLJlt10yLvVtN2V3TTLHh7+uWv
-kgV1cVE3+ydpUa3qJCm2zZO0a3Zt9/iLL377xeOERsqepGf5YtcU3T65rpvL
-i6bebem3dy/Ok8t8Tz8tn7g5T59hxCRpu6xa/pCVdUWz2Odtsi2eJGnarBb5
-su32pf6apl29CD4W1TKvOvuhrZuuyVet+77fRF+7pli4lxf1ZkNt3dOiKovK
-D5P/2E3Lou2m1Mm8Lum1af0Pj+gJwWqTbbcEZnk323XruqHJTukh/xUVvf10
-lr6sm6yyHwW+T5u8WmZV/KhuLrKq+GvWFXVFW9Zs0m+LDUF9aS/km6woXeMZ
-N/7XrNnMaA1Jf+BvZul5u1jXq7wqLuLRv8mqKm9HHt91BmvuYNa5Dg7O4tmM
-pltf95b/LLsqlvGDeOhviypr6t6oS7SazdHqX0t+YUatBkO+JIjnTZEt4jFf
-FmVN8+09i4c9rat2VxIKdr2hN9L4XzfcWFYKzG821PIqB4q+/fr0N4//8Qv9
-+M9fPP5H/fjrx49/Yy/8+tf88cX02cwfLtdRXU039TIvo1e6PN9G52/YwYaW
-sMrbLnrSZF07aBfMATP7py9/a7/+6reP8fHb65ePXz7h1XdZc5HTMVl33fbJ
-8fH19fWs3ubVpp4XZZ6VZZFVixw7cNzk9EObH39bXKy76xz/pV6O//jlD1/8
-8Hj6+Isvf/PF4y9+Oz05fv3yZHp+No3fmw7em22XK5mC0L5fBA3Slxktqcrp
-1LuP5/liXRWLrEzPtvmiWNFHAHOS/jFvWvqQfjn7Yvb4F9ylO6YeYWhWSYgp
-r2mVdDKxzPRE18kvgHA+STHP6RePp1/8ln+UvbMO3zz7+meDWDKdTtNsTuQt
-WxAp/eOurPImo7GLrqDjfl106xEekR4R5X+YLvOrYkFvrbOrPG2yoqVD363z
-tMrzJfOHLKVJF9mcgEIkOm1B2olzGFvZCVvZ0FYQNrabNAFq8utobd3zJJq8
-rXfNIifaW2G2BZHfGU1tUTdbomkdTSttd3RWpdPEd0qbvip+TK/ipU3wu06A
-ulwVF7uGMYBm2XXCCGnovCxT+jdbLjFAlV+nq121wHsZ9bNPi5ZmJuxgSYue
-72WR4F/5j9u8oUkmyYuKO+DeaVSAaJmvikp+IagSfDdFVZf1xZ4BRVQ+PIUE
-VBqHmMcOXCfd1EQ/aN4t98TcL2uWSpDQXZba6VZMw1Iy4rVZ1RKwiDVfVHXb
-FQsCPf2kwG4XTTHHKjGDbVNjcHy17UoEWlgQkGZTLJdlniQPUiBIUy93DJYk
-+Tre3jZd0HLWebm1nTAI9bdElk4DYYuLZd4QQKnJHMiTFhvMnKhsOt8VJe/G
-vKwXl3QctUP6hbDSsGaWPNvxgW+KFo+ozwVhMQ0yr3cdDrEgY9CEwWnInkTC
-ztOaIExYf/L0oZF/mlyW/vI7ElLadb1NCfIjspSck7N61YVy1NGL1+dn7x7+
-cpJerwtC2a6uL9NtmRF2Z1163gAz9sRYyjK/yGkdc+Jck/QFnSVACEhEE/3y
-V3Qq8P3Lf6QPNOQfdlU+AaX5Z0ay7JJ6S0t0TQiAFvPi4iJv0m3Ba5qRgNfk
-AKqChJHs2taDTZvjHO6wKV3y/r0yqw8fSEig3tybJCwSoWJwVLvNnEagydDh
-o9lXF7lh11VeEl1r6FRRf6XsLCbl2BifA2zA8/Ov06QHsvaAsJoeQTR8yJPB
-LrO8SAj6TMZjoqD7/DEiRouv6g6oRlR2nyZd1l4K1dptASU+GQPa1dbljmff
-5H/ZFUSk0vayKMvVrkxo9cRoaMmz9DXhnhsIrZf5tqz3+XLS77AFHhARSOgw
-dsyetlkDdAVsiiYt6Vgv9guikHTEs4scBGHC7xSLXZk15Z5wilhRRJqzhGTj
-C27bFRtCEpDmYBbovsmJrOR4QlLSgpq2BZNtkslbdNnwiLusJBmGIHlF42LZ
-BLUFkRLQizVRDwg26KOm2TbXxBDSZbFaYWrdLB0QhjRRJSKCDejmohMMwb6C
-/dbAEYJGuZ+kxYxwFzwBSLtr84ZmdFWXVwwLwmp72w3TrelULWveXt2mdL3b
-gKgES4H6kZKOgWGztKXBmBG5DcZUiXoxShly9gjYbIT44TMGrivammUtQgj1
-k8x3F8SE5nzwaFSct6xsa3CKIZ+ZMCaSHmWsKk+EiwBsDlC0jWiZV1dFU1es
-oWAzmIYyImAzaCerjuZS0IoxJG3wcu9RgQaA/kJLwSHvozttM1CD0KpFtzmJ
-vvQQACamkEYtig2hJ/AD0hNADP1vyesA2C+YAyibyZczkoVOui7fbDvueVVm
-7ZoZWVksinrX0oxJziU5DaJFPAawudLPq4bE7BTfd9VlRVL/hD6wkkntVILY
-0DfQti0oV4XBiToQ2mWbbcnoEjJb6oxwjFZButwmhxaYLpr9tqsvmmy73lM/
-i4xeSIsOa8WmULcEZDAvUvWamuRNiAXUD2HcXrEdwOb9EVqKDoguhUPkUE4L
-wggGIRBD6RD1ywtcGommxix4XOXN3ktH9FvIDdMD+6N9MFrpiNG+EMxke2lI
-2575ngWUJQ3YZg0fGMhA9FXWX0I4IxwihlPh+YLVVRqF1MLigrEAW9alkGdJ
-nMmW9KhuIlrxet5RLzhsXTRpQuhVR/QNB6mGwK+PqR/a4i3jzoZ4FhNymnFG
-EgLx/wVv0AVRJ9kjN3nq4Sord3zUSSaAsNwCP2sBqzvpZTFvsoblxkhahGlA
-5UXek4ucCAJtYHR6Z+lzQrQUFOtizfyyaaEdGIewZXp4sdBDYuESqO9OHRS9
-prIO0l4Pq4Y0EebKQvUZrozMwspIFujA24q8ATp8t4auMiZBMi3BCZ/neZWK
-pikoxuLHlngIRH2liJFwyJi8yHBgCJ9P6RC36ZeOuh8RY6kblt2cGMwEbIEX
-Ey8TYwugYabQg1MWPfDpwwfHridoLghB1BX8HASNtzaU25j0E1dm6w31Sv/H
-DGl0psf0fpsfPDPJS0JKoPVEwBj1rOJCKbYORjsw5Ig9KA+YJKDyjsBja7fb
-sui1EnCUBR9jCPENsdMG+ECdZBNWbiDHx8pKYAfg3SEGRof9XVUWJP6tCZ3p
-UJJq4sGGB0mZEQHbCsaS4H9JX9I3p/Q0IFGyZco2GaHAa4VlrkhUFUlOiRLj
-wq4CiWA9yLhfYRtFz0nuICQWGsPvy4rpzFUJKy1b6KAs8xjTnbF1ZWRvlApg
-L7PEwTs8DWwUUcEl8/KnKGykBVUi32AeRGxZf+QFkS63JXYOYa8s/VY2u4qp
-kQrfirdMKDIQmIuSlrepSYcjwaRYJDGZhQQ4shuCBwtVO20owEyHYTEqTUiR
-JUlRlrwknlbWGYDc5iT3EZhLOZhgZmnNdBOHkxhhIHZ71k+SrTt79lBF77K+
-puFK/O6mIwxqmVO3pUjh6/qaDxCPRL2t6zaPVkICLHXj1sNUrRDCC8F0SxAg
-EpVnVwXNXFdKTKMDJk/ShKgd8dbNBuAmhediBz4lPJhWyQSLPszrH+WzBxux
-cJL1O5ZnYwrHOsXtZG5FDB9ETeeT9DToCWT/XclyEx0AgC0WD2HzaIWNEdGp
-gBVuPLBs64/EYIKhChsTZrT1olbQsoYO4SHUuwWF2pTR07ppexSUTS6qLF/R
-VonNxRswlM53xE1g6rkEWvV41DkTw1i7VlbCEDJ8EWGDthSsKbSF0hRJWVQp
-gDRB0lfLjElZFZzdQHEJzjmQjO2IDiLM64nLJ+NN7bVZSmoEZNWGlZUJ0DNn
-mt3iHyImosIwJzhiRQlqxMN0hfNNKgQsDQKeBS0u1EIZ4HIEbS/7CwZhD0Af
-GC4IRm4DxX5Ixzo0KemSMAappYyMjFVdDY3xG10PgWhjk6LDQe1ARkrIKTTI
-UswezPfYpuC08icElPQfSK6lmZdlhE6ONgNJm3oOaXhF0rYQIQEUdQjjpDL1
-ZZ0Lt6MtzS5DtIuNYQq7QP9AJyJPy/uyQh4ce87EWPXmLR8qknnazoxQNUgW
-L5C6URFzD1cMPElsngRFGSrl1O2ONBPWYunQzgQWL7PLUTj488IQgYZMx9wg
-YluqLBozAYso8x+DFS/zRcFG442MYQIbc0UMgx+NBaOLLYnXwgih0+WElGaA
-NoCwdjARskx8TUw8GfNbmt1izbQ3FU1HVi0UiBDxApvYsKw5Z8YL2Zd2brFW
-6RcsiKgd6ck4J9KLUFZnuWVej7XjrFGfhSBS6m2ABNHnUP9ks1LIvRf7NIcE
-X6CRcHaZ9RyCQbOfbsFgepzcFKiMJ9Lbnb5pA0aRgU7AiozpjBPWl5i9sNIl
-wq8Yo2VIRYdT5foptIOqY9XAW539WUxFFxhBM29iZvDVPNwy3xgwRc11xi3a
-BGbKAT0jjr3k4w4KFmqdBOymU8t3FpmHV3UJNs0ERgWoRVNsQwtaKKdS19/l
-wnnzH1kzE02jrjuWIhqeO1g6FFidsNncIzD3F009n+3mLWEr2xMmRNjkwNKE
-1dUbmKTDHcccaEUmdhQkUhBp5UGSRbb19mB4PK5g8g01DYeC6SvSMXlYwsxL
-Z8TMvfGbKMVOpPXEVqmbWTBSj/sjqOfvmJQvyh2xBt0DUVBZDCLgK//Gxj1I
-IaSqEUlklPNgv94/CHbvA73+gB+3gy1nCUcsothhRnO8+CRJQLvUW8eM0i0Q
-xhraUpI7aGJT6AkBGJxqlpoQGrUt2kDLzy7QTacmloXTJ6gtvXRFBLCNVQ03
-ivC2GSbpbF8vMNyTEXMDWx71Ex9T0XhZjc9gCdjbkrhvIbRdIOQxNbET2jA9
-JBTsxBRQdLMxE4f22hYtG383u7IrtqWJVTQRMyOYMuqA6oQ5yCGbYkFUvYar
-oyyhQr+GPM7DOhNNxlNuoOYs5RheqQ7qOl2QXjLhEIJQjRMVz0nxQqS7gpET
-Uua+7fINr852s7+szEv4YCt6WnFwiJDxxolHEsIQtZqBWNH/AC9GM8ypv1n2
-XWamP/JBacVoDNYuYQ2Cw+rAERkZdOIiB2PlA8V6t44WqQt9PMXJDNbS5Y5y
-ZgOiD9AKMAW6MW2bpSfV6FBuLdIiES8uTXvJVkox8vgewy5UO1FtrGAioSIK
-+KMwUTB/tuTUS/FB7Sos4ogdlFnrZdwWBqpW4AtzzmaeL6HaCfdhYwJv/UNQ
-GiIDMQ6mRy9P3/Ee95CTxJ+ie/gEy8cbQE+JWtmShu3JPEkBRbPYFcasPe/H
-5rrJyBRaNtGm3X7LKnp/RIEExCmTfmqSLTY5HaJ9evT25KWSE2bSD+nUVdtd
-d0xUhP5Jj14cv36YwpAgBFSE7hUx6B1EQxqmEjp1VWQcq7OBogL9wGnfJBIV
-25nD5/T//K//LfPGS3iWHp3Vpw/pZ4CDOnEWhGUPXfdC8glwYp4HBDvWWSEH
-bbZsiW4Ya8z6Q7tVbNesbZhE3DJJPHNTOHVT4G2hD7wt1dhuqMHV4SAQC5tH
-ZIhN+islNKTrNmIYAlKdvnlnAJ9wTFIAYAYtVCLqc5mxEF03cgQYkLQyBbId
-CD/eJNgSx6hVO6SpEF8rFrzYb+pNDfsn9MIz6T8OGTv6pj47wfqd4wLnF1Ph
-uCks053QYL3KDVoc0euMJI2V16BFZgeR5JgtgTawUT0IAg+ZXg7F/SMTzIcT
-5OgvTNGbrMEPhjON3CtMsDBtWB+ZuAaTdjxMhAvIZvBOZuVECTerI022LGpx
-1oHIBi0YYSvotuAY2na44nP1ezxnuwio1/PQNXR0/vx5K+iYuzdi5U3spzvG
-wbq6YF25Xsm5KGDeq0vGXKwWeJK+ff5cLBx2RIZSA0YlTMzT9+8PByx9+MAr
-eAv3+Oj0iaY8f66TD37lCYtoA6llqa6SC6iOlRqxHQ17fZYe5bOL2QSxY7sf
-J+l3xAHqa8L4k2rZ1MWSyNTrs4fYPaewsQUIh+XPetBlR9RM4F3FfQre6kzW
-e3pwRYBr2v+mooMZIVR8PwcIRTkOVybkM2BFbWiUpJ4EF50BYldN1e8V4ULU
-wdH5iSJAyOI8QvvtLyDpZDw31xu1WyAuClyBv2f8fSLWjRWbIQlWbL5HbNuH
-DxNEHNCBYPQTN53Ij0XHMXEs9CAwpMjARxD4sGCfLAsWxFIWBaMbxKWZCC/Y
-G/9e0QpFJ3pGG16s9nQmL6hz4rTE34SdTJy2G/SYcKRWFnbg3AIittC+Mb0L
-ERpnWkM4ZCohHMz36VY3+0UfdEyF8j4AhdzcCkYcLLBakX3FG6ZnLuypla6W
-QiVN/fXkjZ2Se3UXRdLu2HxgQcBosmI0NO8j3Hv7aBYhms1G1yduWNoPCLCY
-SKR6qD6yqxSCf+VFtLCUIEhvSZqhfGKjaNB0xirWGcJf1nW5hHVbXdlOrWrD
-h31x1gmzrHedSOQfY5rMxLy8iqki3MOUYNpbbPgXEbvJDVxO+1CbYKqxCzz+
-lqOoIiOVHXEILFVsSJ0RSsinDx9YBW6dWgaLfGBm8P5m8c3xEX4mz16rneOJ
-2vkj48eYt4Q1pWw/7WpSOPdG59gTyoLJqswFKSP386mam9reEyeD19eVPkVA
-amAtmDoBB776ZtsgqmThuxOPCuxV0OXwCmRc6sRMGEXTsz4sSa9adOz+EytZ
-N7JykCB0ks8xRLtBFM52DRQn1G7F6vwP6Su13MZQ7NtzD4HRwY4hBy1EGyKg
-gw9ZOHEV0AL6+wZMDnZHYMiJkhqSts/fQIjBTOgTUUC4P4ljS3B6RB6YruoJ
-U/2mRsBFziKhGfnDAzMzrRFdA6lZ8cV5hGc/bcSDDuNK1Ch0erBUIEI8o6NY
-OV9T0wJizDMxHL7Mqt0qY2GAFJ3Xz14+tHC5UJ2p9AiKAiML2viWqo4gNnEi
-syXcyKQ9FiCv79mAq6oaorcrFiB3LHazhpO66IZAW+3FxDhrlg7YCin62hQC
-RhiJOZOzF8iZHDLifDqq+mPz3eR56aIUgGK2IdkHFEhLYQG/anVfjyE3EhDU
-ofBSPbtOkmzhfQGjWwZWF0ee0J3xSfHeOk3Ly6KAnHk/1B0Yc5Geui4ijLNA
-AUnYSC+ONbVTeIu26Lxn4rU6F6+VoHXPk7Xm8NZFWTgbBAGiuWILtooyKn3p
-GCA5TZ6zbbh9Aoz+8mH6ouO8jl0lNgCREMQ3UJh7I5PQLFvWlcSKqysj0fBw
-Lx9cF1BpiO14dUAnpjstc2ZqkqaPdQ7VVb4fM7c5KxjLkaaJkd4KikfSDiJ6
-jYKmoUlL1OJIcMGcaMpuWgo8nZZMUqf1K5lWZjGCIJyNhJKOGYj1OMxMOuuB
-ZDDyLQCh/0XO0mxApYGB15lMHIFsandnX0UQKIYoHw3r1xDVcX++BKf5yQJr
-GPTeRxQpWRLY6V0wzpusAEKAZ9A9WOTYzPXsjBtYgetON3DAduRnlr5YpXnT
-4NTXi8Wu6Q86OiIzgprk5rxd1zV7U+nzplW3JVRcF4C1LFy4eDjDI9Wiyr3E
-yEl87GFH7UMzOX6Hx5eIimT4tu1us1XbOS9aYjY8akxZOfJKCXsTJVrRIVkg
-4SCOLiIPHEG3gsPO8hBUFrPYZp7Voqx3y+k846gvHpfDMKakriDaKfitsfbO
-QAZj2fLCmU12gbsPsm+PWvVJE3fHZt95sBYJRegJfNFpKNRT7eU8ZzAClQ0p
-+UQ8QOIcKcQoGHLD/hS7+pqd3arViHKLjmbpGYSxANyiMBEFF2esOVVZpRCn
-OBtmSN4gRVai5hdNTeySu4vcBpxJtTEaH9hX5GeTvEl4K7aFbrW4ZId8JnIE
-zUDARmSwbdYAbZU3iMJo7kUaJS8glzt2hXdWqr3YWxZuM5jD7MAaEN2ty6jL
-3K/AZaIYUihhCnbXnzcjXqKaxlYBN6YsWuXhMYee4qEwZfe4hwnKF47Kmod+
-GO/YGXfR2y/tV21m/SgWtXT7OBaOQfMiKgc6AHMi9eEMwmIQNmuaq4VzZzLc
-lDqb0h4BeyXjY2uiUxCgr/vng0fDCR77mdV9cUZ1PnWqawd7ca332a1EJPk9
-Y3HXtgP7NCdZP8+rPgb7XRnbDv0ZrpTrWuZTaJB5re6o7Xrf2pgaIMakxAeA
-mfzHyMxx7iLfmGsIW/zUOVEgpQbuYjY70PFbSMSyiSRqd4MPw4KwauaNA0eB
-45GwA9nRZMdUfDhZJMc+XYv/TMRz7Z3mmDyIbbfvH0T2w4SjN31qD4u5vJMI
-C7I91LNZuYQDPnOaKjJJBHOWjYsbdvERgygSoXVmdnT6QuLyTmgj1vxbVnnF
-EyZeiZ8JAiu9Sf/d2VPiN8nbs+njXz2eSS4MQGKDOq3Ej2JYHkgACI3IO9Ie
-ZAXXA3IZh4l5qpkk3+S0iZOeWzowzXN2g3N31d7KpBEXXl7p5cs8QTx6NPPY
-JxYD2YIeiRI81XCRAV2xI+A532VR1vM9u/Nw+hDY0yb5jwvaQxH9kAZSLWEf
-C16Fakp8iicAWRXWhShFRZ20icWXbUjz5bZpiexXS4x3DYxaQ8uZkhxCksLQ
-wdcmHLGrduiO0wgUHj7MBD03SBCgnoUBtW79HP2D0E6JwXC+M+6WUPwCcVUS
-z4STOBFB3H9rsgtQVjHlSLIJiWYk4pSafOKm0YqwDX4mSNvsthrTv6jti0Uy
-cragSPYW2cEJA4jkyWNGOwjoATGD1N52EhIjDpujDfKNsCx4WQJp/CEPFeQ+
-gr0TKJi1Gf1Qq3BmdmEIJ2YZloiCDZD5Ig/TVgRuy9ytJVjIrtoSunI26TI3
-77/p3/Ij0kVMlDqwWu75qN4KLUB4Yl8mm5kZ02+s2PPn9ZXQsRAujATi7uCV
-qxF71BeeCLwVTZNYIwqplkYchcyga/NyNUtf1Z0544PkGFIYshJhQN1604ou
-rNNjfzgH26lXwvufksDnMVEHr7IxcclyO6f9ulzSTb3clRpgIo04ticvWQtJ
-wnWE/kRNd/LyT+wIWbIR4v17sJapJF59+JCSznTdDkKtLNi8F/vNKXJsIF5a
-5gwb3PRUIUnDa5ccTu60VlPDIfa7hSqXngTRNwJbF6fP1ANBR23LahX0vd0W
-WzagmpaEOSZ9IOivkACMQMMtNlPAeI0MFGx9ghBT0rwnzqLNk2ENb0Cjw3WO
-qKhthEldaDdH9kp1oS42FwDpjOfU3xa5Jv3UC29mUEjBx8x88Drb2ywQYmiW
-fGbOCAcv+BzKOjIf4MknGmIoPG6SHR9nWZ20soOakGTIdsBKIrt4WO4OYosT
-QRULg7qDdUqH0mM7qoXSjNl0ZSlHCw65Ktq1xFrAGszBw0cyn6lhxPLhJN3u
-iPQS0jnXS5seqcYevJaYR0ijZkM+4uJh6EDv503hM+Yesnxw2hvUC1vYFRFK
-mo0Gxo7Cj3uD7w1WisU6X3B47pEu66EP0LUUue+wpWe9VQSZpIeMEroj/RD7
-Ms98zvm48VCTcCRKkGOaMy+i/2WXleBXIk0lva1V+5NwUQ2VjBJ/Wc6mc8ri
-reBa0puimHRaFSZCISdCW1NgWzNWiZMpCbQ6pzjNDgNQiIHL5FdZjrWoDOIl
-LZLkVxL/ElUHco7HDumCtxLKHvTW46Kg57koZkxv7Az4vUvc3qn1NlQnvdaQ
-Xub51jqSgxYawSxbJESK3VZ8Y50WvWD7HU381cl563+BxQSSA0m+q6LsNM6d
-4J1fEyQQbwGPMVDynZrWekdkgIyjKJjglEr0fnBOcWL6tMOR+MgSm3LXIg/+
-ZcdqcTKKGEyCdxoBF9lMhkq2p8pJj/PQgh1K9+2XalNtbZ6gT8MFT4Qw00R4
-5xL+2WDT99iEoo6iAaNhOz4BwoaKcJRPaBIXPzGxzoMRSxf9UbM3JJ2jw9SQ
-AqVx83qSg8xxPVI+M/cq3wsXCAKoM3bO5bJ3xMvaSeJjEUltnKTvTt6eI6Ll
-62KSPv32+QTKjATgp9+dvEo71L9BUDLntJLQuzbvozvNEudGdPGkG4hGkuOV
-RNPwuUzspOCAWOP4T9KX/35O8zmtT96I5PPN+fmbNFNLb8LC67beItB/ZCDf
-tWU7R2z3fJCembicFeHgAyszB4MPzT9SF8GZo5xNIOlRRvOJFaIOWRqkhoCC
-bAXwncFZ/CJ0eQJJVbKB57LJTSryQw9mZiZ21m+plw6sdU60YIkvQULUEBox
-MFzBGqUGzFxotxNmx76fbyyTCnnTlVBfP144fVeyh1doeDSxijES6uFovQbR
-0VKhLIrTWctNzGuObuN4dsTjsCbqAMFKpYq1IhVHVItm46e3IrSsllwvgsU6
-Kf4gCYfE+y8TRqyJc7nrV0vC493UREaVvNmUb+l+64yVbevRSedWN6euwiTf
-AU2M9zYpRIbmOgRWKWiSOCXFNbXKBZonbEjDZ9UFVDAMmT0nLo4A4WE8HUPg
-WrKg3VPDkImrrJElkNMWAde9bmrn1xASi0IhqtuaRHKqEWiCWwk3zlhkp+EM
-2G6bWn2WQ9ApnUQu9RBQ9qhZTkU8Z0WNYyz1gEjSpVIssebvWccJ3yC6+j/p
-L0k/6e/R1P09+sQuboKPn96FxHZ8VhefO4u7wMKxsEcuYWU4lV7joN9Df4+C
-dfghev3cpB/9uwk+2fzu2Qtmo7MaLuW2xtLCvTKd3kzv3Pr4+FEfGDfp99/H
-7TGvQ82j/Xf/9R2gX35JZxnP6ziNAH/zFebA3VgPx8fREr7/fmRlN6oUyPcb
-e1m7OI6nhwfxGqJn/PER/8/3cRw+HOlEnvcg+b1rxpt57J/7D0Evx+nonxsQ
-nRwH36+CN6yXA30E7ybcwU18NBTmfvv0b3B+HvV6uQnOpYf76Ao0JDAYIezF
-3LOul8Fc5ONL7/t3vSgKjK0o+E/a7zD64RN6edR/K+iF/tHQInz9ajpKiB5N
-fxdu72gvGpkUPB+dy40NN96L2DrSj/eiw7le7ocu8VkcdpJGWBB2EpHPUdhq
-J0NAPgpafx91Ev7xD8dJ/+j7P39y7I1R5EcX7g0L0Oz3cHgU60FfsMjOYQf2
-Ri+Q1ncwoITHg7P//eg0jo8j0hx/6P/1HuBr0n9+gDOEb8ifSEvvn6QPAou3
-lFT9778I3a2zX3wYqqxxgQpVEJwCy3a++Y6Ecva0IJd2sXYxPLGMa/oUy7Jm
-8RAbHcT+SAgM+p2MGRuQR+EjdXrS+Ezsn+zV1jgWZ2ARL7SPORD7fliqDkqF
-cx9bXRXn0dQaXfpSx8E21HypldD6RneLCnbmf/N6WviKaNSiG0Pyv7aYnr7F
-d00v5aTYcRpFAicyorcuOVi6XQOuDXLdJMEo0lS9SfZpucu7GuA/Q+wzJyCe
-lJxpJPbUSazVICorUJttd72ppx8fk4hdSyorKch7+xdG/mjaCPXoXDW+RAub
-2xNVzStvA1RbZZiYMND3Me9Fl3WWApCHtVrE57ZFZIlESbdarEdM++x9aIPI
-IdoS9TNZtEgC96KFC4XQQvnx3EdfqxNjEAMbl+FzEOFToqHXajp2g5M6R7u8
-K5fi9ucIHzN59VNog5hqjkGGv1/TRfwRSU60bA893XMlXtWCt6QGSyksWgq2
-BtCPYma8mdWVq+N1sbtYy3eMJS5rHo4s30cYuGkUZlWICt5sm0LsdBoCahkh
-6MROk+6d1epzsdvZArZfMbFwtBMBe2sVPgb1nNLv7PC5fuFG6TkstHAYV9lN
-nB493M3Fuq5bX8/EdckBna2GpUqfbRIN6qJtZUJZNJ2+N2aS+Ol4tb4f+5eX
-ZRtWlxQyUwezajTcp/OzEj+WOv0Tn2FRj694Ngjstc4l0btKYB48/nL2pYZk
-9onlCLBn6Ztdu1Ybmal3Q2OLzekNLZf93lZYWm3EXIXIszYt2VvP/4zk2Pfv
-+fGHD2Pg9bbcF6sDG43gp6CCVzYajlMt5TiiLmdXJ1Z6pegmkVO286HOWrpc
-jYrJNM0LpgTmPrzOik59SBa67eOve+bzZJp6Y3toNe+VYZX3glozWeznO1QT
-pwtJVqJ25aamo8uLKrju1yq07Un4H4fvKFgRLxX0v4e7SDw3XFahV1GYa9m4
-Sj0uOqnNVnkQ9cYmWg9NoxDg2mLb5pq4SsjN1qQF4MQhxKdCajEFMbkcN7+o
-iQm0PjI1Dqjrhb4lzMTwipR11I0iVOHk035wu4sgecCSlI/cS98/8ON8sDAG
-n2GrtWPmrpA46mcCMhdS0XJMmOqH1iZ9B/uhEz8MaA28l8O3E5wUjXXSqrG+
-oFO5t/3I49kc8jcVncoEkNHWUuYvzOupe5tiBnv2SojBvouKVeF1rgvAkVAo
-1uNXk+ABpu8JQ2ZvTfq7Hzl+hX1nutOerfUjSpS7IwRdgy15wiepuHdW1A5i
-OyyvyI8qEDurhZqG9XzARFlE1SpM1jqJTswsfS4m2onWTvVZbigpoFU7l64c
-VL/3xFv/bYC4fzj+XFQG7mjIr7R66aDgPuQkibPk8NKq2Ow4CAAhsRolloCD
-e++Gj4lGqrOXYr2sXwR1nqRKAggjdRTsFQueqI8HpiPpYRqNtRyANZ401+50
-PLP1/g7GH+rB3QvQ81Bmqw7eL95W8A3IYnBlBaez7WLxWaNaj6xYwcNUcp0O
-BuPEEV9PUo6D+BodD7DVlJAgxpzLe0Vv8BLENQE6Vki09lAp6zQoiiMUgaiS
-ZnC4XguSaWlqZ7w9o6oeg1hrU7P/n4vqiyzEjld/psxzb5k/rEQSC9xxyA7O
-vAxAB3fNlbsd0+6N6XxrjCocAsmyj5VcLpplUKzWE/KDPaLhGZcsZr/OWAwq
-8LSqq2mTM57zgriwkDDUYD+cKsTC7OjohwGeJk5ftvNkpxapg7c05HwKqXDW
-tJlK4HPNNGLMZvlJnWbIWuTS8XI+uWpzrlFtPoK+k1LTiXGFYTkgx4sCLm/F
-ksPasBYxpz0SuxvAjUPNQVp9HWkS9Q5UIJfCTBGlED+weoktGca0O7dwjkiy
-OIQ+lfe1+1RzwgBqL2nzQScS4hLOQswArMz1bh/ptxVdwN1CkQwtC+PcP73O
-g+hsX5RuRN4HCrCc6K6acFWjrtU/H7gaBzGmyBGAfYHORRfUVvE5NCMyROyq
-t3OaSG7aqOEkyF3UiKCLQgMqC4nsRXT0rbPU0jwoWxZkYPhIMUsq4P4LFKHu
-Jz5IvFaPWzvVBWPqeYLsUmbbMJPkYMH+oeAZl3/FBLU0H3FRDgmbcFGscg8y
-FqWAMFPXQOpxYQsvw7SS8OUVFpgkEbkhFZilz2qpmO1FK1/Kjol4ohUsfP2Z
-kSGDsqXhRFF4PopHZjpyeOZ64kzy5iKBid5xUAhj4SqoDGxSXTnEWsq/NI7Z
-GPLYMhKLWOlNjtMxkXYx1wDQyNPv6jibtatPHVTUGpEZjnwuV65BAtQ4L5ct
-32K3RQXferWScPmTqDSvcItsUGt1H/PEXs3345iyQ75DzQ/AgIsiIr47a0hb
-b4Rpu94T1z2AoRXEfH4dIeJIOZFhXeQ4Yh23j1jdWNZLfKy+XIYSyXfhjiRG
-n289SKhMorE4gyQg1iYQDFiglJNk70hq53WBCM3WVXEorjAnFn16ltYZFA9m
-uVw0dQh2T+AGkrEmgDpTZnJoqRbQ55QZb2KLO4U6qsH5fYWwH8ns48+iDAz6
-Qa7A4qsRABctmMgkf3kLzZ9oQgYkfLsIh+uoEg21gPfAoCjXPIgC44wxRnyC
-zrdsassgSOBuMs19K9rLmTgXsp4cYEVNQ/rVg3zn5awEFeJyrUUVZk1FTZ6w
-cJier8eFNbHbRpz2SAo98JdpJuX9c7RqH8Ld4+v8hCkxt1NNLoiAHBk8LBpO
-1rcwG2ZErrxrGmd1MAW1ejuyktPoBXdbhpCvNWbkCuNNRmoyYegjNvr0r1l5
-OEFhJ+Thal4ONWb3Er/u3+bJS4uoGLq7ymjmQR5RO08XRmoU+YwhVhZojMHc
-Z+lRzy8iY0ouB4pSSVdWWRGdOAo9trTZQ57oiadb+Y/A2YjKQvR3pbBMrAuo
-JEZx2+2cOib+RSa/h1ZtTEJf0RIRjWtGlNGSBFxloOoGoey+spagJI/SF89G
-BBOzfGgZA94Oq2UApQ9aH4rdLHcLhcKGNNudFsnmgppKG0RYh61F71Sw+vJn
-uUwqqDk3uOzywweppVnHC5/5xKzBzlh2V48nTRy/PHCxjhaXSK+z1uIEH/YL
-omfx3VPAJF9WIZoUIATrn5UoA0d/pqri+wdaIyookp/SAkoLBOdKL1YBK06X
-leIzVjVPshsTf8dbS2BYsAHWV+pB8WS+doG7heJyxeUm4QQDyeDaiIm7zqxX
-vCQ0YIS3ybXFhsYSipIZQU20bqXVmuYsN74ArnXJcj2kC3d7MtRm1IyLSlyu
-6jip1N6dyJwgr9jcLRUlHCa4+4940zebuhqW3UqlNpnUKyUAySRb5hiwtrBh
-Us4WFxltO+1qEofzBjWAElf/FFZHJvdaIhKPr6ugNGkrFfNofmf1aWvsmOR7
-K/7DwbuZ3J5EQI8YCd+TUmsqwKr4USkPynclljyMIq9cEU8v41NbHBecI14t
-Vopow5U4gCrynIrALbVt6CxZDd0imK8ZPXmf+NLEo/948QYOar3xkeWZnnXE
-MjyFGImtZIQlJmH6iBmPOJ1QL4n1hhDHakXusG5h6axUMnGp8OrUCu70GXSD
-Kx8s17rq5Vg4k5mJOiJBeZkN9PqaNEFnmUGRBTX2eKOSx73TN+8ES85Eppmm
-r4D6ZfoSK3gD5O+krFiSnFRil4sLVodlqDI5nwjcj+5e4p1IcMsaqohNrJJ6
-6+ZAmOFizNkkgHlp6EdrEhd86NtgRmm7WOdmK9BsDSsz3DN1yMT5diiSkmRT
-l4Uk6LNlS0U6voNDALDhlE8t4MBSpsc7UkahkxiJ5wJXlpmZc0stlasP4i5f
-aLnsCI7R/Y8kPS3zdjiqXBuoGiSBKLErT21QXxZNbcqaXV1r/AxfgGJ8GMiW
-mFE/jDcPaG94B4UJUtq1Xq+rDkbFzMr88nwRQFhPwN2x20lZjwvm9EnW1Rtz
-JNJrerp8CEZQmdOnlQkGO4nvpeX5E0haddcE/kcmKIxyXkjk1Ilp4MtTZGOn
-BoLdl8kgMd9XY9DkfF9pgCMUQpq6auw6hIRdCb6wr0tfJ5Wn2G18p012nb46
-efVMiQn0xZcvT2ep0DI+xHpx1F92mdQfoZ00p7VwzDaOSpLJcb49m8cS06hd
-ZYRFvS3yoGLdWJEWb4ZiHlnDmR44avUmSzZHSXE5hkB4U2Gg2ihdh9HAz8tf
-jTKkdu4eHyEMUSkViCI0G8Cg8UmExcHiF3OoSqXDrdBOC1FlpCxG7KTn6Av1
-uvpqMrj0nQ1meHUKJ1viLzXTck19+4DVGOX77gAB8z40QXmfBNyDj3xRTZkH
-CeY/2xEacZFvls2XSvX0HomYPLMPJLCfrKPa1zgwytaEFqMauSRdi9hv9FRv
-4SQAEG+HnvB7I0tGLZhYcX52dOG2Xq0J24xwG+aAu6pg7VKLHJhyBsyUAb3w
-A8IuYXLK0JmWz5J3RiUdKCFl9zwFAcmUeyKNcmrtX9TqM5ZlKlGPMQb0tQ99
-4SrzXfuJkNdCuqTlKOrTAYSkZoW7z3uA9UUJmfESkKu8DI2+G63H3VkjMTmy
-S8uLfxO2lyAkMEIfz5kYlDo5cBnuLKjj1bdTm4TZ52DokWv6aLEHRqzePrjl
-hVd9B0IfA5pVQ3pPw4k8GvA2cUSS2j9t3JH9YI4LGZpmYpWdSY6XSDAT6qzo
-qusdsrKd3iQKOuMYpBh3tPa3KmutlOQIa844lYVnwSfbmfPd9JeGWRLoIrRM
-LrDmOjNJ/HbqWSjN9anPpI5yrcUFJEMnm5BhTrQnI79esgl6Zpui3uQtdjxS
-My11Rnhu3Sw1djUbsVB2tSZ4uZCAiVnSOW/t0ozUPp6nTcS46oxdrqZS/65L
-ue+m79G1qxm1NImvRe8u7+n342pLlHqXSviCFhBxtxCEd++ABYi5I2whN08a
-bslvgdmh3RWIH3DvT/l9FPW2bGEuBfvnXRtmbDNv4aOpExqqr5N+UX0eyZ5+
-wAgrjbvGVY5hGiwIYrgEDk9la/yyv+4Z4ojc3qDRhw/+jiB3iTLzNt1QxfNN
-JtVUbtJnFrp1Q7THj/rcQH2TJjcSj/4kiPBHtsSZRL68UFtd5+OOemamf+FM
-iTuWOo4xB+N8k/WqebPPx5U3+hdkKzzrWwJ5iJcnp2ILOBBAhd6f1f1i4Waf
-sETJ4M48rOTUh9gwd/oj3xuWvng20Tt2XzzjwTUVgb5hmBdt6B7iSsyplh/j
-uDa4NkN4nbHwCsOoGF76GH/05UPulyNNNQYpgJtO3o2ILr9D4KGQb4zGoCWM
-u1vjl/6obXCpWqujEzu5LPh6wGB/5OpkIG6Htu+4LFNYf4hDJ7mAOELz1dYz
-swU1eTgpq5ziCzyiz2chH0AoBJPruJJhb7ffvX0BMLqVjI4WIJna8Xk3VGH4
-1iwF6P7URVO/YKMi6UycxcMpG9GptKSNfiCrnb2WMzhoS4Mq1L0Ye0Rwl0sR
-Lq6ysujXwjT+6IK84MkkNevS1OvC3z7J6o4P4hVXTXK1KyFPusIazoDRA6PU
-Gef6IEF8CKlH7IxzsXy9gLJ/y/OtnUI2zXBdN7vk19/gOCgZ1qLee8k3kPpi
-JYmYwA5cr37mjEB955cMzUGqdv3zAY+wxoYFLnMrj+WryiIamlMxgqRwVOGu
-OxEurHeJkYMpZqDcYTt5Jiiuxv6ov/pLyBLzK3Q+yovTRvx1wHe5VCa6o2eS
-zEn8XflbvFxpu5U4tfwF2CUtabFfaFSHjJQMrywJKqBKfRK5NIVvlgE4NO+D
-XpX4VF/70opU+Sz485O49ssYVCaJu7kr07K3nm9NlL+JylDuo5IdWJRcmkKS
-E1vbMO3eoYSVvtVndCjfjTuXeUd+TMMzU4gi5OqChPiKbbZOxfI0uLYSmVGa
-eO/bydkMCxpIZWicdNrQRd7MrZZZQCpdp0+CDA533TcEQJfnkkgZcTkXrvAb
-5GWOAhyOrHQhdhwl6hTTG95HenS35n1tEa3e4nebR0r0nrzcOkojjrNMCin6
-sGF3T3zyvFqi5k/OZhMrSOfrXPEgvVMZBVIcKlt8HnmQoyImjQhULGEzZTxc
-lifwYB4qtsgGY0dRNA7GmWfs8LsrUYK6iBIeE9jtg7j3YeyNuMJW+8RLbkd0
-nO0G9lFDVFBXKhib8Eg640MQXkbDkde49My8orHQZ5FHr2op15K4Ttws2Pyl
-aVuevbvaeojUSYICezPPQZ37YJiVJeDnGkpcBJu9tD4PjGVGf6x898YLgip1
-eldfLJaLJG2E1MQq57MNCwIao3RUke3rrKi2tcseLLj8OLWf1qvpnDm+3oms
-NhS98nK5cxchJ7fdS8J1hV/wbXc9T2iEQxVLv81SFww84rDLfbTepJcs6QIx
-aytKEmic2WB7giPhxXcT25PBIWxcHUJLJTRVOriPnSfvIg8SlpgkCSy8PEz3
-br4fgn82CE5Qnb+QCjl5hA/xRS7hmkAWfWjFLAkuAR80MtZhxbRu28Dk45jh
-EvBuIbBSQrxubvON94MG7M7YoASOGEjVjp5cZ3tPgtjKGAVWGzlkYpNVzm9v
-V8YG7DyxK+RI0Mc7LMyy10g4pVPE7aqDHctgBftQEy07hIQOhu+pxtM8CzOW
-X1mBJGLS5WVwF2O1TIYFnfT2nNuhNSjs6TXjj2KSv388Pw7uUmOTDlJf1V5I
-vyXB/bsCOKnUc7/JgepZ8IImrvgrmyOzSZQL7s/LoRqznO3nvrLvBfZK1i7E
-o6Irdt7gZFf5a2pdqdy3r8WRHfsvXFkigmA3ZW/MbmMChacinu97Jw8CoCSR
-MfEHU250+82vf/0bmGY45KHrGtHL1auUBPqroZiXMPjGMGhskrxoM7KbQXHQ
-LClUQyPnep8oUdSqJqgAfGMx9M4xICiUuJpQJJ+ZvzDTTPkrdm4hdayzqPGY
-4+qNL6JZSClOCXkw0po13t1jRlBJupKM+9Ctl7DRZh8Yl4JgLxaI+sJL5hVC
-M3THbuqhiCBDcIaCFdAHWJgv7IiwNOVe66AHhvn41nVXVSCoqJrMXUC4sWkn
-e1hIe9GkkWQR3Zvlagc7nc/JJJm7/cvr3YP48SQs0A7FmRrwRZhE/prM35Zu
-2z0ATXj+XV3EWc+BEIgfyjT1zuSN1Eho8j9HaqnpN7uKA2Q7LgaqRwqcEi5s
-TW5wbayab+UEpv6kBtUKsnBSwge3uEqkzdUmL/n6dtMWpwtkXKvRSWLBrTZi
-RaibZVFpkJhe2Mk5/8MikoHXwRzUwT4ntAmINvIZa5Eh40FK2rbcHPv+gWID
-53MaPKYCQ6Qll+VOoqpbcT9LM4swxFlkQ4avoHEgzyAm805TCQVyLWjJgad1
-UFO7n6vNykVYHEJvo9QKERs4tDhDhIuPhHVlDhWT+UjVsEdJWLInql7lC9+E
-FWh8wJyvigJTndZdi+v3uHo/4+WIogpTN73lBFWw4gn2qjTd+CzeG64qFVbL
-OQCTQZGmqOxPv5No/PDr7cu5YydjvwZlgu7YyaFdfmSdnHIKYQC5kU4G+6aV
-lm60k1FI3nsmw5X0l/inX97yl3AJqo9NpA8o+3BHiN7e/J1UiD8My1ubD0Hz
-u7/n5BURgqqDnzH5R/dsPvLSfZp/9ZOOHr14l+ZnetmmL9f4yaB7FL9438kP
-ipV9tPlXP+HovRfv0lyPzE+DdXpkXgWFuiHV33PyI/VE7t78AJHrneefBHR3
-bv5Ciyh86ujq9vrE5oZgf4e1//sOKXHhQbx786/GNsy9Ofu8yd+l+RlM3+NE
-5KPNb0W2T578H9X89onNe/Vr79k8Jkl/7yPz1U8z+h0g/1bs2aNCw0eb/8xI
-yygbTPx+zf9GSCsm3E9t3l/NfyHtnZufcY7ef0H+00f/O3CZv13zn0e6ONVC
-EZ/Y/PMEs8HjW5r3g4hs4su7NB+l8wOC/7eb/NucU0Y/rfmtc/+ZROKx5re+
-eKC5AuZTRzcY/Cxrv/95hwlnWC9abjO4Uw9nN2O/3txjDs+lB+Xyn9LDqfQw
-FFvu3MM76aEHifv08FZ6uBm8dl84xHP43X16SD97L55KDydwt4GkQXG+Xw+v
-P3svXn/2Xpx/9l6kn70Xbz57LxSjYPPWfbhvD5+/F6efvRfPP3svzj57Lz6f
-Rn0+nYx//VkEs1n/8S3N1e9jEaWRAe2jzf8Wss19Jn/bn2/uivr3/IVBjDgp
-8eZi/Br+eknoCeQ+1OH9xZjT8bG7EJf9jRJOoXFqKHna+mon/bsn/wKTVy9i
-zTLLDtUYmaXJtzQqrs8dv05znkspM58YJOF8Ep+NTBdzgPuruSXSnWZknXSD
-Kimu8DRyCLJF1yZuWd7FO7ww1ypRHK5QGztRfZCLjOcTHRP15c6C0uMWti+1
-cOPr2xEspdePShgFihO5MtuDnFcH3tDd68NI3Q3so6UJHCioywCK/zH7H7P/
-1BqmvnpvqpFxGk8QB9uduZpD4rNvREYtomq6CkIJvUmi4mOCcki9rVyaqrvL
-OpfCAtzWT4fb20zGYWK3iHm6CGX5E33TqfNIpj2uFTunP+KIdTfBaC8HvNM3
-tzuWvUNaeznonr7Ns3wnuHCzR+7OnZuha3mUqA346U3vyp3wtXv1El2582m9
-9O/c+bRe7J84DOF+vXzUv3ynTg691m8vzgqHWH/UA//R9rceDfsbeo4H4w9G
-Ppk9nZ1+fPzb+bX9fXz8gyN9ZHz3y1dfcbUdrs2NhJvmd7+7V/tPGf+HyYz+
-fnC/9r/f3n7yS/3yJxFQ+t8/0h6/vVLZ3oTU8PvH2n8fuGRwjdL3AVnrX6s0
-Ov8/yVJ/mOjE+98/1p7b/DJ+t//9Y+2jB7itwnPru7UfENZPPD8HR7rH/PE3
-uvyR1+47/oj37l7tR9x392nfJ+mfDD+j7fds/9XdxzcX3CpQfe+z/yKjfWRW
-h9vf7sS7w/hjf/dp76hAsJB7tP+Zz89B/O+ZCO/bfsQfdZ/2PSLzmeu/+XT8
-/0nG/wT4qTvwk9v/lPB/9Jn4d/MZ9OenGD/9Gdqf6/VFgYvjPu0HBOH/t/X/
-8MNsppOHiHc//juZ9tn6n6az+/Sgv2lxwafqfbvXImjEwW8/HN8TDH+S1eNv
-MpnRsn6ybegZDVcjTOi29v/PqCH3bX/IkvjYTIlyOcsdbYkPSOU9eXXSvzNe
-ymq56yHcBSuWoc9ZSFJLGtkf6EKSJM4sM+ojHfprrzhHF3df7idx0UPOJIuT
-engdPgXF1XxfxZUgzte5q6JtibY2slwA0+Q062RFP7Zi9MPdEvWV1HrSFcS9
-cnrm4OYml2iWSIk6vrXBTJfVMmuWltEUF7mw0ieA2cnisqqvy3wpeS0Eq+/y
-9JpLk3CNcU7lzKpLsVm6VHQpkuBSVVBCMM+XuD+Hc8TT3+coktGl3+5WK3w/
-2eyzNn2zRt3hbYtfnhF039b88Xxdb+jp82KBSp15g99e0pcsL9O3+LdZ0mD4
-9TnqwOzo56dI8qW+8OMrAuLZpujW+PKHYpOeUZNsiW+nWdOiFuJTrLjiLk53
-qGaV/iHnk8vjvy6zVfo0by7snbMdClS9Agwvd5uMJ6RzT7/BBXGb6dPsUieK
-3F0aoCyu5MWTatn8Nf8zqXd/XTb1dXtZ6GuXuzb9PU2+lIbf5ATVp0Vzua7L
-v8rUqy6r0/9c7xgoNEC7LvBvhvRB7uUP2aKe01Qx9Ro//FvWrUuUJnpZNwXy
-pfHjU7zTFO2izoPt5Gzt4Z5+93tU+CqadpK+3bVt+k29a8ucjsOz7KpYpt/x
-bVkbOheT5BmSzc7XWekvqy0al56pVtmCr9wp8mukHxIR40uVkv8LfEkQuZXS
-AAA=
+H4sIAKKhiV8AA+19e3Pc1pXn//gUqLhqTEbdTVlOJonGmxmKkmMl1mNEKpqd
+cpWD7kazEaKBDoAm1bY0tV9jv95+kj2/87gPAKRIyYl3q4blsrobuK9zzz3v
+c+50Ok26oivzh+lx+nXRbK6yJk9fb5dZl6fHzWJddPmi29Fvq7pJn1Zd3lR5
+l9ar9GxdVOdtks3nTX55u9b1WbKsF1W2odGWTbbqpkXerabtruimWfD29Isv
+kwV1cV43+4dpUa3qJCm2zcO0a3Zt9+D+/d/df5DQSNnD9DRf7Jqi2ydXdXNx
+3tS7Lf32+ulZcpHv6aflQzfn6WOMmCRtl1XL77OyrmgW+7xNtsXDJE2b1SJf
+tt2+1F/TtKsXwceiWuZVZz+0ddM1+ap13/eb6GvXFAv38qLebKite1pUZVH5
+YfK33bQs2m5Knczrkl6b1r+8R08IVptsuyUwy7vZrlvXDU12Sg/5r6jo7Uez
+9FndZJX9KPB91OTVMqviR3VznlXFD1lX1BVtWbNJvy02BPWlvZBvsqJ0jWfc
++N+yZjOjNST9gb+ZpWftYl2v8qo4j0f/JquqvB15fNsZrLmDWec6uHYWj2c0
+3fqqt/zH2WWxjB/EQ39bVFlT90ZdotVsjlb/VvILM2o1GPIZQTxvimwRj/ms
+KGuab+9ZPOxJXbW7klCw6w29kcb/tuHGslJgfrOhlpc5UPTV1ye/ffCr+/rx
+n+8/+JV+/M2DB7+1F37zG/74dPp45g+X66iuppt6mZfRK12eb6PzN+xgQ0tY
+5W0XPWmyrh20C+aAmf36i9/Zr1/+7gE+/m1Hi99tpqts0dWNAYah0WXNeU7H
+Zt112/bh0dHV1dWsytAz4HGUNV2xKPP2qP3VF7/+3W+n97/47fTLf77/699O
+f5DmQsf+XQZIjwmDMtrFcyY+L5tik6dfh4NyI3eo+M/ts+JWvqVBcXhB8U7q
+zXZHxCQ9XRR5tcgn6ctds9wRwatoh5oWZCiNMOJ0vXtb0CH8I/3vfHwIm610
+jtk+rVpaCQ00SV9kF+mrYnmep895xlmZfpvN6VDSIvpj/SkvunV6jNNQdN3f
+ebDjMn9LZJRg8Uc6C4uTrCV6+3ce86yh09mmp7P0m91mXuY/9ZaNNV/nG6LM
+zZ7arfdtsWhTWnX6qGgWFzTjqibEX1d1WZ/v05McjOYWOJERw0z/lBUg/t9e
+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
 
 -->
 
