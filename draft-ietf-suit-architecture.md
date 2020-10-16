@@ -236,15 +236,6 @@ This document uses the following terms:
   all the necessary code to run it (such as protocol stacks, and
   embedded operating system).
 
-* Heterogeneous Storage Architecture (HeSA): A device that
-  stores at least one firmware component differently from the rest,
-  for example a device with an external, updateable radio, or a
-  device with internal and external flash memory.
-
-* Homogeneous Storage Architecture (HoSA): A device that stores
-  all firmware components in the same way, for example in a file
-  system or in flash memory.
-
 * Manifest: The manifest contains meta-data about the firmware
   image. The manifest is protected against modification and
   provides information about the author.
@@ -556,59 +547,96 @@ not fail when a disruption occurs during the update process.
 For example, a power failure or network disruption during the update
 process must not cause the device to fail.
 
-
-# The Bootloader {#bootloader}
+# Invoking the Firmware {#invocation}
 
 {{architecture}} describes the steps for getting the firmware image and the manifest
 from the author to the firmware consumer on the IoT device. Once the firmware consumer
 has retrieved and successfully processed the manifest and the firmware image it needs
-to hand control over to the bootloader.  
+to invoke the new firmware image. This is managed in many different ways, depending
+on the type of device, but it typically involves halting the current version of the
+firmware, handing control over to a firmware with a higher privilege/trust level
+(the firmware verifier)
+verifying the new firmware's authenticity & integrity, and then invoking it.
 
-In most cases this requires the MCU to restart. Once the
-MCU has initiated a restart, the bootloader determines whether a newly available
-firmware image should be executed.  
+In an execute-in-place microcontroller, this is often done by rebooting into a
+bootloader (simultaneously halting the application & handing over to the higher
+privilege level) then executing a secure boot process (verifying and invoking
+the new image).
 
-Some designs use the bootloader to implement the robustness requirements
-identified by the IOTSU workshop {{RFC8240}}. Where the bootloader makes
-changes that can affect the device's ability to boot successfully, it
-must do this in a way that is resilient to disruption, for example, by
-power failure.
+In a rich OS, this may be done by halting one or more processes, then invoking
+new applications. In some OSs, this implicitly involves the kernel verifying
+the code signatures on the new applications.
 
-The boot process is security sensitive. An attacker will typically try to
+The invocation process is security sensitive. An attacker will typically try to
 retrieve a firmware image from the device for reverse engineering or will try to get
-the bootloader to execute an attacker-modified firmware image. The
-bootloader will therefore have to perform security checks on the
-firmware image before it can be booted. These security checks by the
-bootloader happen in addition to the security checks that took place
+the firmware verifier to execute an attacker-modified firmware image. The
+firmware verifier will therefore have to perform security checks on the
+firmware image before it can be invoked. These security checks by the
+firmware verifier happen in addition to the security checks that took place
 when the firmware image and the manifest were downloaded by the firmware consumer.
 
-Throughout this document we assume that the bootloader itself is
-distinct from the role of the firmware consumer and therefore does not
-manage the firmware update process. This may give the impression
-that the bootloader itself is a completely separate component,
-which is mainly responsible for selecting a firmware image to boot.
-
-The overlap between the firmware update process and the bootloader
+The overlap between the firmware consumer and the firmware verifier
 functionality comes in two forms, namely
 
-- A bootloader must verify the firmware image it boots as
+- A firmware verifier must verify the firmware image it boots as
 part of the secure boot process. Doing so requires meta-data to be
-stored alongside the firmware image so that the bootloader can
+stored alongside the firmware image so that the firmware verifier can
 cryptographically verify the firmware image before booting it to
 ensure it has not been tampered with or replaced. This meta-data
-used by the bootloader may well be the same manifest obtained with the
-firmware image during the update process (with the severable
-fields stripped off).
+used by the firmware verifier may well be the same manifest obtained with the
+firmware image during the update process.
 
 - An IoT device needs a recovery strategy in case the firmware
-update / boot process fails. As mentioned earlier, the recovery
+update / invocation process fails. The recovery
 strategy may include storing two or more application firmware images
-on the device or offering the ability to have a second stage bootloader
+on the device or offering the ability to invoke a recovery image to
 perform the firmware update process again using firmware updates over
 serial, USB or even wireless connectivity like Bluetooth Smart.
 In the latter case the firmware consumer functionality is contained in the
-second stage bootloader and requires the necessary functionality for
+recovery image and requires the necessary functionality for
 executing the firmware update process, including manifest parsing.
+
+While this document assumes that the firmware verifier itself is
+distinct from the role of the firmware consumer and therefore does not
+manage the firmware update process, this is not a requirement and these
+roles may be combined in practice.
+
+Using a bootloader as the firmware verifier requires some special
+considerations, particularly when the bootloader
+implements the robustness requirements identified by the IOTSU workshop {{RFC8240}}.
+
+## The Bootloader {#bootloader}
+
+In most cases the MCU must restart in order to hand over control to the bootloader.
+Once the MCU has initiated a restart, the bootloader determines whether a newly available
+firmware image should be executed. If the bootloader concludes that the newly available
+firmware image is invalid, a recovery strategy is necessary. There are only two
+approaches recovering from an invalid firmware: either the bootloader must be able
+to select a different, valid firmware, or it must be able to obtain a new, valid firmware.
+Both of these approaches have implications for the architecture of the update system.
+
+Assuming the first approach, there are (at least) three firmware images available
+on the device:  
+
+- First, the bootloader is also firmware. If a bootloader is updatable then its
+  firmware image is treated like any other application firmware image.
+
+- Second, the firmware image that has to be replaced is still available on the
+device as a backup in case the freshly downloaded firmware image does not
+boot or operate correctly.
+
+- Third, there is the newly downloaded firmware image.
+
+Therefore, the firmware consumer must know where to store the new firmware.
+In some cases, this may be implicit, for example replacing the least-recently-used
+firmware image. In other cases, the storage location of the new firmware must be
+explicit, for example when a device has one or more application firmware images
+and a recovery image with limited functionality, sufficient only to perform an update.
+
+Since many low end IoT devices use non-relocatable code,
+either the bootloader needs to copy the newly downloaded application firmware image
+into the location of the old application firmware image and vice versa or
+multiple versions of the firmware need to be prepared for different locations.
 
 In general, it is assumed that the bootloader itself, or a minimal part of it,
 will not be updated since a failed update of the bootloader poses a
