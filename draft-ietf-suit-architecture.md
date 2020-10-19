@@ -49,6 +49,7 @@ author:
 informative:
   RFC8240:
   RFC6024:
+  RFC6763:
   RFC7228:
   RFC8778:
   I-D.ietf-suit-information-model:
@@ -174,7 +175,8 @@ manifest format, a fully interoperable solution needs more than a standardized
 manifest. For example, protocols for transferring firmware images
 and manifests to the device need to be available as well as the status tracker
 functionality. Devices also require a mechanism to discover the status
-tracker(s) and/or firmware servers.
+tracker(s) and/or firmware servers, for example using pre-configured hosts,
+LwM2M bootstrap, or {{RFC6763}} DNS-SD.
 These building blocks have been developed by various organizations
 under the umbrella of an IoT device management solution. The LwM2M protocol is one
 IoT device management protocol.   
@@ -390,7 +392,7 @@ and reassembly, and mechanisms to resume interrupted or corrupted transfers.
 - the ability to unpack, to decompress and/or to decrypt the
   received firmware image.
 
-- (optionally) a status tracker.
+- a status tracker.
 
 The features listed above are most likely offered by code in the application firmware
 image running
