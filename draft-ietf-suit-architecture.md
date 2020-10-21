@@ -311,6 +311,9 @@ The following stakeholders are used in this document:
   a different design. In some cases, the TPA may decide to remain in
   full control over the firmware update process of their products.
 
+* User: The end-user of a device. The user may interact with devices
+  via web or smart phone apps, as well as through direct user interfaces.
+
 ## Functions
 
 * (IoT) Device: A device refers to the entire IoT product, which
@@ -793,8 +796,10 @@ benefit from a protocol for managing the lifecycle of trusted
 applications (TAs) running inside a TEE. TEEs may obtain TAs
 from different authors and those TAs may require personalization data,
 such as payment information, to be securely conveyed to the TEE. The
-TA's author does not want to expose the TA to the user, and the user
-does not want to expose the payment information to the TA's author.
+TA's author does not want to expose the TA's code to any other stakeholder
+or third party.
+The user does not want to expose the payment information to any other
+stakeholder or third party.
 
 
 # Securing Firmware Updates {#securing}
