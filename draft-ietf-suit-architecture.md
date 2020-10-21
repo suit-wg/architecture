@@ -91,7 +91,7 @@ informative:
 
 --- abstract
 
-Vulnerabilities with Internet of Things (IoT) devices have raised
+Vulnerabilities in Internet of Things (IoT) devices have raised
 the need for a reliable and secure firmware update mechanism
 suitable for devices with resource constraints. Incorporating such an
 update mechanism is a fundamental requirement for fixing vulnerabilities
@@ -126,7 +126,9 @@ critical part in their lifecycle management, particularly when devices have a
 long lifetime, or are deployed in remote or inaccessible areas where manual
 intervention is cost prohibitive or otherwise difficult. Firmware updates  
 for IoT devices are expected to work automatically, i.e. without user
-involvement. Automatic updates that do not require human intervention
+involvement. Conversely, IoT devices are expected to account for user
+preferences and consent when scheduling updates.
+Automatic updates that do not require human intervention
 are key to a scalable solution for fixing software vulnerabilities.
 
 Firmware updates are not only done to fix
@@ -156,7 +158,7 @@ While the standardization work has been informed by and optimized for firmware
 update use cases of Class 1 devices (according to the device class
 definitions in RFC 7228 {{RFC7228}}) devices, there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
-Moreover, this architecture is not limited to managing software updates,
+Moreover, this architecture is not limited to managing firmware and software updates,
 but can also be applied to managing the delivery of arbitrary data, such
 as configuration information and keys. Unlike higher end devices, like
 laptops and desktop PCs, many IoT devices do not have user interfaces
@@ -168,7 +170,7 @@ firmware image. On higher end devices application software is, on the other
 hand, often downloaded separately and even obtained from developers different
 to the developers of the lower level software. The details for how to obtain
 those application layer software binaries then depends heavily on the platform,
-programming language uses and the sandbox the software is executed in.
+programming language used and the sandbox in which the software is executed.
 
 While the IETF standardization work has been focused on the
 manifest format, a fully interoperable solution needs more than a standardized
@@ -197,9 +199,9 @@ the IOTSU workshop:
    an update needs to go through before it reaches the end customer,
    and the need for user consent to install updates.
 
- * Ensuring an energy efficient design of a battery-powered IoT devices because a
-   firmware update, particularly writing the firmware image to flash, is a heavy
-   task for a device.
+ * Ensuring an energy efficient design of a battery-powered IoT device because a
+   firmware update, particularly radio communication and writing the firmware image
+   to flash, is an energy-intensive task for a device.
 
  * Creating incentives for device operators to use a firmware update mechanism and to
    demand the integration of it from IoT device vendors.
@@ -256,6 +258,9 @@ This document uses the following terms:
   and hypervisors; it is outside of the TEE.  This environment and
   applications running on it are considered un-trusted.
 
+* Software: Similar to firmware, but typically dynamically loaded by an
+  Operating System. Used interchangeably with firmware in this document.
+
 * System on Chip (SoC): An SoC is an integrated circuit that
   contains all components of a computer, such as CPU, memory,
   input/output ports, secondary storage, a bus to connect the
@@ -299,12 +304,12 @@ The following stakeholders are used in this document:
   network to which IoT devices connect.
 
 * Trust Provisioning Authority (TPA): The TPA distributes
-  trust anchors and authorization policies to various stakeholders.
-  The TPA may also delegate rights to stakeholders. For example,
-  in some cases, the Original Design Manufacturer (ODM), which is a
-  company that designs and manufactures a product, may act as a
-  TPA and may decide to remain in full control over the firmware
-  update process of their products.
+  trust anchors and authorization policies to devices and various stakeholders.
+  The TPA may also delegate rights to stakeholders. Typically, the
+  Original Equipment Manufacturer (OEM) or Original Design Manufacturer
+  (ODM) will act as a TPA, however complex supply chains may require
+  a different design. In some cases, the TPA may decide to remain in
+  full control over the firmware update process of their products.
 
 ## Functions
 
@@ -335,7 +340,7 @@ The following stakeholders are used in this document:
   assumptions about where the server-side component is deployed. The
   deployment of status trackers is flexible and may be found at  
   cloud-based servers, on-premise servers, or may be embedded in edge
-  computing device. A status tracker server component may even be
+  computing devices. A status tracker server component may even be
   deployed on an IoT device. For example, if the IoT device contains
   multiple MCUs, then the main MCU may act as a status tracker towards the
   other MCUs. Such deployment is useful when updates have to be
@@ -370,7 +375,7 @@ The following stakeholders are used in this document:
 More devices today than ever before are connected to the Internet,
 which drives the need for firmware updates to be provided over the
 Internet rather than through traditional interfaces, such as USB or
-RS-232. Updating updates over the Internet requires the device to fetch
+RS-232. Sending updates over the Internet requires the device to fetch
 the new firmware image as well as the manifest.
 
 Hence, the following components are necessary on a device for a firmware
@@ -409,7 +414,7 @@ Instead, authors will make firmware images available to the device operators. No
 there may be a longer supply chain involved to pass software updates from the author all
 the way to the party that can then finally make a decision to deploy it with IoT devices.
 
-As a first step in the firmware update process, the status tracker client need to be
+As a first step in the firmware update process, the status tracker client needs to be
 made aware of the availability of a new firmware update by the status tracker server.
 This can be accomplished via polling (client-initiated), push notifications (server-initiated),
 or more complex mechanisms (such as a hybrid approach):
@@ -418,7 +423,7 @@ or more complex mechanisms (such as a hybrid approach):
 checking (polling) for updates.
 
 - With Server-initiated updates the server-side component of the status tracker
-learns about a new firmware version and determines what devices qualify for a
+learns about a new firmware version and determines which devices qualify for a
 firmware update. Once the relevant devices have been selected, the
 status tracker informs these devices and the firmware consumers obtain those
 images and manifests. Server-initiated updates are important because they allow a quick
@@ -613,7 +618,7 @@ In most cases the MCU must restart in order to hand over control to the bootload
 Once the MCU has initiated a restart, the bootloader determines whether a newly available
 firmware image should be executed. If the bootloader concludes that the newly available
 firmware image is invalid, a recovery strategy is necessary. There are only two
-approaches recovering from an invalid firmware: either the bootloader must be able
+approaches for recovering from an invalid firmware: either the bootloader must be able
 to select a different, valid firmware, or it must be able to obtain a new, valid firmware.
 Both of these approaches have implications for the architecture of the update system.
 
@@ -635,7 +640,7 @@ firmware image. In other cases, the storage location of the new firmware must be
 explicit, for example when a device has one or more application firmware images
 and a recovery image with limited functionality, sufficient only to perform an update.
 
-Since many low end IoT devices use non-relocatable code,
+Since many low end IoT devices do not use position-independent code,
 either the bootloader needs to copy the newly downloaded application firmware image
 into the location of the old application firmware image and vice versa or
 multiple versions of the firmware need to be prepared for different locations.
@@ -652,12 +657,12 @@ implement the following functionality:
    contents for subsequent cryptographic verification.
 
 -  Cryptographic libraries with hash functions, digital signatures
-   (for asymmetric crypto), keyed message digests (for symmetric
+   (for asymmetric crypto), message authentication codes (for symmetric
    crypto) need to be accessible.
 
 -  The device needs to have a trust anchor store to verify the
    digital signature. (Alternatively, access to a key store for use
-   with the keyed message digest.)
+   with the message authentication code.)
 
 -  Ability to expose boot process-related data to the application
    firmware (such as to the status tracker).  This allows
@@ -668,7 +673,7 @@ implement the following functionality:
    {{I-D.ietf-rats-architecture}} for more information. (optional)
 
 -  Ability to decrypt firmware images, in case confidentiality protection
-   was applied). This requires a solution for key management. (optional)
+   was applied. This requires a solution for key management. (optional)
 
 
 # Types of IoT Devices {#device}
@@ -690,7 +695,7 @@ well as RAM for working storage.  A notable characteristic of these
 SoCs is that the primary code is generally execute in place (XIP).
 Due to the non-relocatable nature of the code, the firmware image
 needs to be placed in a specific location in flash since the code
-cannot be executed from an arbitrary location in flash. Hence, then
+cannot be executed from an arbitrary location in flash. Hence, when
 the firmware image is updated it is necessary to swap the old and
 the new image.
 
@@ -780,9 +785,9 @@ also be used by the bootloader it is part of the trusted computing base.
 A manifest may not only be used to protect firmware images but also
 configuration data such as network credentials or personalization data
 related to firmware or software.
-Personalization data demonstrates the need for mutually-distrustful
-delivery of two or more images into a device. Personalization data
-is used with
+Personalization data demonstrates the need for confidentiality to be
+maintained between two or more stakeholders that both deliver images to
+the same device. Personalization data is used with
 Trusted Execution Environments (TEEs), which
 benefit from a protocol for managing the lifecycle of trusted
 applications (TAs) running inside a TEE. TEEs may obtain TAs
