@@ -10,7 +10,7 @@
 <meta content="David Brown" name="author">
 <meta content="Milosch Meriac" name="author">
 <meta content="
-       Vulnerabilities with Internet of Things (IoT) devices have raised
+       Vulnerabilities in Internet of Things (IoT) devices have raised
 the need for a reliable and secure firmware update mechanism
 suitable for devices with resource constraints. Incorporating such an
 update mechanism is a fundamental requirement for fixing vulnerabilities
@@ -24,7 +24,7 @@ updates.
     " name="description">
 <meta content="xml2rfc 3.0.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
-<meta content="draft-ietf-suit-architecture-13" name="ietf.draft">
+<meta content="draft-ietf-suit-architecture-14" name="ietf.draft">
 <link href="./draft-ietf-suit-architecture.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
@@ -1161,7 +1161,7 @@ dd > ul:first-child {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Moran, et al.</td>
-<td class="center">Expires April 19, 2021</td>
+<td class="center">Expires April 24, 2021</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1171,15 +1171,15 @@ dd > ul:first-child {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">SUIT</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-ietf-suit-architecture-13</dd>
+<dd class="internet-draft">draft-ietf-suit-architecture-14</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2020-10-16" class="published">October 16, 2020</time>
+<time datetime="2020-10-21" class="published">October 21, 2020</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2021-04-19">April 19, 2021</time></dd>
+<dd class="expires"><time datetime="2021-04-24">April 24, 2021</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1204,7 +1204,7 @@ dd > ul:first-child {
 <h1 id="title">A Firmware Update Architecture for Internet of Things</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">Vulnerabilities with Internet of Things (IoT) devices have raised
+<p id="section-abstract-1">Vulnerabilities in Internet of Things (IoT) devices have raised
 the need for a reliable and secure firmware update mechanism
 suitable for devices with resource constraints. Incorporating such an
 update mechanism is a fundamental requirement for fixing vulnerabilities
@@ -1235,7 +1235,7 @@ updates.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on April 19, 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on April 24, 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1263,77 +1263,77 @@ updates.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
         <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents-2">
 <a href="#name-table-of-contents-2" class="section-name selfRef">Table of Contents</a>
         </h2>
-<nav class="toc"><ul class="toc ulEmpty compact">
-<li class="toc ulEmpty compact" id="section-toc.1-1.1">
+<nav class="toc"><ul class="ulEmpty toc compact">
+<li class="ulEmpty toc compact" id="section-toc.1-1.1">
             <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction-2" class="xref">Introduction</a><a href="#section-toc.1-1.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.2">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.2">
             <p id="section-toc.1-1.2.1"><a href="#section-2" class="xref">2</a>.  <a href="#name-conventions-and-terminology-2" class="xref">Conventions and Terminology</a><a href="#section-toc.1-1.2.1" class="pilcrow">¶</a></p>
-<ul class="toc ulEmpty compact">
-<li class="toc ulEmpty compact" id="section-toc.1-1.2.2.1">
+<ul class="ulEmpty toc compact">
+<li class="ulEmpty toc compact" id="section-toc.1-1.2.2.1">
                 <p id="section-toc.1-1.2.2.1.1" class="keepWithNext"><a href="#section-2.1" class="xref">2.1</a>.  <a href="#name-terms-2" class="xref">Terms</a><a href="#section-toc.1-1.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="toc ulEmpty compact" id="section-toc.1-1.2.2.2">
+              <li class="ulEmpty toc compact" id="section-toc.1-1.2.2.2">
                 <p id="section-toc.1-1.2.2.2.1" class="keepWithNext"><a href="#section-2.2" class="xref">2.2</a>.  <a href="#name-stakeholders-2" class="xref">Stakeholders</a><a href="#section-toc.1-1.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="toc ulEmpty compact" id="section-toc.1-1.2.2.3">
+              <li class="ulEmpty toc compact" id="section-toc.1-1.2.2.3">
                 <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="xref">2.3</a>.  <a href="#name-functions-2" class="xref">Functions</a><a href="#section-toc.1-1.2.2.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.3">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.3">
             <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-architecture-3" class="xref">Architecture</a><a href="#section-toc.1-1.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.4">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.4">
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-invoking-the-firmware-2" class="xref">Invoking the Firmware</a><a href="#section-toc.1-1.4.1" class="pilcrow">¶</a></p>
-<ul class="toc ulEmpty compact">
-<li class="toc ulEmpty compact" id="section-toc.1-1.4.2.1">
+<ul class="ulEmpty toc compact">
+<li class="ulEmpty toc compact" id="section-toc.1-1.4.2.1">
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="xref">4.1</a>.  <a href="#name-the-bootloader-2" class="xref">The Bootloader</a><a href="#section-toc.1-1.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.5">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.5">
             <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-types-of-iot-devices-2" class="xref">Types of IoT Devices</a><a href="#section-toc.1-1.5.1" class="pilcrow">¶</a></p>
-<ul class="toc ulEmpty compact">
-<li class="toc ulEmpty compact" id="section-toc.1-1.5.2.1">
+<ul class="ulEmpty toc compact">
+<li class="ulEmpty toc compact" id="section-toc.1-1.5.2.1">
                 <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-single-mcu-2" class="xref">Single MCU</a><a href="#section-toc.1-1.5.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="toc ulEmpty compact" id="section-toc.1-1.5.2.2">
+              <li class="ulEmpty toc compact" id="section-toc.1-1.5.2.2">
                 <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-single-cpu-with-secure-norma" class="xref">Single CPU with Secure - Normal Mode Partitioning</a><a href="#section-toc.1-1.5.2.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="toc ulEmpty compact" id="section-toc.1-1.5.2.3">
+              <li class="ulEmpty toc compact" id="section-toc.1-1.5.2.3">
                 <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="xref">5.3</a>.  <a href="#name-symmetric-multiple-cpus-2" class="xref">Symmetric Multiple CPUs</a><a href="#section-toc.1-1.5.2.3.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="toc ulEmpty compact" id="section-toc.1-1.5.2.4">
+              <li class="ulEmpty toc compact" id="section-toc.1-1.5.2.4">
                 <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="xref">5.4</a>.  <a href="#name-dual-cpu-shared-memory-2" class="xref">Dual CPU, shared memory</a><a href="#section-toc.1-1.5.2.4.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="toc ulEmpty compact" id="section-toc.1-1.5.2.5">
+              <li class="ulEmpty toc compact" id="section-toc.1-1.5.2.5">
                 <p id="section-toc.1-1.5.2.5.1"><a href="#section-5.5" class="xref">5.5</a>.  <a href="#name-dual-cpu-other-bus-2" class="xref">Dual CPU, other bus</a><a href="#section-toc.1-1.5.2.5.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.6">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.6">
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-manifests-2" class="xref">Manifests</a><a href="#section-toc.1-1.6.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.7">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.7">
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-securing-firmware-updates-2" class="xref">Securing Firmware Updates</a><a href="#section-toc.1-1.7.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.8">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.8">
             <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-example-2" class="xref">Example</a><a href="#section-toc.1-1.8.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.9">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.9">
             <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-iana-considerations-2" class="xref">IANA Considerations</a><a href="#section-toc.1-1.9.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.10">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.10">
             <p id="section-toc.1-1.10.1"><a href="#section-10" class="xref">10</a>. <a href="#name-security-considerations-2" class="xref">Security Considerations</a><a href="#section-toc.1-1.10.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.11">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.11">
             <p id="section-toc.1-1.11.1"><a href="#section-11" class="xref">11</a>. <a href="#name-acknowledgements-2" class="xref">Acknowledgements</a><a href="#section-toc.1-1.11.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.12">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.12">
             <p id="section-toc.1-1.12.1"><a href="#section-12" class="xref">12</a>. <a href="#name-informative-references-2" class="xref">Informative References</a><a href="#section-toc.1-1.12.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="toc ulEmpty compact" id="section-toc.1-1.13">
+          <li class="ulEmpty toc compact" id="section-toc.1-1.13">
             <p id="section-toc.1-1.13.1"><a href="#section-appendix.a" class="xref"></a><a href="#name-authors-addresses-2" class="xref">Authors' Addresses</a><a href="#section-toc.1-1.13.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
@@ -1362,7 +1362,9 @@ critical part in their lifecycle management, particularly when devices have a
 long lifetime, or are deployed in remote or inaccessible areas where manual
 intervention is cost prohibitive or otherwise difficult. Firmware updates
 for IoT devices are expected to work automatically, i.e. without user
-involvement. Automatic updates that do not require human intervention
+involvement. Conversely, IoT devices are expected to account for user
+preferences and consent when scheduling updates.
+Automatic updates that do not require human intervention
 are key to a scalable solution for fixing software vulnerabilities.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">Firmware updates are not only done to fix
 bugs, but they can also add new functionality, and re-configure
@@ -1391,7 +1393,7 @@ engineering frameworks have made this task a lot easier.<a href="#section-1-5.2"
 update use cases of Class 1 devices (according to the device class
 definitions in RFC 7228 <span>[<a href="#RFC7228" class="xref">RFC7228</a>]</span>) devices, there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
-Moreover, this architecture is not limited to managing software updates,
+Moreover, this architecture is not limited to managing firmware and software updates,
 but can also be applied to managing the delivery of arbitrary data, such
 as configuration information and keys. Unlike higher end devices, like
 laptops and desktop PCs, many IoT devices do not have user interfaces
@@ -1403,13 +1405,14 @@ firmware image. On higher end devices application software is, on the other
 hand, often downloaded separately and even obtained from developers different
 to the developers of the lower level software. The details for how to obtain
 those application layer software binaries then depends heavily on the platform,
-programming language uses and the sandbox the software is executed in.<a href="#section-1-6" class="pilcrow">¶</a></p>
+programming language used and the sandbox in which the software is executed.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <p id="section-1-7">While the IETF standardization work has been focused on the
 manifest format, a fully interoperable solution needs more than a standardized
 manifest. For example, protocols for transferring firmware images
 and manifests to the device need to be available as well as the status tracker
 functionality. Devices also require a mechanism to discover the status
-tracker(s) and/or firmware servers.
+tracker(s) and/or firmware servers, for example using pre-configured hostnames
+or <span>[<a href="#RFC6763" class="xref">RFC6763</a>]</span> DNS-SD.
 These building blocks have been developed by various organizations
 under the umbrella of an IoT device management solution. The LwM2M protocol is one
 IoT device management protocol.<a href="#section-1-7" class="pilcrow">¶</a></p>
@@ -1429,9 +1432,9 @@ potential re-certification requirements, the length of a supply chain
 an update needs to go through before it reaches the end customer,
 and the need for user consent to install updates.<a href="#section-1-9.2" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-1-9.3">Ensuring an energy efficient design of a battery-powered IoT devices because a
-firmware update, particularly writing the firmware image to flash, is a heavy
-task for a device.<a href="#section-1-9.3" class="pilcrow">¶</a>
+        <li class="normal" id="section-1-9.3">Ensuring an energy efficient design of a battery-powered IoT device because a
+firmware update, particularly radio communication and writing the firmware image
+to flash, is an energy-intensive task for a device.<a href="#section-1-9.3" class="pilcrow">¶</a>
 </li>
         <li class="normal" id="section-1-9.4">Creating incentives for device operators to use a firmware update mechanism and to
 demand the integration of it from IoT device vendors.<a href="#section-1-9.4" class="pilcrow">¶</a>
@@ -1497,29 +1500,32 @@ potentially in conjunction with other supporting operating systems
 and hypervisors; it is outside of the TEE.  This environment and
 applications running on it are considered un-trusted.<a href="#section-2.1-2.4" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-2.1-2.5">System on Chip (SoC): An SoC is an integrated circuit that
+          <li class="normal" id="section-2.1-2.5">Software: Similar to firmware, but typically dynamically loaded by an
+Operating System. Used interchangeably with firmware in this document.<a href="#section-2.1-2.5" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-2.1-2.6">System on Chip (SoC): An SoC is an integrated circuit that
 contains all components of a computer, such as CPU, memory,
 input/output ports, secondary storage, a bus to connect the
-components, and other hardware blocks of logic.<a href="#section-2.1-2.5" class="pilcrow">¶</a>
+components, and other hardware blocks of logic.<a href="#section-2.1-2.6" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-2.1-2.6">Trust Anchor: A trust anchor, as defined in <span>[<a href="#RFC6024" class="xref">RFC6024</a>]</span>, represents
+          <li class="normal" id="section-2.1-2.7">Trust Anchor: A trust anchor, as defined in <span>[<a href="#RFC6024" class="xref">RFC6024</a>]</span>, represents
 an authoritative entity via a public key and associated data.  The
 public key is used to verify digital signatures, and the associated
 data is used to constrain the types of information for which the
-trust anchor is authoritative."<a href="#section-2.1-2.6" class="pilcrow">¶</a>
+trust anchor is authoritative."<a href="#section-2.1-2.7" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-2.1-2.7">Trust Anchor Store: A trust anchor store, as defined in <span>[<a href="#RFC6024" class="xref">RFC6024</a>]</span>,
+          <li class="normal" id="section-2.1-2.8">Trust Anchor Store: A trust anchor store, as defined in <span>[<a href="#RFC6024" class="xref">RFC6024</a>]</span>,
 is a set of one or more trust anchors stored in a device.  A device
 may have more than one trust anchor store, each of which may be used
 by one or more applications. A trust anchor store must resist
-modification against unauthorized insertion, deletion, and modification.<a href="#section-2.1-2.7" class="pilcrow">¶</a>
+modification against unauthorized insertion, deletion, and modification.<a href="#section-2.1-2.8" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-2.1-2.8">Trusted Applications (TAs): An application component that runs in
-a TEE.<a href="#section-2.1-2.8" class="pilcrow">¶</a>
+          <li class="normal" id="section-2.1-2.9">Trusted Applications (TAs): An application component that runs in
+a TEE.<a href="#section-2.1-2.9" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-2.1-2.9">Trusted Execution Environments (TEEs): An execution environment
+          <li class="normal" id="section-2.1-2.10">Trusted Execution Environments (TEEs): An execution environment
 that runs alongside of, but is isolated from, an REE. For more
-information about TEEs see <span>[<a href="#I-D.ietf-teep-architecture" class="xref">I-D.ietf-teep-architecture</a>]</span>.<a href="#section-2.1-2.9" class="pilcrow">¶</a>
+information about TEEs see <span>[<a href="#I-D.ietf-teep-architecture" class="xref">I-D.ietf-teep-architecture</a>]</span>.<a href="#section-2.1-2.10" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
@@ -1545,12 +1551,15 @@ web or smart phone apps.<a href="#section-2.2-2.2" class="pilcrow">¶</a>
 network to which IoT devices connect.<a href="#section-2.2-2.3" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-2.2-2.4">Trust Provisioning Authority (TPA): The TPA distributes
-trust anchors and authorization policies to various stakeholders.
-The TPA may also delegate rights to stakeholders. For example,
-in some cases, the Original Design Manufacturer (ODM), which is a
-company that designs and manufactures a product, may act as a
-TPA and may decide to remain in full control over the firmware
-update process of their products.<a href="#section-2.2-2.4" class="pilcrow">¶</a>
+trust anchors and authorization policies to devices and various stakeholders.
+The TPA may also delegate rights to stakeholders. Typically, the
+Original Equipment Manufacturer (OEM) or Original Design Manufacturer
+(ODM) will act as a TPA, however complex supply chains may require
+a different design. In some cases, the TPA may decide to remain in
+full control over the firmware update process of their products.<a href="#section-2.2-2.4" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-2.2-2.5">User: The end-user of a device. The user may interact with devices
+via web or smart phone apps, as well as through direct user interfaces.<a href="#section-2.2-2.5" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
@@ -1592,7 +1601,7 @@ assumptions about where the server-side component is deployed. The
 deployment of status trackers is flexible and may be found at<a href="#section-2.3-1.2.5" class="pilcrow">¶</a></p>
 <p id="section-2.3-1.2.6">
 cloud-based servers, on-premise servers, or may be embedded in edge
-computing device. A status tracker server component may even be
+computing devices. A status tracker server component may even be
 deployed on an IoT device. For example, if the IoT device contains
 multiple MCUs, then the main MCU may act as a status tracker towards the
 other MCUs. Such deployment is useful when updates have to be
@@ -1636,7 +1645,7 @@ responsible for deciding what code to execute.<a href="#section-2.3-1.5" class="
 <p id="section-3-1">More devices today than ever before are connected to the Internet,
 which drives the need for firmware updates to be provided over the
 Internet rather than through traditional interfaces, such as USB or
-RS-232. Updating updates over the Internet requires the device to fetch
+RS-232. Sending updates over the Internet requires the device to fetch
 the new firmware image as well as the manifest.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <p id="section-3-2">Hence, the following components are necessary on a device for a firmware
 update solution:<a href="#section-3-2" class="pilcrow">¶</a></p>
@@ -1657,7 +1666,7 @@ signature or a message authentication code.<a href="#section-3-3.3" class="pilcr
         <li class="normal" id="section-3-3.4">the ability to unpack, to decompress and/or to decrypt the
 received firmware image.<a href="#section-3-3.4" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-3-3.5">(optionally) a status tracker.<a href="#section-3-3.5" class="pilcrow">¶</a>
+        <li class="normal" id="section-3-3.5">a status tracker.<a href="#section-3-3.5" class="pilcrow">¶</a>
 </li>
       </ul>
 <p id="section-3-4">The features listed above are most likely offered by code in the application firmware
@@ -1673,7 +1682,7 @@ upload firmware images to the firmware server and to initiate an update him- or 
 Instead, authors will make firmware images available to the device operators. Note that
 there may be a longer supply chain involved to pass software updates from the author all
 the way to the party that can then finally make a decision to deploy it with IoT devices.<a href="#section-3-5" class="pilcrow">¶</a></p>
-<p id="section-3-6">As a first step in the firmware update process, the status tracker client need to be
+<p id="section-3-6">As a first step in the firmware update process, the status tracker client needs to be
 made aware of the availability of a new firmware update by the status tracker server.
 This can be accomplished via polling (client-initiated), push notifications (server-initiated),
 or more complex mechanisms (such as a hybrid approach):<a href="#section-3-6" class="pilcrow">¶</a></p>
@@ -1682,7 +1691,7 @@ or more complex mechanisms (such as a hybrid approach):<a href="#section-3-6" cl
 checking (polling) for updates.<a href="#section-3-7.1" class="pilcrow">¶</a>
 </li>
         <li class="normal" id="section-3-7.2">With Server-initiated updates the server-side component of the status tracker
-learns about a new firmware version and determines what devices qualify for a
+learns about a new firmware version and determines which devices qualify for a
 firmware update. Once the relevant devices have been selected, the
 status tracker informs these devices and the firmware consumers obtain those
 images and manifests. Server-initiated updates are important because they allow a quick
@@ -1876,7 +1885,7 @@ implements the robustness requirements identified by the IOTSU workshop <span>[<
 Once the MCU has initiated a restart, the bootloader determines whether a newly available
 firmware image should be executed. If the bootloader concludes that the newly available
 firmware image is invalid, a recovery strategy is necessary. There are only two
-approaches recovering from an invalid firmware: either the bootloader must be able
+approaches for recovering from an invalid firmware: either the bootloader must be able
 to select a different, valid firmware, or it must be able to obtain a new, valid firmware.
 Both of these approaches have implications for the architecture of the update system.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">Assuming the first approach, there are (at least) three firmware images available
@@ -1897,7 +1906,7 @@ In some cases, this may be implicit, for example replacing the least-recently-us
 firmware image. In other cases, the storage location of the new firmware must be
 explicit, for example when a device has one or more application firmware images
 and a recovery image with limited functionality, sufficient only to perform an update.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
-<p id="section-4.1-5">Since many low end IoT devices use non-relocatable code,
+<p id="section-4.1-5">Since many low end IoT devices do not use position-independent code,
 either the bootloader needs to copy the newly downloaded application firmware image
 into the location of the old application firmware image and vice versa or
 multiple versions of the firmware need to be prepared for different locations.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
@@ -1912,12 +1921,12 @@ from nonvolatile storage and parse its
 contents for subsequent cryptographic verification.<a href="#section-4.1-8.1" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-4.1-8.2">Cryptographic libraries with hash functions, digital signatures
-(for asymmetric crypto), keyed message digests (for symmetric
+(for asymmetric crypto), message authentication codes (for symmetric
 crypto) need to be accessible.<a href="#section-4.1-8.2" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-4.1-8.3">The device needs to have a trust anchor store to verify the
 digital signature. (Alternatively, access to a key store for use
-with the keyed message digest.)<a href="#section-4.1-8.3" class="pilcrow">¶</a>
+with the message authentication code.)<a href="#section-4.1-8.3" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-4.1-8.4">Ability to expose boot process-related data to the application
 firmware (such as to the status tracker).  This allows
@@ -1928,7 +1937,7 @@ status of the firmware update process and whether errors have occurred.<a href="
 <span>[<a href="#I-D.ietf-rats-architecture" class="xref">I-D.ietf-rats-architecture</a>]</span> for more information. (optional)<a href="#section-4.1-8.5" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-4.1-8.6">Ability to decrypt firmware images, in case confidentiality protection
-was applied). This requires a solution for key management. (optional)<a href="#section-4.1-8.6" class="pilcrow">¶</a>
+was applied. This requires a solution for key management. (optional)<a href="#section-4.1-8.6" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
@@ -1958,7 +1967,7 @@ well as RAM for working storage.  A notable characteristic of these
 SoCs is that the primary code is generally execute in place (XIP).
 Due to the non-relocatable nature of the code, the firmware image
 needs to be placed in a specific location in flash since the code
-cannot be executed from an arbitrary location in flash. Hence, then
+cannot be executed from an arbitrary location in flash. Hence, when
 the firmware image is updated it is necessary to swap the old and
 the new image.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 </section>
@@ -2104,16 +2113,18 @@ also be used by the bootloader it is part of the trusted computing base.<a href=
 <p id="section-6-6">A manifest may not only be used to protect firmware images but also
 configuration data such as network credentials or personalization data
 related to firmware or software.
-Personalization data demonstrates the need for mutually-distrustful
-delivery of two or more images into a device. Personalization data
-is used with
+Personalization data demonstrates the need for confidentiality to be
+maintained between two or more stakeholders that both deliver images to
+the same device. Personalization data is used with
 Trusted Execution Environments (TEEs), which
 benefit from a protocol for managing the lifecycle of trusted
 applications (TAs) running inside a TEE. TEEs may obtain TAs
 from different authors and those TAs may require personalization data,
 such as payment information, to be securely conveyed to the TEE. The
-TA's author does not want to expose the TA to the user, and the user
-does not want to expose the payment information to the TA's author.<a href="#section-6-6" class="pilcrow">¶</a></p>
+TA's author does not want to expose the TA's code to any other stakeholder
+or third party.
+The user does not want to expose the payment information to any other
+stakeholder or third party.<a href="#section-6-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="securing">
@@ -2488,6 +2499,8 @@ architecture is presented in <span>[<a href="#I-D.ietf-suit-information-model" c
 </li>
         <li class="normal" id="section-11-2.26">Rich Salz<a href="#section-11-2.26" class="pilcrow">¶</a>
 </li>
+        <li class="normal" id="section-11-2.27">Mohit Sethi<a href="#section-11-2.27" class="pilcrow">¶</a>
+</li>
       </ul>
 <p id="section-11-3">We would also like to thank the WG chairs, Russ Housley, David Waltermire,
 Dave Thaler for their support and their reviews.<a href="#section-11-3" class="pilcrow">¶</a></p>
@@ -2520,27 +2533,23 @@ Dave Thaler for their support and their reviews.<a href="#section-11-3" class="p
 <dd class="break"></dd>
 <dt id="quantum-factorization">[quantum-factorization]</dt>
       <dd>
-<span class="refAuthor">Department of Computer Science, Purdue University, .</span><span class="refAuthor">, Quantum Computing Institute, Oak Ridge National Laboratory, .</span><span class="refAuthor">, Quantum Computing Institute, Oak Ridge National Laboratory, .</span><span class="refAuthor">, Quantum Computing Institute, Oak Ridge National Laboratory, .</span><span class="refAuthor">, and . Department of Chemistry, Physics and Birck Nanotechnology Center, Purdue University</span>, <span class="refTitle">"Quantum Annealing for Prime Factorization"</span>, <span>n.d.</span>, <span>&lt;<a href="https://www.nature.com/articles/s41598-018-36058-z">https://www.nature.com/articles/s41598-018-36058-z</a>&gt;</span>. </dd>
+<span class="refAuthor">Jiang, S.</span><span class="refAuthor">, Britt, K.A.</span><span class="refAuthor">, McCaskey, A.J.</span><span class="refAuthor">, Humble, T.S.</span><span class="refAuthor">, and S. Kais</span>, <span class="refTitle">"Quantum Annealing for Prime Factorization"</span>, <time datetime="2018-12-05" class="refDate">December 5, 2018</time>, <span>&lt;<a href="https://www.nature.com/articles/s41598-018-36058-z">https://www.nature.com/articles/s41598-018-36058-z</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC6024">[RFC6024]</dt>
       <dd>
 <span class="refAuthor">Reddy, R.</span><span class="refAuthor"> and C. Wallace</span>, <span class="refTitle">"Trust Anchor Management Requirements"</span>, <span class="seriesInfo">RFC 6024</span>, <span class="seriesInfo">DOI 10.17487/RFC6024</span>, <time datetime="2010-10" class="refDate">October 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6024">https://www.rfc-editor.org/info/rfc6024</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC6763">[RFC6763]</dt>
+      <dd>
+<span class="refAuthor">Cheshire, S.</span><span class="refAuthor"> and M. Krochmal</span>, <span class="refTitle">"DNS-Based Service Discovery"</span>, <span class="seriesInfo">RFC 6763</span>, <span class="seriesInfo">DOI 10.17487/RFC6763</span>, <time datetime="2013-02" class="refDate">February 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6763">https://www.rfc-editor.org/info/rfc6763</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC7228">[RFC7228]</dt>
       <dd>
 <span class="refAuthor">Bormann, C.</span><span class="refAuthor">, Ersue, M.</span><span class="refAuthor">, and A. Keranen</span>, <span class="refTitle">"Terminology for Constrained-Node Networks"</span>, <span class="seriesInfo">RFC 7228</span>, <span class="seriesInfo">DOI 10.17487/RFC7228</span>, <time datetime="2014-05" class="refDate">May 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7228">https://www.rfc-editor.org/info/rfc7228</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC7519">[RFC7519]</dt>
-      <dd>
-<span class="refAuthor">Jones, M.</span><span class="refAuthor">, Bradley, J.</span><span class="refAuthor">, and N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7519">https://www.rfc-editor.org/info/rfc7519</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC8240">[RFC8240]</dt>
       <dd>
 <span class="refAuthor">Tschofenig, H.</span><span class="refAuthor"> and S. Farrell</span>, <span class="refTitle">"Report from the Internet of Things Software Update (IoTSU) Workshop 2016"</span>, <span class="seriesInfo">RFC 8240</span>, <span class="seriesInfo">DOI 10.17487/RFC8240</span>, <time datetime="2017-09" class="refDate">September 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8240">https://www.rfc-editor.org/info/rfc8240</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC8392">[RFC8392]</dt>
-      <dd>
-<span class="refAuthor">Jones, M.</span><span class="refAuthor">, Wahlstroem, E.</span><span class="refAuthor">, Erdtman, S.</span><span class="refAuthor">, and H. Tschofenig</span>, <span class="refTitle">"CBOR Web Token (CWT)"</span>, <span class="seriesInfo">RFC 8392</span>, <span class="seriesInfo">DOI 10.17487/RFC8392</span>, <time datetime="2018-05" class="refDate">May 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8392">https://www.rfc-editor.org/info/rfc8392</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8778">[RFC8778]</dt>
     <dd>

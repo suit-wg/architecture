@@ -1,7 +1,7 @@
 ---
 title: A Firmware Update Architecture for Internet of Things
 abbrev: A Firmware Update Architecture for IoT
-docname: draft-ietf-suit-architecture-13
+docname: draft-ietf-suit-architecture-14
 category: info
 
 ipr: trust200902
@@ -57,27 +57,31 @@ informative:
   I-D.ietf-suit-manifest:
   I-D.ietf-rats-architecture:
   RFC8778:
-  RFC7519:
-  RFC8392:
   quantum-factorization:
     target: https://www.nature.com/articles/s41598-018-36058-z
     title: Quantum Annealing for Prime Factorization
+    date: 2018-12-05
     author:
       -
-        ins: Department of Computer Science, Purdue University
+        ins: S. Jiang
+        organization: Department of Computer Science, Purdue University
         name: Shuxian Jiang
       -
-        ins: Quantum Computing Institute, Oak Ridge National Laboratory
+        ins: K.A. Britt
+        organization: Quantum Computing Institute, Oak Ridge National Laboratory
         name: Keith A. Britt
       -
-        ins: Quantum Computing Institute, Oak Ridge National Laboratory
+        ins: A.J. McCaskey
+        organization: Quantum Computing Institute, Oak Ridge National Laboratory
         name: Alexander J. McCaskey
       -
-        ins: Quantum Computing Institute, Oak Ridge National Laboratory
+        ins: T.S. Humble
+        organization: Quantum Computing Institute, Oak Ridge National Laboratory
         name: Travis S. Humble
       -
-        ins: Department of Computer Science, Purdue University
-        ins: Department of Chemistry, Physics and Birck Nanotechnology Center, Purdue University
+        ins: S. Kais
+        organization: Department of Computer Science, Purdue University
+        organization: Department of Chemistry, Physics and Birck Nanotechnology Center, Purdue University
         name: Sabre Kais
   LwM2M:
     target: http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf
@@ -1123,6 +1127,7 @@ We would like to thank the following persons for their feedback:
 *  Brian Carpenter
 *  Theresa Enghardt
 *  Rich Salz
+*  Mohit Sethi
 
 We would also like to thank the WG chairs, Russ Housley, David Waltermire,
 Dave Thaler for their support and their reviews.
