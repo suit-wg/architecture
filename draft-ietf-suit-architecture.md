@@ -129,7 +129,7 @@ engineers. Once devices are deployed, firmware updates play a
 critical part in their lifecycle management, particularly when devices have a
 long lifetime, or are deployed in remote or inaccessible areas where manual
 intervention is cost prohibitive or otherwise difficult. Firmware updates  
-for IoT devices are expected to work automatically, i.e. without user
+for IoT devices are largely expected to work automatically, i.e. without user
 involvement. Conversely, IoT devices are expected to account for user
 preferences and consent when scheduling updates.
 Automatic updates that do not require human intervention
