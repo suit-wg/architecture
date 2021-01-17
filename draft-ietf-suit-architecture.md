@@ -160,7 +160,7 @@ but the confidential protection of firmware is optional.
 
 While the standardization work has been informed by and optimized for firmware
 update use cases of Class 1 devices (according to the device class
-definitions in RFC 7228 {{RFC7228}}) devices, there is nothing in
+definitions in RFC 7228 {{RFC7228}}), there is nothing in
 the architecture that restricts its use to only these constrained IoT devices.
 Moreover, this architecture is not limited to managing firmware and software updates,
 but can also be applied to managing the delivery of arbitrary data, such
@@ -274,7 +274,7 @@ This document uses the following terms:
   an authoritative entity via a public key and associated data.  The
   public key is used to verify digital signatures, and the associated
   data is used to constrain the types of information for which the
-  trust anchor is authoritative."
+  trust anchor is authoritative.
 
 * Trust Anchor Store: A trust anchor store, as defined in {{RFC6024}},
   is a set of one or more trust anchors stored in a device.  A device
@@ -300,7 +300,7 @@ The following stakeholders are used in this document:
 
 * Device Operator: The device operator is responsible for the day-to-day operation
   of a fleet of IoT devices. Customers of IoT devices, as the owners of
-  IoT devices - such as enterprise customers or end users, interact
+  IoT devices - such as enterprise customers or end users - interact
   with their IoT devices indirectly through the device operator via
   web or smart phone apps.   
 
@@ -360,7 +360,7 @@ The following stakeholders are used in this document:
   firmware image and the manifest. It is responsible for parsing
   and verifying the received manifest and for storing the obtained
   firmware image. The firmware consumer plays the role of the
-  update component on the IoT device typically running in the
+  update component on the IoT device, typically running in the
   application firmware. It interacts with the firmware server and
   with the status tracker client (locally).
 
@@ -389,8 +389,8 @@ Hence, the following components are necessary on a device for a firmware
 update solution:
 
 - the Internet protocol stack for firmware downloads. Because firmware images are often multiple kilobytes, sometimes
-exceeding one hundred kilobytes, in size for low end IoT devices and even
-several megabytes large for IoT devices running full-fledged operating systems
+exceeding one hundred kilobytes, for low-end IoT devices and even
+several megabytes for IoT devices running full-fledged operating systems
 like Linux, the protocol mechanism for retrieving these images needs
 to offer features like congestion control, flow control, fragmentation
 and reassembly, and mechanisms to resume interrupted or corrupted transfers.
@@ -432,8 +432,9 @@ checking (polling) for updates.
 - With Server-initiated updates the server-side component of the status tracker
 learns about a new firmware version and determines which devices qualify for a
 firmware update. Once the relevant devices have been selected, the
-status tracker pushes images and manifests to the firmware consumer. Server-initiated updates are important because they allow a quick
-response time. Note that the client-side status tracker needs to be reachable by the server-side
+status tracker informs these devices and the firmware consumers obtain those
+images and manifests. Server-initiated updates are important because they allow a quick
+response time. Note that in this mode the client-side status tracker needs to be reachable by the server-side
 component. This may require devices to keep reachability information on the
 server-side up-to-date and state at NATs and stateful packet filtering
 firewalls alive.
@@ -443,7 +444,7 @@ pushes notifications of availability of an update to the client side and request
 the firmware consumer to pull the manifest and the firmware image from the
 firmware server.
 
-Once the device operator triggers update via the status tracker, it will keep
+Once the device operator triggers an update via the status tracker, it will keep
 track of the update process on the device. This allows the device operator to know what
 devices have received an update and which of them are still pending an update.
 
@@ -509,7 +510,7 @@ third-party content distribution networks for payload distribution.
 {: #arch-figure title="Architecture."}
 
 Firmware images and manifests may be conveyed as a bundle or detached. The
-manifest must support both approaches.
+manifest format must support both approaches.
 
 For distribution as a bundle, the firmware image is embedded into the manifest.
 This is a useful approach for deployments where devices are not connected
@@ -546,7 +547,9 @@ If the firmware consumer has downloaded a new firmware image and is ready to
 install it, to initiate the installation, it may
 
 - either need to wait for a trigger from the status tracker,
+
 - or trigger the update automatically,
+
 - or go through a more complex decision making process to determine
 
 the appropriate timing for an update. Sometimes the final decision may
@@ -569,7 +572,7 @@ has retrieved and successfully processed the manifest and the firmware image it 
 to invoke the new firmware image. This is managed in many different ways, depending
 on the type of device, but it typically involves halting the current version of the
 firmware, handing control over to a firmware with a higher privilege/trust level
-(the firmware verifier)
+(the firmware verifier),
 verifying the new firmware's authenticity & integrity, and then invoking it.
 
 In an execute-in-place microcontroller, this is often done by rebooting into a
@@ -671,7 +674,7 @@ implement the following functionality:
    digital signature. (Alternatively, access to a key store for use
    with the message authentication code.)
 
--  Ability to expose boot process-related data to the application
+-  There must be an ability to expose boot process-related data to the application
    firmware (such as to the status tracker).  This allows
    sharing information about the current firmware version, and the
    status of the firmware update process and whether errors have occurred.
@@ -679,7 +682,7 @@ implement the following functionality:
 -  Produce boot measurements as part of an attestation solution. See
    {{I-D.ietf-rats-architecture}} for more information. (optional)
 
--  Ability to decrypt firmware images, in case confidentiality protection
+-  The bootloader must be able to decrypt firmware images, in case confidentiality protection
    was applied. This requires a solution for key management. (optional)
 
 
@@ -762,7 +765,7 @@ In order for a firmware consumer to apply an update, it has to make several deci
 using manifest-provided information and data available on the device itself. For more
 detailed information and a longer list of information elements in the manifest consult the
 information model specification {{I-D.ietf-suit-information-model}}, which offers justifications
-for each element, and the manifest, see {{I-D.ietf-suit-manifest}}, for details about how this
+for each element, and the manifest specification {{I-D.ietf-suit-manifest}} for details about how this
 information is included in the manifest.
 
 {{manifest-info}} provides examples of decisions to be made.
@@ -787,7 +790,7 @@ gain control of the device.
 
 Keeping the code size and complexity of a manifest parsers small is important
 for constrained IoT devices. Since the manifest parsing code may
-also be used by the bootloader it is part of the trusted computing base.
+also be used by the bootloader it can be part of the trusted computing base.
 
 A manifest may be used to protect not only firmware images but also
 configuration data such as network credentials or personalization data
@@ -827,7 +830,7 @@ entities creating and signing manifests have the same
 permissions. A device needs to determine whether the requested action
 is indeed covered by the permission of the party that signed the manifest.
 Informing the device about the permissions of the different parties
-also happens in an out-of-band fashion and is also a duty of the
+also happens in an out-of-band fashion and is a duty of the
 Trust Provisioning Authority.
 
 * Integrity protection ensures that no third party can modify the manifest
@@ -860,7 +863,7 @@ extraction with quantum acceleration is approximately 2030, based on
 current research {{quantum-factorization}}.
 
 When a device obtains a monolithic firmware image from a single author
-without any additional approval steps then the authorization flow is
+without any additional approval steps, the authorization flow is
 relatively simple. There are, however, other cases where more complex
 policy decisions need to be made before updating a device.
 
