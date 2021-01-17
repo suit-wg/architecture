@@ -112,14 +112,12 @@ updates.
 
 #  Introduction
 
-Firmware updates can help to fix security vulnerabilities and are
-considered to be an important building block in securing IoT devices.
-Due to rising concerns about insecure IoT devices the Internet
+Firmware updates can help to fix security vulnerabilities, and
+performing updates is an important building block in securing
+IoT devices. Due to rising concerns about insecure IoT devices the Internet
 Architecture Board (IAB) organized a 'Workshop on Internet of Things
-(IoT) Software Update (IOTSU)', which took place at Trinity College
-Dublin, Ireland on the 13th and 14th of June, 2016 to take a look at
-the bigger picture. A report about this workshop can be found at
-{{RFC8240}}. The workshop revealed a number of challenges for developers
+(IoT) Software Update (IOTSU)' {{RFC8240}} to take a look at
+the bigger picture. The workshop revealed a number of challenges for developers
 and led to the formation of the IETF
 Software Updates for Internet of Things (SUIT) working group.
 
@@ -130,17 +128,16 @@ critical part in their lifecycle management, particularly when devices have a
 long lifetime, or are deployed in remote or inaccessible areas where manual
 intervention is cost prohibitive or otherwise difficult. Firmware updates  
 for IoT devices are expected to work automatically, i.e. without user
-involvement. Conversely, IoT devices are expected to account for user
+involvement. Conversely, non-IoT devices are expected to account for user
 preferences and consent when scheduling updates.
 Automatic updates that do not require human intervention
 are key to a scalable solution for fixing software vulnerabilities.
 
-Firmware updates are not only done to fix
-bugs, but they can also add new functionality, and re-configure
+Firmware updates are done not only to fix bugs, but also to add new functionality and to reconfigure
 the device to work in new environments or to behave differently in
 an already deployed context.
 
-The firmware update process has to ensure that
+The manifest specification has to allow that
 
 - The firmware image is authenticated and integrity protected.
   Attempts to flash a maliciously modified firmware image or an image from
@@ -158,6 +155,9 @@ The firmware update process has to ensure that
   engineering the binary can be a tedious process modern reverse
   engineering frameworks have made this task a lot easier.
 
+Authentication and integrity protection of firmware images must be used in a deployment 
+but the confidential protection of firmware is optional.  
+
 While the standardization work has been informed by and optimized for firmware
 update use cases of Class 1 devices (according to the device class
 definitions in RFC 7228 {{RFC7228}}), there is nothing in
@@ -165,7 +165,7 @@ the architecture that restricts its use to only these constrained IoT devices.
 Moreover, this architecture is not limited to managing firmware and software updates,
 but can also be applied to managing the delivery of arbitrary data, such
 as configuration information and keys. Unlike higher end devices, like
-laptops and desktop PCs, many IoT devices do not have user interfaces
+laptops and desktop PCs, many IoT devices do not have user interfaces;
 and support for unattended updates is, therefore, essential for the design
 of a practical solution. Constrained IoT devices often use a
 software engineering model where a developer is responsible for creating
@@ -182,9 +182,9 @@ manifest. For example, protocols for transferring firmware images
 and manifests to the device need to be available as well as the status tracker
 functionality. Devices also require a mechanism to discover the status
 tracker(s) and/or firmware servers, for example using pre-configured hostnames
-or {{RFC6763}} DNS-SD.
+or DNS-SD {{RFC6763}}.
 These building blocks have been developed by various organizations
-under the umbrella of an IoT device management solution. The LwM2M protocol is one
+under the umbrella of an IoT device management solution. The LwM2M protocol {{LwM2M}} is one
 IoT device management protocol.   
 
 There are, however, several areas that (partially) fall outside the scope of the IETF
@@ -226,7 +226,7 @@ and how to use it to secure firmware updates. We conclude with a more detailed e
 
 This document uses the following terms:
 
-* Firmware Image: The firmware image, or image, is a binary
+* Firmware Image: The firmware image, or simply the "image", is a binary
   that may contain the complete software of a device or a subset of
   it. The firmware image may consist of multiple images, if
   the device contains more than one microcontroller. Often
@@ -344,10 +344,10 @@ The following stakeholders are used in this document:
   using a device management protocol).
 
   We make no
-  assumptions about where the server-side component is deployed. The
-  deployment of status trackers is flexible and may be found at  
-  cloud-based servers, on-premise servers, or may be embedded in edge
-  computing devices. A status tracker server component may even be
+  assumptions about where the server-side component is deployed.
+  The deployment of status trackers is flexible: they may
+      be found at cloud-based servers or on-premise servers,
+      or they may be embedded in edge computing devices. A status tracker server component may even be
   deployed on an IoT device. For example, if the IoT device contains
   multiple MCUs, then the main MCU may act as a status tracker towards the
   other MCUs. Such deployment is useful when updates have to be
@@ -416,15 +416,15 @@ rather than in the same context with the application code.
 {{arch-figure}} shows the architecture where a
 firmware image is created by an author, and made available to a firmware
 server. For security reasons, the author will not have the permissions to
-upload firmware images to the firmware server and to initiate an update him- or herself.
+upload firmware images to the firmware server and to initiate an update directly.
 Instead, authors will make firmware images available to the device operators. Note that
 there may be a longer supply chain involved to pass software updates from the author all
 the way to the party that can then finally make a decision to deploy it with IoT devices.
 
-As a first step in the firmware update process, the status tracker client needs to be
-made aware of the availability of a new firmware update by the status tracker server.
-This can be accomplished via polling (client-initiated), push notifications (server-initiated),
-or more complex mechanisms (such as a hybrid approach):
+As a first step in the firmware update process, the status tracker
+server needs to inform the status tracker client that a new firmware
+update is available. This can be accomplished via polling (client-initiated), 
+push notifications (server-initiated), or more complex mechanisms (such as a hybrid approach):
 
 - Client-initiated updates take the form of a status tracker client proactively
 checking (polling) for updates.
@@ -551,6 +551,7 @@ install it, to initiate the installation, it may
 - or trigger the update automatically,
 
 - or go through a more complex decision making process to determine
+
 the appropriate timing for an update. Sometimes the final decision may
 require confirmation of the user of the device for safety reasons.
 
@@ -559,10 +560,9 @@ the IoT device can recognize and the bootloader is responsible for
 then booting from the newly installed firmware image.
 This process is different when a bootloader is not involved. For example,
 when an application is updated in a full-featured operating system, the
-updater may halt and restart the application in isolation. Devices must
-not fail when a disruption occurs during the update process.
-For example, a power failure or network disruption during the update
-process must not cause the device to fail.
+updater may halt and restart the application in isolation. 
+Devices must not fail when a disruption, such as a power failure or network
+interruption, occurs during the update process. 
 
 # Invoking the Firmware {#invocation}
 
@@ -662,7 +662,7 @@ reliability risk.
 For a bootloader to offer a secure boot functionality it needs to
 implement the following functionality:
 
--  The bootloader needs to fetch the manifest (or manifest-alike headers)
+-  The bootloader needs to fetch the manifest
    from nonvolatile storage and parse its
    contents for subsequent cryptographic verification.
 
@@ -792,7 +792,7 @@ Keeping the code size and complexity of a manifest parsers small is important
 for constrained IoT devices. Since the manifest parsing code may
 also be used by the bootloader it can be part of the trusted computing base.
 
-A manifest may not only be used to protect firmware images but also
+A manifest may be used to protect not only firmware images but also
 configuration data such as network credentials or personalization data
 related to firmware or software.
 Personalization data demonstrates the need for confidentiality to be
@@ -844,8 +844,8 @@ happens in an out-of-band fashion prior to the firmware update process.
 * For confidentiality protection of the firmware image, it must be done in such a
 way that the intended firmware consumer(s), other authorized parties,
 and no one else can decrypt it. The information
-that is encrypted individually for each device/recipient must maintain
-friendliness to Content Distribution Networks, bulk storage, and
+that is encrypted individually for each device/recipient must be done in a way that is 
+usable with Content Distribution Networks, bulk storage, and
 broadcast protocols. For confidentiality protection of firmware images the author needs
 to be in possession of the certificate/public key or a pre-shared key
 of a device. The use of confidentiality protection of firmware images
@@ -1131,8 +1131,14 @@ We would like to thank the following persons for their feedback:
 *  Theresa Enghardt
 *  Rich Salz
 *  Mohit Sethi
+*  Eric Vyncke
+*  Alvaro Retana
+*  Barry Leiba 
+*  Benjamin Kaduk 
+*  Martin Duke
+*  Robert Wilton
 
-We would also like to thank the WG chairs, Russ Housley, David Waltermire,
-Dave Thaler for their support and their reviews.
+We would also like to thank the WG chairs, Russ Housley, David Waltermire, and
+Dave Thaler, for their support and their reviews.
 
 --- back
