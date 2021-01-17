@@ -127,8 +127,8 @@ engineers. Once devices are deployed, firmware updates play a
 critical part in their lifecycle management, particularly when devices have a
 long lifetime, or are deployed in remote or inaccessible areas where manual
 intervention is cost prohibitive or otherwise difficult. Firmware updates  
-for IoT devices are largely expected to work automatically, i.e. without user
-involvement. Conversely, IoT devices are expected to account for user
+for IoT devices are expected to work automatically, i.e. without user
+involvement. Conversely, non-IoT devices are expected to account for user
 preferences and consent when scheduling updates.
 Automatic updates that do not require human intervention
 are key to a scalable solution for fixing software vulnerabilities.
@@ -137,7 +137,7 @@ Firmware updates are done not only to fix bugs, but also to add new functionalit
 the device to work in new environments or to behave differently in
 an already deployed context.
 
-The firmware update process has to ensure that
+The manifest specification has to allow that
 
 - The firmware image is authenticated and integrity protected.
   Attempts to flash a maliciously modified firmware image or an image from
@@ -154,6 +154,9 @@ The firmware update process has to ensure that
   settings and generic functionality. Even though reverse
   engineering the binary can be a tedious process modern reverse
   engineering frameworks have made this task a lot easier.
+
+Authentication and integrity protection of firmware images must be used in a deployment 
+but the confidential protection of firmware is optional.  
 
 While the standardization work has been informed by and optimized for firmware
 update use cases of Class 1 devices (according to the device class
