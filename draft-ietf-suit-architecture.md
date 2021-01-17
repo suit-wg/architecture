@@ -1128,8 +1128,14 @@ We would like to thank the following persons for their feedback:
 *  Theresa Enghardt
 *  Rich Salz
 *  Mohit Sethi
+*  Eric Vyncke
+*  Alvaro Retana
+*  Barry Leiba 
+*  Benjamin Kaduk 
+*  Martin Duke
+*  Robert Wilton
 
-We would also like to thank the WG chairs, Russ Housley, David Waltermire,
-Dave Thaler for their support and their reviews.
+We would also like to thank the WG chairs, Russ Housley, David Waltermire, and
+Dave Thaler, for their support and their reviews.
 
 --- back
