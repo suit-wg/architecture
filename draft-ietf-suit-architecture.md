@@ -841,8 +841,8 @@ happens in an out-of-band fashion prior to the firmware update process.
 * For confidentiality protection of the firmware image, it must be done in such a
 way that the intended firmware consumer(s), other authorized parties,
 and no one else can decrypt it. The information
-that is encrypted individually for each device/recipient must maintain
-friendliness to Content Distribution Networks, bulk storage, and
+that is encrypted individually for each device/recipient must be done in a way that is 
+usable with Content Distribution Networks, bulk storage, and
 broadcast protocols. For confidentiality protection of firmware images the author needs
 to be in possession of the certificate/public key or a pre-shared key
 of a device. The use of confidentiality protection of firmware images
