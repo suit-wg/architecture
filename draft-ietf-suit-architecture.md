@@ -181,7 +181,7 @@ functionality. Devices also require a mechanism to discover the status
 tracker(s) and/or firmware servers, for example using pre-configured hostnames
 or DNS-SD {{RFC6763}}.
 These building blocks have been developed by various organizations
-under the umbrella of an IoT device management solution. The LwM2M protocol is one
+under the umbrella of an IoT device management solution. The LwM2M protocol {{LwM2M}} is one
 IoT device management protocol.   
 
 There are, however, several areas that (partially) fall outside the scope of the IETF
