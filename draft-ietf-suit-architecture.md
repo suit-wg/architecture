@@ -1,7 +1,7 @@
 ---
 title: A Firmware Update Architecture for Internet of Things
 abbrev: A Firmware Update Architecture for IoT
-docname: draft-ietf-suit-architecture-14
+docname: draft-ietf-suit-architecture-16
 category: info
 
 ipr: trust200902
